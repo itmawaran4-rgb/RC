@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>RC Service</title>
+
+<!-- PWA Manifest (inline blob) -->
+<script>
+(function(){
+  const manifest={
+    name:"RC Service",short_name:"RC",start_url:"./",display:"standalone",
+    background_color:"#0b0f1a",theme_color:"#f5a623",
+    icons:[{src:"logo.png",sizes:"192x192",type:"image/png",purpose:"any maskable"},
+           {src:"logo.png",sizes:"512x512",type:"image/png",purpose:"any maskable"}]
+  };
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('link');
+  link.rel='manifest';link.href=url;
+  document.head.appendChild(link);
+})();
+</script>
+<meta name="theme-color" content="#f5a623">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RC Service">
+<link rel="apple-touch-icon" href="logo.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0b0f1a;--surface:#131829;--card:#1a2035;--border:#252d44;
+  --gold:#f5a623;--gold-dim:#c07b10;--teal:#0fd4b0;--red:#ff4d6d;
+  --text:#e8eaf0;--muted:#6b7694;--radius:14px;
+  --shadow:0 8px 32px rgba(0,0,0,.45);
+  --font-ar:'Tajawal',sans-serif;--font-en:'Barlow Condensed',sans-serif;
+  --tr:all .28s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-ar);min-height:100vh;overflow-x:hidden;position:relative;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 20% 0%,rgba(245,166,35,.07) 0%,transparent 60%),radial-gradient(ellipse 60% 60% at 80% 100%,rgba(15,212,176,.05) 0%,transparent 60%);pointer-events:none;z-index:0;}
+body.ltr{direction:ltr;}
+body.ltr *{font-family:var(--font-en);letter-spacing:.02em;}
+
+.screen{display:none;flex-direction:column;align-items:center;min-height:100vh;padding:0 0 50px;position:relative;z-index:1;}
+.screen.active{display:flex;animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── BRAND HEADER ─── */
+.brand-header{width:100%;padding:16px 20px 10px;display:flex;align-items:center;justify-content:center;}
+.brand-logo-img{height:54px;width:auto;max-width:160px;object-fit:contain;filter:drop-shadow(0 4px 14px rgba(245,166,35,.35));}
+
+#oil-alert{display:none;width:calc(100% - 32px);max-width:480px;background:linear-gradient(135deg,rgba(255,77,109,.15),rgba(255,77,109,.06));border:1px solid var(--red);border-radius:var(--radius);padding:12px 16px;margin:0 16px 12px;animation:pulseBorder 2s infinite;}
+#oil-alert.show{display:flex;align-items:center;gap:10px;}
+@keyframes pulseBorder{0%,100%{box-shadow:0 0 0 0 rgba(255,77,109,.3)}50%{box-shadow:0 0 0 6px rgba(255,77,109,0)}}
+.alert-icon{font-size:20px;flex-shrink:0;}
+.alert-text{font-size:13px;line-height:1.5;}
+.alert-text strong{color:var(--red);display:block;}
+
+#screen-lang{justify-content:center;}
+.lang-hero{text-align:center;padding:40px 24px 32px;}
+.lang-hero-img{height:80px;width:auto;max-width:200px;object-fit:contain;filter:drop-shadow(0 0 30px rgba(245,166,35,.5));}
+.rc-sub{font-size:13px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:10px;font-family:var(--font-en);}
+.lang-grid{display:flex;flex-direction:column;gap:12px;width:calc(100% - 48px);max-width:340px;}
+.lang-btn{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:var(--tr);color:var(--text);font-size:18px;font-weight:700;}
+.lang-btn:hover{border-color:var(--gold);background:#1f2840;transform:translateY(-2px);}
+.lang-flag{font-size:26px;}
+.lang-native{font-size:13px;color:var(--muted);}
+
+.form-wrap{width:calc(100% - 32px);max-width:440px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px 22px;box-shadow:var(--shadow);}
+.form-title{font-size:21px;font-weight:800;margin-bottom:4px;}
+.form-sub{font-size:13px;color:var(--muted);margin-bottom:22px;}
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600;}
+.form-control{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-size:15px;font-family:inherit;outline:none;transition:var(--tr);}
+.form-control:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,166,35,.12);}
+.form-control option{background:var(--surface);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+.btn-primary{width:100%;padding:14px;border-radius:var(--radius);background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;color:#000;font-weight:800;font-size:16px;font-family:inherit;cursor:pointer;transition:var(--tr);box-shadow:0 4px 20px rgba(245,166,35,.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(245,166,35,.45);}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+#screen-main{align-items:stretch;padding-bottom:60px;}
+.main-content{padding:0 16px;display:flex;flex-direction:column;gap:14px;width:100%;}
+
+/* ─── ADV BANNER ─── */
+.ad-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;position:relative;min-height:100px;}
+.ad-label{position:absolute;top:7px;inset-inline-start:7px;background:rgba(0,0,0,.6);font-size:10px;padding:2px 7px;border-radius:4px;color:var(--muted);font-family:var(--font-en);z-index:3;}
+.ad-slide{display:none;width:100%;animation:fadeIn .4s ease;}
+.ad-slide.active{display:block;}
+.ad-slide img{width:100%;max-height:200px;object-fit:cover;display:block;}
+.ad-slide video{width:100%;max-height:200px;object-fit:cover;display:block;background:#000;}
+.ad-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:3;}
+.ad-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);transition:var(--tr);}
+.ad-dot.active{background:var(--gold);width:16px;border-radius:3px;}
+
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.section-title{font-size:16px;font-weight:700;}
+.btn-add-car{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;color:#000;font-size:20px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr);flex-shrink:0;box-shadow:0 2px 12px rgba(245,166,35,.35);}
+.btn-add-car:hover{transform:scale(1.12) rotate(90deg);}
+
+.cars-list{display:flex;flex-direction:column;gap:9px;}
+.car-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:var(--tr);position:relative;overflow:hidden;}
+.car-card::before{content:'';position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--gold),var(--gold-dim));}
+.car-card:hover{border-color:var(--gold);background:#1f2840;}
+.car-icon{font-size:26px;flex-shrink:0;}
+.car-info{flex:1;min-width:0;}
+.car-name{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.car-plate{font-size:12px;color:var(--muted);font-family:var(--font-en);margin-top:2px;}
+.car-fines-badge{background:rgba(107,118,148,.12);border:1px solid var(--border);color:var(--muted);border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0;transition:var(--tr);font-family:var(--font-en);}
+.car-fines-badge.has-fines{background:rgba(255,77,109,.15);border-color:rgba(255,77,109,.35);color:var(--red);}
+.car-fines-badge.no-fines{background:rgba(15,212,176,.1);border-color:rgba(15,212,176,.3);color:var(--teal);}
+.car-fines-badge.checking{animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.no-cars{text-align:center;padding:26px;color:var(--muted);font-size:14px;background:var(--surface);border-radius:var(--radius);border:1px dashed var(--border);}
+.no-cars span{font-size:32px;display:block;margin-bottom:7px;}
+
+.oil-section{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.oil-header{padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:var(--tr);}
+.oil-header:hover{background:#1f2840;}
+.oil-header-left{display:flex;align-items:center;gap:10px;}
+.oil-icon{font-size:20px;}
+.oil-title{font-size:15px;font-weight:700;}
+.oil-subtitle{font-size:12px;color:var(--muted);margin-top:1px;}
+.oil-chevron{font-size:16px;color:var(--muted);transition:var(--tr);}
+.oil-chevron.open{transform:rotate(180deg);}
+.oil-body{display:none;padding:0 16px 14px;border-top:1px solid var(--border);}
+.oil-body.open{display:block;animation:fadeIn .22s ease;}
+.oil-car-item{background:var(--surface);border-radius:10px;padding:13px;margin-top:10px;cursor:pointer;transition:var(--tr);border:1px solid var(--border);}
+.oil-car-item:hover{border-color:var(--teal);}
+.oil-car-header{display:flex;align-items:center;justify-content:space-between;}
+.oil-car-name{font-size:14px;font-weight:700;}
+.oil-km-badge{background:rgba(15,212,176,.12);border:1px solid rgba(15,212,176,.3);color:var(--teal);border-radius:20px;padding:2px 10px;font-size:12px;font-family:var(--font-en);font-weight:700;}
+.oil-date{font-size:12px;color:var(--muted);margin-top:3px;}
+
+/* ─── FEEDBACK ─── */
+.feedback-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.feedback-title{font-size:15px;font-weight:700;margin-bottom:10px;}
+.feedback-textarea{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:11px;color:var(--text);font-size:14px;font-family:inherit;resize:none;outline:none;height:78px;transition:var(--tr);}
+.feedback-textarea:focus{border-color:var(--teal);}
+.btn-sending{background:linear-gradient(135deg,#3a4a6b,#2a3558) !important;color:var(--muted) !important;box-shadow:none !important;}
+
+/* ─── COMPANY INFO ─── */
+.company-info{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.company-title{font-size:15px;font-weight:700;margin-bottom:12px;color:var(--gold);}
+.company-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.company-item:last-child{border-bottom:none;padding-bottom:0;}
+.company-item a{color:var(--teal);text-decoration:none;font-family:var(--font-en);}
+.company-item a:hover{color:var(--gold);}
+.ci-icon{font-size:16px;width:26px;text-align:center;flex-shrink:0;}
+.contact-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:var(--radius);border:none;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:var(--tr);text-decoration:none;margin-bottom:8px;}
+.contact-btn:last-of-type{margin-bottom:0;}
+.contact-btn.primary-btn{background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:#000;box-shadow:0 4px 16px rgba(245,166,35,.3);}
+.contact-btn.primary-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,166,35,.4);}
+.contact-btn.outline-btn{background:transparent;border:1.5px solid var(--teal);color:var(--teal);}
+.contact-btn.outline-btn:hover{background:rgba(15,212,176,.08);transform:translateY(-2px);}
+.contact-btns-wrap{display:flex;flex-direction:column;gap:0;margin-bottom:8px;}
+
+/* ─── MODALS ─── */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;animation:fadeIn .18s ease;}
+.modal-sheet{background:var(--card);border-radius:22px 22px 0 0;padding:22px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,.5);animation:slideUp .3s cubic-bezier(.4,0,.2,1);position:relative;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:38px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 18px;}
+.modal-title{font-size:19px;font-weight:800;margin-bottom:3px;}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:18px;}
+.modal-close{position:absolute;top:14px;inset-inline-end:14px;width:30px;height:30px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--muted);transition:var(--tr);}
+.modal-close:hover{color:var(--text);background:var(--border);}
+
+.car-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.car-detail-item{background:var(--surface);border-radius:10px;padding:11px;border:1px solid var(--border);}
+.car-detail-label{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.car-detail-value{font-size:15px;font-weight:700;font-family:var(--font-en);}
+
+.fines-summary-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.fines-summary-left{display:flex;align-items:center;gap:10px;}
+.fines-summary-icon{font-size:22px;}
+.fines-summary-label{font-size:12px;color:var(--muted);}
+.fines-summary-count{font-size:26px;font-weight:900;font-family:var(--font-en);color:var(--text);}
+.fines-summary-count.red{color:var(--red);}
+.fines-summary-count.green{color:var(--teal);}
+.fines-summary-count.muted{color:var(--muted);font-size:16px;}
+.fines-status-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+.fines-status-dot.checking{background:var(--gold);animation:pulse 1s infinite;}
+.fines-status-dot.done-ok{background:var(--teal);}
+.fines-status-dot.done-bad{background:var(--red);}
+
+.btn-check{width:100%;padding:13px;border-radius:var(--radius);background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;color:#000;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer;transition:var(--tr);box-shadow:0 4px 16px rgba(245,166,35,.3);margin-bottom:10px;}
+.btn-check:hover{transform:translateY(-2px);}
+.btn-del{width:100%;padding:11px;border-radius:var(--radius);background:transparent;border:1.5px solid rgba(255,77,109,.35);color:var(--red);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:var(--tr);}
+.btn-del:hover{background:rgba(255,77,109,.1);}
+
+.oil-detail-grid{display:flex;flex-direction:column;gap:9px;}
+.oil-detail-card{background:var(--surface);border-radius:11px;padding:13px;border:1px solid var(--border);}
+.oil-detail-header{display:flex;justify-content:space-between;align-items:flex-start;}
+.oil-detail-km{font-size:22px;font-weight:900;color:var(--teal);font-family:var(--font-en);}
+.oil-detail-date{font-size:12px;color:var(--muted);}
+.oil-detail-meta{display:flex;gap:7px;margin-top:7px;flex-wrap:wrap;}
+.oil-tag{background:rgba(15,212,176,.1);border:1px solid rgba(15,212,176,.3);color:var(--teal);border-radius:20px;padding:2px 9px;font-size:12px;}
+.oil-tag.no{background:rgba(107,118,148,.1);border-color:var(--border);color:var(--muted);}
+.oil-notes{font-size:13px;color:var(--muted);margin-top:7px;line-height:1.5;}
+.divider{height:1px;background:var(--border);margin:14px 0;}
+.checkbox-wrap{display:flex;align-items:center;gap:10px;}
+.checkbox-wrap input[type="checkbox"]{width:17px;height:17px;accent-color:var(--gold);cursor:pointer;}
+
+.reminder-row{display:flex;align-items:center;gap:10px;margin-top:10px;}
+.reminder-label-txt{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px;}
+.reminder-num{width:90px;background:var(--surface);border:1.5px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--text);font-family:inherit;font-size:16px;font-weight:700;outline:none;transition:var(--tr);text-align:center;}
+.reminder-num:focus{border-color:var(--gold);}
+.reminder-unit{font-size:13px;color:var(--muted);}
+
+.next-oil-box{background:linear-gradient(135deg,rgba(15,212,176,.12),rgba(15,212,176,.04));border:1.5px solid rgba(15,212,176,.35);border-radius:var(--radius);padding:14px 16px;margin-top:10px;display:none;animation:fadeIn .25s ease;}
+.next-oil-box-label{font-size:11px;color:var(--teal);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
+.next-oil-box-km{font-size:30px;font-weight:900;color:var(--teal);font-family:var(--font-en);line-height:1;}
+.next-oil-box-km span{font-size:14px;font-weight:400;color:var(--muted);}
+.next-oil-box-diff{font-size:12px;color:var(--muted);margin-top:3px;}
+
+/* ─── PWA INSTALL BANNER ─── */
+#pwa-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:linear-gradient(135deg,#1a2035,#131829);border-top:1px solid var(--border);padding:14px 16px;box-shadow:0 -8px 30px rgba(0,0,0,.5);animation:slideUp .35s ease;}
+#pwa-banner.show{display:flex;align-items:center;gap:12px;}
+.pwa-icon{width:44px;height:44px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 3px 12px rgba(245,166,35,.4);}
+.pwa-icon img{width:100%;height:100%;object-fit:cover;}
+.pwa-text{flex:1;min-width:0;}
+.pwa-title{font-size:14px;font-weight:800;margin-bottom:2px;}
+.pwa-sub{font-size:11px;color:var(--muted);line-height:1.4;}
+.pwa-actions{display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+.btn-install{background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;border-radius:9px;color:#000;font-weight:800;font-size:13px;padding:8px 14px;cursor:pointer;font-family:inherit;transition:var(--tr);white-space:nowrap;}
+.btn-install:hover{transform:translateY(-1px);}
+.btn-pwa-close{background:transparent;border:1px solid var(--border);border-radius:9px;color:var(--muted);font-size:12px;padding:6px 10px;cursor:pointer;font-family:inherit;transition:var(--tr);white-space:nowrap;}
+.btn-pwa-close:hover{border-color:var(--muted);color:var(--text);}
+
+#toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:9px 20px;font-size:14px;box-shadow:var(--shadow);z-index:999;opacity:0;transition:opacity .3s ease;white-space:nowrap;pointer-events:none;}
+#toast.success{border-color:var(--teal);color:var(--teal);}
+#toast.error{border-color:var(--red);color:var(--red);}
+#toast.show{opacity:1;}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+</style>
+</head>
+<body>
+
+<!-- LANG -->
+<div id="screen-lang" class="screen">
+  <div class="lang-hero">
+    <img class="lang-hero-img" src="logo.png" alt="RC Service" onerror="this.style.display='none';document.getElementById('lang-fallback').style.display='block'">
+    <div id="lang-fallback" style="display:none;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:72px;color:var(--gold);text-shadow:0 0 60px rgba(245,166,35,.5)">RC</div>
+    <div class="rc-sub">Road Care Service</div>
+  </div>
+  <div class="lang-grid">
+    <button class="lang-btn" onclick="selectLang('ar')">
+      <span>عربي</span><div style="text-align:end"><div class="lang-flag">🇮🇶</div><div class="lang-native">العربية</div></div>
+    </button>
+    <button class="lang-btn" onclick="selectLang('ku')">
+      <span>کوردی</span><div style="text-align:end"><div class="lang-flag">🏴</div><div class="lang-native">کوردی</div></div>
+    </button>
+    <button class="lang-btn" onclick="selectLang('en')">
+      <span>English</span><div style="text-align:end"><div class="lang-flag">🇬🇧</div><div class="lang-native">English</div></div>
+    </button>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div id="screen-register" class="screen">
+  <div class="brand-header">
+    <img class="brand-logo-img" src="logo.png" alt="RC Service" onerror="this.outerHTML='<span style=\'font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:22px;color:var(--gold)\'>RC Service</span>'">
+  </div>
+  <div class="form-wrap">
+    <div class="form-title" id="reg-title">معلومات السائق</div>
+    <div class="form-sub"   id="reg-sub">تُحفظ مرة واحدة فقط</div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-name">الاسم الكامل</label>
+      <input class="form-control" id="reg-name" type="text">
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-phone">رقم الهاتف</label>
+      <input class="form-control" id="reg-phone" type="tel">
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-city">المدينة</label>
+      <select class="form-control" id="reg-city"></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" id="lbl-dob">تاريخ الميلاد</label>
+        <input class="form-control" id="reg-dob" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-gender">الجنس</label>
+        <select class="form-control" id="reg-gender">
+          <option value="male"   id="opt-male">ذكر</option>
+          <option value="female" id="opt-female">أنثى</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-primary" id="reg-submit" onclick="submitRegistration()">حفظ والمتابعة</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="screen-main" class="screen">
+  <div class="brand-header">
+    <img class="brand-logo-img" src="logo.png" alt="RC Service" onerror="this.outerHTML='<span style=\'font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:22px;color:var(--gold)\'>RC Service</span>'">
+  </div>
+  <div id="oil-alert">
+    <span class="alert-icon">⚠️</span>
+    <div class="alert-text">
+      <strong id="oil-alert-title">تنبيه تغيير الزيت!</strong>
+      <span id="oil-alert-msg"></span>
+    </div>
+  </div>
+  <div class="main-content">
+
+    <!-- ADV BANNER -->
+    <div class="ad-banner" id="adv-banner">
+      <span class="ad-label">AD</span>
+      <div id="adv-slides"></div>
+      <div class="ad-dots" id="adv-dots"></div>
+    </div>
+
+    <div>
+      <div class="section-header">
+        <div class="section-title" id="cars-title">سياراتي</div>
+        <button class="btn-add-car" onclick="openAddCar()">+</button>
+      </div>
+      <div class="cars-list" id="cars-list">
+        <div class="no-cars"><span>🚗</span><div id="no-cars-text">لا توجد سيارات. اضغط + لإضافة.</div></div>
+      </div>
+    </div>
+
+    <div class="oil-section">
+      <div class="oil-header" onclick="toggleOil()">
+        <div class="oil-header-left">
+          <span class="oil-icon">🛢️</span>
+          <div>
+            <div class="oil-title" id="oil-section-title">آخر تبديل زيت</div>
+            <div class="oil-subtitle" id="oil-section-sub">اضغط لعرض التفاصيل</div>
+          </div>
+        </div>
+        <span class="oil-chevron" id="oil-chevron">▼</span>
+      </div>
+      <div class="oil-body" id="oil-body">
+        <div id="oil-cars-list"></div>
+      </div>
+    </div>
+
+    <div class="feedback-section">
+      <div class="feedback-title" id="feedback-title">💬 أرسل ملاحظاتك</div>
+      <textarea class="feedback-textarea" id="feedback-text" placeholder="..."></textarea>
+      <button class="btn-primary" style="margin-top:9px" id="feedback-btn" onclick="submitFeedback()">إرسال</button>
+    </div>
+
+    <div class="company-info">
+      <div class="company-title" id="company-title">📍 RC Service</div>
+
+      <!-- زرا التواصل -->
+      <div class="contact-btns-wrap" style="margin-bottom:10px;">
+        <a class="contact-btn primary-btn" id="btn-contact-us" href="https://linktr.ee/mawaranpages" target="_blank">
+          📞 <span id="lbl-contact-us">تواصل معنا</span>
+        </a>
+        <a class="contact-btn outline-btn" id="btn-nearest-agent" href="https://maps.app.goo.gl/yskYZPRnWiCVZQTQ6" target="_blank">
+          📍 <span id="lbl-nearest-agent">أقرب وكيل معتمد</span>
+        </a>
+      </div>
+
+      <div class="company-item"><span class="ci-icon">💬</span><span id="lbl-cwa">واتساب:</span>&nbsp;<a href="" id="company-wa" target="_blank"></a></div>
+      <div class="company-item"><span class="ci-icon">🏢</span><span id="lbl-caddr">العنوان:</span>&nbsp;<span id="company-addr"></span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: ADD CAR -->
+<div class="modal-overlay" id="modal-add-car">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('modal-add-car')">✕</button>
+    <div class="modal-title" id="add-car-title">إضافة سيارة</div>
+    <div class="modal-sub"   id="add-car-sub">أدخل بيانات السيارة والسنوية</div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-car-name">اسم السيارة</label>
+      <input class="form-control" id="add-car-name" type="text" placeholder="كيا سبورتاج">
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-car-type">نوع السيارة</label>
+      <select class="form-control" id="add-car-type">
+        <option value="1">تایبه‌ت (خصوصي)</option>
+        <option value="2">كرئ (أجرة)</option>
+        <option value="3">بارهه‌ڵگر (حمل)</option>
+        <option value="4">كشتوكاڵ (زراعي)</option>
+        <option value="5">بیناسازى (إنشائي)</option>
+        <option value="6">ماتۆرسكیل (دراجة نارية)</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" id="lbl-plate">رقم اللوحة</label>
+        <input class="form-control" id="add-plate" type="number" placeholder="12345">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-letter">الحرف</label>
+        <select class="form-control" id="add-letter">
+          <option value="0">-- بلا --</option>
+          <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+          <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+          <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+          <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+          <option value="M">M</option><option value="N">N</option><option value="O">O</option>
+          <option value="P">P</option><option value="Q">Q</option><option value="R">R</option>
+          <option value="S">S</option><option value="T">T</option><option value="U">U</option>
+          <option value="V">V</option><option value="W">W</option><option value="X">X</option>
+          <option value="Y">Y</option><option value="Z">Z</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-salyana">رقم السنوية</label>
+      <input class="form-control" id="add-salyana" type="number">
+    </div>
+    <button class="btn-primary" id="add-car-btn" onclick="saveCar()">حفظ السيارة</button>
+  </div>
+</div>
+
+<!-- MODAL: CAR DETAIL + FINES -->
+<div class="modal-overlay" id="modal-car-detail">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('modal-car-detail')">✕</button>
+    <div class="modal-title" id="d-car-name"></div>
+    <div class="modal-sub"   id="d-car-plate"></div>
+    <div class="car-detail-grid" id="d-grid"></div>
+    <div class="fines-summary-card" id="fines-summary-card">
+      <div class="fines-summary-left">
+        <span class="fines-summary-icon">📋</span>
+        <div>
+          <div class="fines-summary-label" id="fines-summary-label">الغرامات</div>
+          <div class="fines-summary-count muted" id="fines-summary-count">—</div>
+        </div>
+      </div>
+      <div class="fines-status-dot checking" id="fines-status-dot"></div>
+    </div>
+    <button class="btn-check" id="btn-check-fines" onclick="loadFines()">🔍 <span id="fines-btn-txt">عرض تفاصيل الغرامات</span></button>
+    <button class="btn-del" onclick="deleteCar()">🗑 <span id="del-btn-txt">حذف السيارة</span></button>
+  </div>
+</div>
+
+<!-- MODAL: OIL -->
+<div class="modal-overlay" id="modal-oil">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('modal-oil')">✕</button>
+    <div class="modal-title" id="oil-modal-title">سجل تغيير الزيت</div>
+    <div class="modal-sub"   id="oil-modal-sub">آخر تغيير مسجل</div>
+    <div class="oil-detail-grid" id="oil-entries"></div>
+    <div class="divider"></div>
+    <button class="btn-primary" onclick="toggleNewOilForm()">➕ <span id="new-oil-txt">تسجيل تغيير جديد</span></button>
+
+    <div id="new-oil-form" style="display:none;margin-top:18px">
+      <div class="divider"></div>
+      <div style="font-size:15px;font-weight:800;margin-bottom:14px" id="new-oil-title">تغيير زيت جديد</div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-oil-km">الكيلومتر الحالي</label>
+        <input class="form-control" id="oil-km" type="number" placeholder="85000" oninput="updateNextOilKm()">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-oil-interval">المسافة للتغيير القادم</label>
+        <select class="form-control" id="oil-interval" onchange="updateNextOilKm()">
+          <option value="0" id="opt-interval-none">-- اختر المسافة --</option>
+          <option value="3000">3,000 km</option>
+          <option value="5000">5,000 km</option>
+          <option value="8000">8,000 km</option>
+          <option value="10000">10,000 km</option>
+          <option value="15000">15,000 km</option>
+        </select>
+      </div>
+      <div class="next-oil-box" id="next-oil-box">
+        <div class="next-oil-box-label" id="next-oil-box-label">كيلومتر التغيير القادم</div>
+        <div class="next-oil-box-km" id="next-oil-box-km">—<span> km</span></div>
+        <div class="next-oil-box-diff" id="next-oil-box-diff"></div>
+      </div>
+      <div class="form-group" style="margin-top:14px">
+        <label class="form-label" id="lbl-oil-date">التاريخ</label>
+        <input class="form-control" id="oil-date" type="date">
+      </div>
+      <div class="form-group">
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="oil-filter">
+          <label for="oil-filter" id="lbl-filter">تم تغيير الفلتر أيضاً</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-oil-notes">ملاحظات</label>
+        <textarea class="form-control" id="oil-notes" rows="2" placeholder="..."></textarea>
+      </div>
+      <div class="form-group">
+        <div class="reminder-label-txt" id="lbl-reminder">تذكير بتغيير الزيت بعد</div>
+        <div class="reminder-row">
+          <input type="number" class="reminder-num" id="oil-reminder" min="0" max="999" placeholder="0" value="0">
+          <span class="reminder-unit" id="reminder-unit">يوم &nbsp;(0 = بلا تذكير)</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="saveOil()" id="save-oil-btn">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- PWA INSTALL BANNER -->
+<div id="pwa-banner">
+  <div class="pwa-icon"><img src="logo.png" alt="RC"></div>
+  <div class="pwa-text">
+    <div class="pwa-title" id="pwa-title">ثبّت التطبيق</div>
+    <div class="pwa-sub" id="pwa-sub">أضف RC Service إلى شاشتك الرئيسية للوصول السريع</div>
+  </div>
+  <div class="pwa-actions">
+    <button class="btn-install" id="pwa-install-btn" onclick="installPWA()">تثبيت</button>
+    <button class="btn-pwa-close" onclick="dismissPWA()">لاحقاً</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ─── CONFIG ─── */
+const CONFIG = {
+  SHEET_URL: 'https://script.google.com/macros/s/AKfycbwCuOelFQKX6iipf2Jou7ZPGCnuSiOu0XCPCxmubxM4G_4DIjZjWw7oS8StCd9FQlgw/exec',
+  COMPANY:{ whatsapp:'9647701234567', address:'اربيل، شارع الرئيسي' },
+
+  /* ──────────────────────────────────────────────────────────────────
+     ملفات الإعلانات — ضع الملفات في مجلد ADV/ بجانب index.html
+     ثم اكتب أسماء الملفات هنا بالترتيب المطلوب.
+     صور مدعومة: jpg, jpeg, png, gif, webp
+     فيديو مدعوم: mp4, webm, ogg
+  ────────────────────────────────────────────────────────────────── */
+  ADV_FILES: [
+    'ADV/ad1.jpg',
+    'ADV/ad2.jpg',
+    'ADV/ad3.mp4'
+    /* أضف أو احذف كما تشاء */
+  ]
+};
+
+/* ─── TRANSLATIONS ─── */
+const T={
+ar:{
+  regTitle:'معلومات السائق',regSub:'تُحفظ مرة واحدة فقط',
+  name:'الاسم الكامل',phone:'رقم الهاتف',city:'المدينة',dob:'تاريخ الميلاد',gender:'الجنس',
+  male:'ذكر',female:'أنثى',regBtn:'حفظ والمتابعة',
+  carsTitle:'سياراتي',noCars:'لا توجد سيارات. اضغط + لإضافة.',
+  oilTitle:'آخر تبديل زيت',oilSub:'اضغط لعرض التفاصيل',adText:'مساحة إعلانية',
+  addCarTitle:'إضافة سيارة',addCarSub:'أدخل بيانات السيارة والسنوية',
+  carName:'اسم السيارة',carType:'نوع السيارة',plate:'رقم اللوحة',letter:'الحرف',salyana:'رقم السنوية',
+  saveCarBtn:'حفظ السيارة',checkFines:'عرض تفاصيل الغرامات',finesLoading:'جارٍ تحميل الغرامات...',
+  finesSummaryLabel:'الغرامات المسجلة',finesChecking:'جارٍ الفحص...',finesNone:'لا غرامات ✓',finesFound:n=>`${n} غرامة`,finesUnknown:'اضغط للفحص',
+  feedbackTitle:'💬 أرسل ملاحظاتك',feedbackBtn:'إرسال',feedbackSending:'جاري الإرسال...',
+  companyTitle:'📍 RC Service',cWa:'واتساب',cAddr:'العنوان',
+  contactUs:'تواصل معنا',nearestAgent:'أقرب وكيل معتمد',
+  oilModalSub:'آخر تغيير مسجل',newOilBtn:'تسجيل تغيير جديد',
+  oilKm:'الكيلومتر الحالي',oilDate:'التاريخ',filterLbl:'تم تغيير الفلتر أيضاً',oilNotes:'ملاحظات',
+  oilInterval:'المسافة للتغيير القادم',oilIntervalNone:'-- اختر المسافة --',
+  nextOilLabel:'كيلومتر التغيير القادم',nextOilDiff:d=>`بعد ${d.toLocaleString('ar-IQ')} كم`,
+  remLbl:'تذكير بتغيير الزيت بعد',remUnit:'يوم  (0 = بلا تذكير)',
+  saveOil:'حفظ',newOilTitle:'تغيير زيت جديد',
+  oilAlertTitle:'تنبيه تغيير الزيت!',alertMsg:c=>`حان وقت تغيير زيت ${c}`,
+  saved:'تم الحفظ ✓',sent:'تم الإرسال ✓',error:'حدث خطأ',
+  fillAll:'يرجى تعبئة جميع الحقول',noFeedback:'اكتب ملاحظتك أولاً',
+  types:{1:'خصوصي',2:'أجرة',3:'حمل',4:'زراعي',5:'إنشائي',6:'دراجة نارية'},
+  filterYes:'✅ فلتر مُبدَّل',filterNo:'❌ لم يُبدَّل',km:'كم',
+  noOil:'لم يُسجَّل',noOilyet:'لا يوجد سجل بعد.',delConfirm:'حذف هذه السيارة؟',delBtn:'حذف السيارة',
+  nextKmLabel:'التغيير القادم',
+  pwaTitle:'ثبّت التطبيق',pwaSub:'أضف RC Service إلى شاشتك الرئيسية للوصول السريع',pwaInstall:'تثبيت',pwaLater:'لاحقاً',
+  cities:['اربيل','السليمانية','دهوك','كركوك','بغداد','البصرة','الموصل','النجف','أخرى'],
+  cityVals:['اربيل','السليمانية','دهوك','كركوك','بغداد','البصرة','الموصل','النجف','other'],
+},
+ku:{
+  regTitle:'زانیاریەکانی شوفێر',regSub:'تەنها جارێک پاشەکەوت دەکرێت',
+  name:'ناوی تەواو',phone:'ژمارەی مۆبایل',city:'شار',dob:'بەرواری لەدایکبوون',gender:'رەگەز',
+  male:'نێر',female:'مێ',regBtn:'پاشەکەوتکردن',
+  carsTitle:'ئەوتۆمبێلەکانم',noCars:'هیچ ئەوتۆمبێلێک نییە. + دابگرە.',
+  oilTitle:'دوایین گۆڕینی نەوت',oilSub:'دابگرە بۆ بینینی وردەکاری',adText:'شوێنی ڕێکلام',
+  addCarTitle:'زیادکردنی ئەوتۆمبێل',addCarSub:'زانیاریەکانی ئەوتۆمبێل بنووسە',
+  carName:'ناوی ئەوتۆمبێل',carType:'جۆری ئەوتۆمبێل',plate:'ژمارەی لۆحە',letter:'پیت',salyana:'ژمارەی سالیانە',
+  saveCarBtn:'پاشەکەوتکردنی ئەوتۆمبێل',checkFines:'وردەکاریی سەرپێچی',finesLoading:'بار دەکرێت...',
+  finesSummaryLabel:'سەرپێچیەکان',finesChecking:'پشکنین...',finesNone:'سەرپێچی نییە ✓',finesFound:n=>`${n} سەرپێچی`,finesUnknown:'دابگرە بۆ پشکنین',
+  feedbackTitle:'💬 ڕای خۆت بنێرە',feedbackBtn:'ناردن',feedbackSending:'دەنێردرێت...',
+  companyTitle:'📍 RC Service',cWa:'واتساب',cAddr:'ناونیشان',
+  contactUs:'پەیوەندیمان پێوەبکە',nearestAgent:'نزیکترین نوێنەری پشتیوانیکراو',
+  oilModalSub:'دوایین گۆڕین',newOilBtn:'تۆمارکردنی گۆڕینی نوێ',
+  oilKm:'کیلۆمەتری ئێستا',oilDate:'بەروار',filterLbl:'فیلتەرەکەش گۆڕدرا',oilNotes:'تێبینی',
+  oilInterval:'مەسافە بۆ گۆڕینی داهاتوو',oilIntervalNone:'-- مەسافەکە هەڵبژێرە --',
+  nextOilLabel:'کیلۆمەتری گۆڕینی داهاتوو',nextOilDiff:d=>`دوای ${d.toLocaleString()} کم`,
+  remLbl:'یادەوەرکردن دوای',remUnit:'ڕۆژ  (0 = بەبێ یادەوەری)',
+  saveOil:'پاشەکەوتکردن',newOilTitle:'گۆڕینی نەوتی نوێ',
+  oilAlertTitle:'ئاگادارکردنەوەی گۆڕینی نەوت!',alertMsg:c=>`کاتی گۆڕینی نەوتی ${c} گەیشتووە`,
+  saved:'پاشەکەوتکرا ✓',sent:'نێردرا ✓',error:'هەڵەیەک ڕوویدا',
+  fillAll:'تکایە هەموو خانەکان پڕبکەوە',noFeedback:'تێبینیەکەت بنووسە',
+  types:{1:'تایبەت',2:'كرێ',3:'بارهەڵگر',4:'کشتوکاڵ',5:'بیناسازی',6:'مۆتۆرسیکل'},
+  filterYes:'✅ فیلتەر گۆڕدرا',filterNo:'❌ نەگۆڕدرا',km:'کم',
+  noOil:'تۆمار نەکراوە',noOilyet:'هیچ گۆڕینێک تۆمار نەکراوە.',delConfirm:'ئەم ئەوتۆمبێلە بسڕیتەوە؟',delBtn:'سڕینەوە',
+  nextKmLabel:'گۆڕینی داهاتوو',
+  pwaTitle:'ئەپێکەت دادبنێ',pwaSub:'RC Service زیادبکە بۆ شاشەی سەرەکیەکەت',pwaInstall:'دادانان',pwaLater:'دواتر',
+  cities:['هەولێر','سلێمانی','دهۆک','کەرکووک','بەغداد','بەسرە','مووسڵ','نەجەف','ئەوتری'],
+  cityVals:['هەولێر','سلێمانی','دهۆک','کەرکووک','بەغداد','بەسرە','مووسڵ','نەجەف','other'],
+},
+en:{
+  regTitle:'Driver Information',regSub:'Saved once, never asked again',
+  name:'Full Name',phone:'Phone Number',city:'City',dob:'Date of Birth',gender:'Gender',
+  male:'Male',female:'Female',regBtn:'Save & Continue',
+  carsTitle:'My Vehicles',noCars:'No vehicles yet. Press + to add.',
+  oilTitle:'Last Oil Change',oilSub:'Tap to view details',adText:'Advertisement',
+  addCarTitle:'Add Vehicle',addCarSub:'Enter vehicle & license details',
+  carName:'Vehicle Name',carType:'Vehicle Type',plate:'Plate Number',letter:'Letter',salyana:'Annual License No.',
+  saveCarBtn:'Save Vehicle',checkFines:'View Fines Details',finesLoading:'Loading fines...',
+  finesSummaryLabel:'Recorded Fines',finesChecking:'Checking...',finesNone:'No fines ✓',finesFound:n=>`${n} fine(s)`,finesUnknown:'Tap to check',
+  feedbackTitle:'💬 Send Feedback',feedbackBtn:'Send',feedbackSending:'Sending...',
+  companyTitle:'📍 RC Service',cWa:'WhatsApp',cAddr:'Address',
+  contactUs:'Contact Us',nearestAgent:'Nearest Authorized Agent',
+  oilModalSub:'Last recorded change',newOilBtn:'Log New Oil Change',
+  oilKm:'Current Kilometers',oilDate:'Date',filterLbl:'Filter also replaced',oilNotes:'Notes',
+  oilInterval:'Distance to next change',oilIntervalNone:'-- Select distance --',
+  nextOilLabel:'Next oil change at',nextOilDiff:d=>`in ${d.toLocaleString()} km`,
+  remLbl:'Remind me after',remUnit:'days  (0 = no reminder)',
+  saveOil:'Save',newOilTitle:'New Oil Change',
+  oilAlertTitle:'Oil Change Reminder!',alertMsg:c=>`Time to change oil for ${c}`,
+  saved:'Saved ✓',sent:'Sent ✓',error:'An error occurred',
+  fillAll:'Please fill all required fields',noFeedback:'Please write your feedback first',
+  types:{1:'Private',2:'Taxi',3:'Cargo',4:'Agricultural',5:'Construction',6:'Motorcycle'},
+  filterYes:'✅ Filter replaced',filterNo:'❌ Not replaced',km:'km',
+  noOil:'Not recorded',noOilyet:'No oil changes recorded yet.',delConfirm:'Delete this vehicle?',delBtn:'Delete Vehicle',
+  nextKmLabel:'Next change',
+  pwaTitle:'Install App',pwaSub:'Add RC Service to your home screen for quick access',pwaInstall:'Install',pwaLater:'Later',
+  cities:['Erbil','Sulaymaniyah','Dohuk','Kirkuk','Baghdad','Basra','Mosul','Najaf','Other'],
+  cityVals:['Erbil','Sulaymaniyah','Dohuk','Kirkuk','Baghdad','Basra','Mosul','Najaf','other'],
+}};
+
+/* ─── STATE ─── */
+let lang   = localStorage.getItem('rc_lang')  || null;
+let user   = JSON.parse(localStorage.getItem('rc_user')  || 'null');
+let cars   = JSON.parse(localStorage.getItem('rc_cars')  || '[]');
+let oilData= JSON.parse(localStorage.getItem('rc_oil')   || '{}');
+let finesCache = JSON.parse(localStorage.getItem('rc_finesCache') || '{}');
+let curCar=null;
+
+/* ─── INIT ─── */
+document.addEventListener('DOMContentLoaded',()=>{
+  initPWA();
+  if(!lang){show('screen-lang');return;}
+  applyLang(lang);
+  if(!user){show('screen-register');return;}
+  show('screen-main');renderMain();checkAlerts();applyCompany();initADV();
+  setTimeout(startBackgroundFinesCheck, 1500);
+});
+
+/* ─── ADV SLIDESHOW ─── */
+let advIndex=0;
+let advTimer=null;
+const IMAGE_EXT=['jpg','jpeg','png','gif','webp'];
+const VIDEO_EXT=['mp4','webm','ogg'];
+
+function isVideo(path){return VIDEO_EXT.some(e=>path.toLowerCase().endsWith('.'+e));}
+
+function initADV(){
+  const files=CONFIG.ADV_FILES.filter(f=>f&&f.trim());
+  const container=document.getElementById('adv-slides');
+  const dotsEl=document.getElementById('adv-dots');
+  container.innerHTML='';dotsEl.innerHTML='';
+
+  if(!files.length){
+    document.getElementById('adv-banner').innerHTML='<span class="ad-label">AD</span><div class="ad-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--muted);font-size:13px;padding:30px"><div style="font-size:28px">📢</div><div id="ad-text">مساحة إعلانية</div></div>';
+    return;
+  }
+
+  // Filter to only existing file types we handle
+  const validFiles=files.filter(f=>{
+    const ext=f.split('.').pop().toLowerCase();
+    return IMAGE_EXT.includes(ext)||VIDEO_EXT.includes(ext);
+  });
+
+  if(!validFiles.length){return;}
+
+  // Build slides
+  validFiles.forEach((file,i)=>{
+    const slide=document.createElement('div');
+    slide.className='ad-slide'+(i===0?' active':'');
+    slide.id='adv-slide-'+i;
+
+    if(isVideo(file)){
+      const vid=document.createElement('video');
+      vid.src=file;vid.muted=true;vid.loop=true;vid.autoplay=true;
+      vid.playsInline=true;vid.controls=false;
+      vid.style.cssText='width:100%;max-height:200px;object-fit:cover;display:block;background:#000;';
+      // When a video slide becomes active, play it
+      slide.appendChild(vid);
+    } else {
+      const img=document.createElement('img');
+      img.src=file;img.alt='';img.loading='lazy';
+      img.onerror=()=>{slide.remove();rebuildDots(validFiles.length);};
+      slide.appendChild(img);
+    }
+    container.appendChild(slide);
+
+    // Dot (only if more than 1 file)
+    if(validFiles.length>1){
+      const dot=document.createElement('div');
+      dot.className='ad-dot'+(i===0?' active':'');
+      dot.id='adv-dot-'+i;
+      dot.onclick=()=>goToSlide(i);
+      dotsEl.appendChild(dot);
+    }
+  });
+
+  if(validFiles.length>1){
+    startAdvTimer(validFiles);
+  }
+
+  // Autoplay first video if it's a video
+  playCurrentVideo();
+}
+
+function playCurrentVideo(){
+  const slide=document.querySelector('.ad-slide.active');
+  if(!slide)return;
+  const vid=slide.querySelector('video');
+  if(vid){vid.play().catch(()=>{});}
+}
+
+function startAdvTimer(files){
+  clearInterval(advTimer);
+  advTimer=setInterval(()=>{
+    advIndex=(advIndex+1)%files.length;
+    goToSlide(advIndex);
+  },5000);
+}
+
+function goToSlide(idx){
+  const allSlides=document.querySelectorAll('.ad-slide');
+  const allDots=document.querySelectorAll('.ad-dot');
+  // Pause all videos
+  allSlides.forEach((s,i)=>{
+    s.classList.remove('active');
+    const v=s.querySelector('video');if(v&&i!==idx){v.pause();}
+  });
+  allDots.forEach(d=>d.classList.remove('active'));
+  advIndex=idx;
+  const target=document.getElementById('adv-slide-'+idx);
+  if(target){
+    target.classList.add('active');
+    const vid=target.querySelector('video');
+    if(vid){vid.currentTime=0;vid.play().catch(()=>{});}
+  }
+  const dot=document.getElementById('adv-dot-'+idx);
+  if(dot)dot.classList.add('active');
+}
+
+function rebuildDots(total){/* simplified — dots stay as-is */}
+
+/* ─── PWA ─── */
+let deferredPrompt=null;
+const IS_STANDALONE=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+const PWA_DISMISSED=localStorage.getItem('rc_pwa_dismissed');
+
+function initPWA(){
+  if(IS_STANDALONE||PWA_DISMISSED){return;}
+
+  window.addEventListener('beforeinstallprompt',(e)=>{
+    e.preventDefault();
+    deferredPrompt=e;
+    showPWABanner();
+  });
+
+  // iOS fallback: show after 3 seconds if no beforeinstallprompt
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(isIOS&&!IS_STANDALONE){
+    setTimeout(showPWABanner,3000);
+  }
+}
+
+function showPWABanner(){
+  const banner=document.getElementById('pwa-banner');
+  banner.classList.add('show');
+  updatePWAText();
+}
+
+function updatePWAText(){
+  const t=T[lang||'ar'];
+  if(!t)return;
+  set('pwa-title',t.pwaTitle);
+  set('pwa-sub',t.pwaSub);
+  document.getElementById('pwa-install-btn').textContent=t.pwaInstall;
+}
+
+async function installPWA(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const choice=await deferredPrompt.userChoice;
+    deferredPrompt=null;
+    if(choice.outcome==='accepted'){
+      document.getElementById('pwa-banner').classList.remove('show');
+      localStorage.setItem('rc_pwa_dismissed','1');
+    }
+  } else {
+    // iOS manual instruction
+    const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+    if(isIOS){
+      alert(lang==='en'?'Tap the Share button ↑ then "Add to Home Screen"':lang==='ku'?'بۆتۆنی هاوبەشکردن ↑ دابگرە پاشان "زیادکردن بۆ شاشەی سەرەکی"':'اضغط زر المشاركة ↑ ثم "إضافة إلى الشاشة الرئيسية"');
+    }
+    dismissPWA();
+  }
+}
+
+function dismissPWA(){
+  document.getElementById('pwa-banner').classList.remove('show');
+  localStorage.setItem('rc_pwa_dismissed','1');
+}
+
+/* ─── LANG ─── */
+function selectLang(l){lang=l;localStorage.setItem('rc_lang',l);applyLang(l);show('screen-register');}
+
+function applyLang(l){
+  const t=T[l];
+  document.documentElement.lang=l==='en'?'en':'ar';
+  document.documentElement.dir =l==='en'?'ltr':'rtl';
+  document.body.classList.toggle('ltr',l==='en');
+
+  set('reg-title',t.regTitle);set('reg-sub',t.regSub);
+  set('lbl-name',t.name);set('lbl-phone',t.phone);set('lbl-city',t.city);
+  set('lbl-dob',t.dob);set('lbl-gender',t.gender);set('reg-submit',t.regBtn);
+  set('opt-male',t.male);set('opt-female',t.female);
+
+  const cs=document.getElementById('reg-city');
+  cs.innerHTML='<option value="">--</option>';
+  t.cities.forEach((c,i)=>{const o=document.createElement('option');o.value=t.cityVals[i];o.textContent=c;cs.appendChild(o);});
+
+  set('cars-title',t.carsTitle);set('no-cars-text',t.noCars);
+  set('oil-section-title',t.oilTitle);set('oil-section-sub',t.oilSub);
+  set('add-car-title',t.addCarTitle);set('add-car-sub',t.addCarSub);
+  set('lbl-car-name',t.carName);set('lbl-car-type',t.carType);
+  set('lbl-plate',t.plate);set('lbl-letter',t.letter);set('lbl-salyana',t.salyana);
+  set('add-car-btn',t.saveCarBtn);
+  set('fines-btn-txt',t.checkFines);
+  set('del-btn-txt',t.delBtn);
+  set('new-oil-txt',t.newOilBtn);set('lbl-oil-km',t.oilKm);set('lbl-oil-date',t.oilDate);
+  set('lbl-filter',t.filterLbl);set('lbl-oil-notes',t.oilNotes);
+  set('lbl-oil-interval',t.oilInterval);set('opt-interval-none',t.oilIntervalNone);
+  set('next-oil-box-label',t.nextOilLabel);
+  set('lbl-reminder',t.remLbl);set('reminder-unit',t.remUnit);
+  set('save-oil-btn',t.saveOil);set('new-oil-title',t.newOilTitle);
+  set('feedback-title',t.feedbackTitle);set('feedback-btn',t.feedbackBtn);
+  set('company-title',t.companyTitle);
+  set('lbl-cwa',t.cWa+':');set('lbl-caddr',t.cAddr+':');
+  set('oil-alert-title',t.oilAlertTitle);
+  set('fines-summary-label',t.finesSummaryLabel);
+  set('lbl-contact-us',t.contactUs);
+  set('lbl-nearest-agent',t.nearestAgent);
+  updatePWAText();
+}
+function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+
+/* ─── SCREENS ─── */
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+/* ─── REGISTER ─── */
+async function submitRegistration(){
+  const t=T[lang];
+  const name=get('reg-name').trim(),phone=get('reg-phone').trim(),city=get('reg-city'),dob=get('reg-dob'),gender=get('reg-gender');
+  if(!name||!phone||!city||!dob){toast(t.fillAll,'error');return;}
+  user={name,phone,city,dob,gender};
+  localStorage.setItem('rc_user',JSON.stringify(user));
+  sendSheet({sheet:'users',name,phone,city,dob,gender,timestamp:new Date().toISOString()});
+  show('screen-main');renderMain();checkAlerts();applyCompany();initADV();toast(t.saved,'success');
+  setTimeout(startBackgroundFinesCheck, 1500);
+}
+
+/* ─── CARS ─── */
+function openAddCar(){openModal('modal-add-car');}
+
+function saveCar(){
+  const t=T[lang];
+  const name=get('add-car-name').trim(),type=get('add-car-type'),
+        number=get('add-plate').trim(),letter=get('add-letter'),salyana=get('add-salyana').trim();
+  if(!name||!number||!salyana){toast(t.fillAll,'error');return;}
+  const newCar={id:Date.now(),name,type,number,letter,salyana};
+  cars.push(newCar);
+  saveCars();closeModal('modal-add-car');
+  document.getElementById('add-car-name').value='';
+  document.getElementById('add-plate').value='';
+  document.getElementById('add-salyana').value='';
+  renderMain();toast(t.saved,'success');
+  setTimeout(()=>backgroundCheckFines(newCar), 800);
+}
+function saveCars(){localStorage.setItem('rc_cars',JSON.stringify(cars));}
+function saveFinesCache(){localStorage.setItem('rc_finesCache', JSON.stringify(finesCache));}
+
+function renderMain(){renderCars();renderOilList();}
+
+function renderCars(){
+  const t=T[lang];
+  const el=document.getElementById('cars-list');
+  if(!cars.length){el.innerHTML=`<div class="no-cars"><span>🚗</span><div>${t.noCars}</div></div>`;return;}
+  el.innerHTML=cars.map(c=>{
+    const icon=c.type==6?'🏍️':c.type==3?'🚛':'🚗';
+    const cached=finesCache[c.id];
+    let badgeCls='car-fines-badge',badgeTxt='🔍';
+    if(cached){
+      if(cached.count==='0'){badgeCls+=' no-fines';badgeTxt='✓ 0';}
+      else if(cached.count==='checking'){badgeCls+=' checking';badgeTxt='⏳';}
+      else if(cached.count==='?'){badgeCls='car-fines-badge';badgeTxt='?';}
+      else{badgeCls+=' has-fines';badgeTxt=cached.total?`⚠${cached.count} · ${cached.total}`:`⚠ ${cached.count}`;}
+    }
+    return`<div class="car-card" onclick="openCarDetail(${c.id})">
+      <span class="car-icon">${icon}</span>
+      <div class="car-info">
+        <div class="car-name">${c.name}</div>
+        <div class="car-plate">${c.number}${c.letter!=='0'?' - '+c.letter:''}</div>
+      </div>
+      <div class="${badgeCls}" id="badge-${c.id}">${badgeTxt}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ─── BACKGROUND FINES CHECK ─── */
+function startBackgroundFinesCheck(){
+  cars.forEach((c,i)=>{
+    const cache=finesCache[c.id];
+    if(!cache||(Date.now()-cache.checkedAt)>86400000){
+      setTimeout(()=>backgroundCheckFines(c),i*2200);
+    }
+  });
+}
+
+async function backgroundCheckFines(c){
+  const cache=finesCache[c.id];
+  if(cache&&cache.checkedAt&&(Date.now()-cache.checkedAt)<86400000){return;}
+
+  finesCache[c.id]={count:'checking',total:''};
+  updateBadge(c.id,'checking','');
+
+  const targetUrl=`https://htp.moi.gov.krd/fines_form_data_${c.type}.php`;
+  const body=new URLSearchParams({
+    'Sinif':c.type,'plate':c.number,
+    'PlateChar':c.letter==='0'?'':c.letter,'SanNumber':c.salyana
+  });
+  const proxies=[
+    url=>`https://corsproxy.io/?${encodeURIComponent(url)}`,
+    url=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+  ];
+
+  let html='';
+  for(const proxyFn of proxies){
+    try{
+      const res=await fetch(proxyFn(targetUrl),{
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded','x-requested-with':'XMLHttpRequest'},
+        body:body.toString()
+      });
+      if(res.ok){html=await res.text();if(html.length>100)break;}
+    }catch(e){continue;}
+  }
+
+  try{
+    const countMatch=html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/)||
+                     html.match(/عدد المخالفات[^\d]*(\d+)/i)||
+                     html.match(/Total[^:]*:\s*(\d+)/i);
+    const totalMatch=html.match(/بڕى\s+گشتى[^\d]*([\d,]+)/)||
+                     html.match(/المجموع الكلي[^\d]*([\d,]+)/i)||
+                     html.match(/Total Amount[^\d]*([\d,]+)/i);
+
+    let count='0',total='';
+    if(html.length<100){count='?';}
+    else if(countMatch){count=countMatch[1].trim();}
+    else{const rows=(html.match(/<tr[\s>]/gi)||[]).length;count=rows>1?String(rows-1):'0';}
+
+    if(totalMatch){
+      const raw=parseInt(totalMatch[1].replace(/,/g,''));
+      total=raw>=1000?Math.round(raw/1000)+'K':String(raw);
+    }
+
+    finesCache[c.id]={count,total,checkedAt:Date.now()};
+    saveFinesCache();
+    updateBadge(c.id,count,total);
+    if(curCar===c.id)refreshFinesSummaryCard(c.id);
+  }catch(err){
+    finesCache[c.id]={count:'?',total:''};
+    updateBadge(c.id,'?','');
+    if(curCar===c.id)refreshFinesSummaryCard(c.id);
+  }
+}
+
+function loadFines(){
+  const c=cars.find(x=>x.id===curCar);if(!c)return;
+  const form=document.createElement('form');
+  form.method='POST';form.action=`https://htp.moi.gov.krd/fines_form_data_${c.type}.php`;form.target='_blank';
+  const fields={'Sinif':c.type,'plate':c.number,'PlateChar':c.letter==='0'?'':c.letter,'SanNumber':c.salyana};
+  for(const key in fields){const input=document.createElement('input');input.type='hidden';input.name=key;input.value=fields[key];form.appendChild(input);}
+  document.body.appendChild(form);form.submit();document.body.removeChild(form);
+}
+
+function updateBadge(id,count,total){
+  const b=document.getElementById('badge-'+id);if(!b)return;
+  if(count==='checking'){b.className='car-fines-badge checking';b.textContent='⏳';}
+  else if(count==='0'){b.className='car-fines-badge no-fines';b.textContent='✓ 0';}
+  else if(count==='?'||!count){b.className='car-fines-badge';b.textContent='?';}
+  else{b.className='car-fines-badge has-fines';b.textContent=total?`⚠${count} · ${total}`:`⚠ ${count}`;}
+}
+
+function openCarDetail(carId){
+  const t=T[lang];
+  const c=cars.find(x=>x.id===carId);if(!c)return;
+  curCar=carId;
+  set('d-car-name',c.name);
+  set('d-car-plate',`${c.number}${c.letter!=='0'?' - '+c.letter:''}  |  ${t.types[c.type]}`);
+  document.getElementById('d-grid').innerHTML=`
+    <div class="car-detail-item"><div class="car-detail-label">${t.plate}</div><div class="car-detail-value">${c.number}</div></div>
+    <div class="car-detail-item"><div class="car-detail-label">${t.letter}</div><div class="car-detail-value">${c.letter!=='0'?c.letter:'—'}</div></div>
+    <div class="car-detail-item"><div class="car-detail-label">${t.salyana}</div><div class="car-detail-value">${c.salyana}</div></div>
+    <div class="car-detail-item"><div class="car-detail-label">${t.carType}</div><div class="car-detail-value">${t.types[c.type]}</div></div>`;
+  const cached=finesCache[carId];
+  refreshFinesSummaryCard(carId);
+  if(!cached||cached.count==='checking'){if(!cached)backgroundCheckFines(c);pollFinesSummary(carId);}
+  set('fines-btn-txt',t.checkFines);
+  openModal('modal-car-detail');
+}
+
+function refreshFinesSummaryCard(carId){
+  const t=T[lang];
+  const cached=finesCache[carId];
+  const dot=document.getElementById('fines-status-dot');
+  const countEl=document.getElementById('fines-summary-count');
+  set('fines-summary-label',t.finesSummaryLabel);
+  if(!cached||cached.count==='checking'){
+    dot.className='fines-status-dot checking';
+    countEl.className='fines-summary-count muted';
+    countEl.textContent=t.finesChecking;
+  } else if(cached.count==='0'){
+    dot.className='fines-status-dot done-ok';
+    countEl.className='fines-summary-count green';
+    countEl.textContent=t.finesNone;
+  } else if(cached.count==='?'){
+    dot.className='fines-status-dot';
+    countEl.className='fines-summary-count muted';
+    countEl.textContent=t.finesUnknown;
+  } else {
+    dot.className='fines-status-dot done-bad';
+    countEl.className='fines-summary-count red';
+    const totalTxt=cached.total?` · ${cached.total}`:'';
+    countEl.textContent=t.finesFound(cached.count)+totalTxt;
+  }
+}
+
+function pollFinesSummary(carId){
+  let attempts=0;
+  const interval=setInterval(()=>{
+    attempts++;
+    const cached=finesCache[carId];
+    if(!cached||cached.count==='checking'){if(attempts>40)clearInterval(interval);return;}
+    clearInterval(interval);
+    if(curCar===carId){refreshFinesSummaryCard(carId);updateBadge(carId,cached.count,cached.total||'');}
+  },500);
+}
+
+function deleteCar(){
+  if(!confirm(T[lang].delConfirm))return;
+  cars=cars.filter(c=>c.id!==curCar);
+  delete oilData[curCar];delete finesCache[curCar];
+  saveCars();localStorage.setItem('rc_oil',JSON.stringify(oilData));
+  closeModal('modal-car-detail');renderMain();toast(T[lang].saved,'success');
+}
+
+/* ─── OIL ─── */
+function toggleOil(){
+  document.getElementById('oil-body').classList.toggle('open');
+  document.getElementById('oil-chevron').classList.toggle('open');
+}
+
+function renderOilList(){
+  const t=T[lang];
+  const el=document.getElementById('oil-cars-list');
+  if(!cars.length){el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:10px 0">${t.noCars}</div>`;return;}
+  el.innerHTML=cars.map(c=>{
+    const e=(oilData[c.id]||[]),last=e[e.length-1];
+    return`<div class="oil-car-item" onclick="openOilModal(${c.id})">
+      <div class="oil-car-header">
+        <div class="oil-car-name">${c.name}</div>
+        ${last?`<div class="oil-km-badge">${last.km} ${t.km}</div>`:`<div class="oil-km-badge" style="color:var(--muted);border-color:var(--border)">${t.noOil}</div>`}
+      </div>
+      <div class="oil-date">${last?last.date:''} ${last&&last.nextKm?`<span style="color:var(--gold)">→ ${Number(last.nextKm).toLocaleString()} km</span>`:''}</div>
+    </div>`;
+  }).join('');
+}
+
+function openOilModal(carId){
+  const t=T[lang];
+  const c=cars.find(x=>x.id===carId);if(!c)return;
+  curCar=carId;
+  set('oil-modal-title',c.name);set('oil-modal-sub',t.oilModalSub);
+  document.getElementById('new-oil-form').style.display='none';
+  const entries=oilData[carId]||[];
+  const el=document.getElementById('oil-entries');
+  if(!entries.length){el.innerHTML=`<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${t.noOilyet}</div>`;}
+  else{
+    el.innerHTML=[...entries].reverse().map(e=>`
+      <div class="oil-detail-card">
+        <div class="oil-detail-header">
+          <div class="oil-detail-km">${e.km}<span style="font-size:14px;font-weight:400"> ${t.km}</span></div>
+          <div class="oil-detail-date">${e.date}</div>
+        </div>
+        <div class="oil-detail-meta">
+          <span class="oil-tag ${e.filter?'':'no'}">${e.filter?t.filterYes:t.filterNo}</span>
+          ${e.remind>0?`<span class="oil-tag">🔔 ${e.remind} ${t.km==='km'?'d':'يوم'}</span>`:''}
+          ${e.nextKm?`<span class="oil-tag" style="background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.35);color:var(--gold)">→ ${Number(e.nextKm).toLocaleString()} ${t.km}</span>`:''}
+        </div>
+        ${e.notes?`<div class="oil-notes">${e.notes}</div>`:''}
+      </div>`).join('');
+  }
+  document.getElementById('oil-date').value=today();
+  document.getElementById('oil-km').value='';
+  document.getElementById('oil-notes').value='';
+  document.getElementById('oil-filter').checked=false;
+  document.getElementById('oil-reminder').value='0';
+  document.getElementById('oil-interval').value='0';
+  document.getElementById('next-oil-box').style.display='none';
+  openModal('modal-oil');
+}
+
+function toggleNewOilForm(){
+  const f=document.getElementById('new-oil-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+
+function updateNextOilKm(){
+  const kmVal=parseInt(document.getElementById('oil-km').value)||0;
+  const interval=parseInt(document.getElementById('oil-interval').value)||0;
+  const box=document.getElementById('next-oil-box');
+  const t=T[lang];
+  if(kmVal>0&&interval>0){
+    const nextKm=kmVal+interval;
+    document.getElementById('next-oil-box-km').innerHTML=`${nextKm.toLocaleString()}<span> km</span>`;
+    document.getElementById('next-oil-box-diff').textContent=t.nextOilDiff(interval);
+    box.style.display='block';
+  } else {box.style.display='none';}
+}
+
+function saveOil(){
+  const t=T[lang];
+  const km=document.getElementById('oil-km').value.trim();
+  const date=document.getElementById('oil-date').value;
+  const filter=document.getElementById('oil-filter').checked;
+  const notes=document.getElementById('oil-notes').value.trim();
+  const remind=parseInt(document.getElementById('oil-reminder').value)||0;
+  const interval=parseInt(document.getElementById('oil-interval').value)||0;
+  const nextKm=(km&&interval>0)?String(parseInt(km)+interval):'';
+  if(!km||!date){toast(t.fillAll,'error');return;}
+  if(!oilData[curCar])oilData[curCar]=[];
+  oilData[curCar].push({km,date,filter,notes,remind,nextKm,ts:Date.now()});
+  localStorage.setItem('rc_oil',JSON.stringify(oilData));
+  document.getElementById('new-oil-form').style.display='none';
+  openOilModal(curCar);renderOilList();checkAlerts();toast(t.saved,'success');
+}
+
+function checkAlerts(){
+  const t=T[lang];if(!t)return;
+  const todayMs=new Date().setHours(0,0,0,0);
+  const msgs=[];
+  cars.forEach(c=>{
+    const e=oilData[c.id]||[];if(!e.length)return;
+    const last=e[e.length-1];if(!last.remind)return;
+    const due=new Date(last.date);due.setDate(due.getDate()+last.remind);
+    if(due.setHours(0,0,0,0)<=todayMs)msgs.push(t.alertMsg(c.name));
+  });
+  const el=document.getElementById('oil-alert');
+  if(msgs.length){set('oil-alert-msg',msgs.join(' | '));el.classList.add('show');}
+  else el.classList.remove('show');
+}
+
+/* ─── FEEDBACK ─── */
+async function submitFeedback(){
+  const t=T[lang];
+  const text=document.getElementById('feedback-text').value.trim();
+  if(!text){toast(t.noFeedback,'error');return;}
+
+  const btn=document.getElementById('feedback-btn');
+  btn.textContent=t.feedbackSending;
+  btn.disabled=true;
+  btn.classList.add('btn-sending');
+
+  try{
+    await sendSheet({sheet:'feedback',name:user?.name||'',phone:user?.phone||'',feedback:text,timestamp:new Date().toISOString()});
+    document.getElementById('feedback-text').value='';
+    toast(t.sent,'success');
+  }catch(e){toast(t.error,'error');}
+  finally{
+    btn.textContent=t.feedbackBtn;
+    btn.disabled=false;
+    btn.classList.remove('btn-sending');
+  }
+}
+
+/* ─── COMPANY ─── */
+function applyCompany(){
+  const w=document.getElementById('company-wa'),a=document.getElementById('company-addr');
+  if(w){w.textContent=CONFIG.COMPANY.whatsapp?'+'+CONFIG.COMPANY.whatsapp:'';w.href=`https://wa.me/${CONFIG.COMPANY.whatsapp}`;}
+  if(a)a.textContent=CONFIG.COMPANY.address;
+}
+
+/* ─── SHEETS ─── */
+async function sendSheet(data){
+  if(CONFIG.SHEET_URL.includes('YOUR_SCRIPT')){console.warn('Sheet URL not set:',data);return;}
+  try{
+    await fetch(CONFIG.SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  }catch(e){console.error(e);}
+}
+
+/* ─── HELPERS ─── */
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function get(id){const e=document.getElementById(id);return e?e.value:'';}
+function today(){return new Date().toISOString().split('T')[0];}
+
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id);});
+});
+
+let toastT;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  clearTimeout(toastT);el.textContent=msg;el.className=`show ${type}`;
+  toastT=setTimeout(()=>el.className='',2800);
+}
+
+/* ─── SERVICE WORKER (PWA offline support) ─── */
+if('serviceWorker' in navigator){
+  const swCode=`
+self.addEventListener('install',e=>self.skipWaiting());
+self.addEventListener('activate',e=>clients.claim());
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET')return;
+  e.respondWith(
+    caches.open('rc-v1').then(async cache=>{
+      try{
+        const res=await fetch(e.request);
+        cache.put(e.request,res.clone());
+        return res;
+      }catch{
+        return cache.match(e.request);
+      }
+    })
+  );
+});`;
+  const swBlob=new Blob([swCode],{type:'application/javascript'});
+  const swURL=URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swURL,{scope:'./'}).catch(()=>{});
+}
+</script>
+</body>
+</html>
