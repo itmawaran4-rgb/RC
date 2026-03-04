@@ -359,7 +359,6 @@ body.ltr *{font-family:var(--font-en);letter-spacing:.02em;}
     <div class="company-info">
       <div class="company-title" id="company-title">📍 RC Service</div>
 
-      <!-- زرا التواصل -->
       <div class="contact-btns-wrap" style="margin-bottom:10px;">
         <a class="contact-btn primary-btn" id="btn-contact-us" href="https://linktr.ee/mawaranpages" target="_blank">
           📞 <span id="lbl-contact-us">تواصل معنا</span>
@@ -530,16 +529,8 @@ body.ltr *{font-family:var(--font-en);letter-spacing:.02em;}
 const CONFIG = {
   SHEET_URL: 'https://script.google.com/macros/s/AKfycbwCuOelFQKX6iipf2Jou7ZPGCnuSiOu0XCPCxmubxM4G_4DIjZjWw7oS8StCd9FQlgw/exec',
   COMPANY:{ whatsapp:'9647505009006', address:'Erbil,60 Mtr street next to Zirak Fish' },
-
-  /* ──────────────────────────────────────────────────────────────────
-     ملفات الإعلانات — ضع الملفات في مجلد ADV/ بجانب index.html
-     ثم اكتب أسماء الملفات هنا بالترتيب المطلوب.
-     صور مدعومة: jpg, jpeg, png, gif, webp
-     فيديو مدعوم: mp4, webm, ogg
-  ────────────────────────────────────────────────────────────────── */
   ADV_FILES: [
     'ADV/ad3.mp4'
-    /* أضف أو احذف كما تشاء */
   ]
 };
 
@@ -673,7 +664,6 @@ function initADV(){
     return;
   }
 
-  // Filter to only existing file types we handle
   const validFiles=files.filter(f=>{
     const ext=f.split('.').pop().toLowerCase();
     return IMAGE_EXT.includes(ext)||VIDEO_EXT.includes(ext);
@@ -681,7 +671,6 @@ function initADV(){
 
   if(!validFiles.length){return;}
 
-  // Build slides
   validFiles.forEach((file,i)=>{
     const slide=document.createElement('div');
     slide.className='ad-slide'+(i===0?' active':'');
@@ -692,17 +681,15 @@ function initADV(){
       vid.src=file;vid.muted=true;vid.loop=true;vid.autoplay=true;
       vid.playsInline=true;vid.controls=false;
       vid.style.cssText='width:100%;max-height:200px;object-fit:cover;display:block;background:#000;';
-      // When a video slide becomes active, play it
       slide.appendChild(vid);
     } else {
       const img=document.createElement('img');
       img.src=file;img.alt='';img.loading='lazy';
-      img.onerror=()=>{slide.remove();rebuildDots(validFiles.length);};
+      img.onerror=()=>{slide.remove();};
       slide.appendChild(img);
     }
     container.appendChild(slide);
 
-    // Dot (only if more than 1 file)
     if(validFiles.length>1){
       const dot=document.createElement('div');
       dot.className='ad-dot'+(i===0?' active':'');
@@ -712,11 +699,7 @@ function initADV(){
     }
   });
 
-  if(validFiles.length>1){
-    startAdvTimer(validFiles);
-  }
-
-  // Autoplay first video if it's a video
+  if(validFiles.length>1){startAdvTimer(validFiles);}
   playCurrentVideo();
 }
 
@@ -738,7 +721,6 @@ function startAdvTimer(files){
 function goToSlide(idx){
   const allSlides=document.querySelectorAll('.ad-slide');
   const allDots=document.querySelectorAll('.ad-dot');
-  // Pause all videos
   allSlides.forEach((s,i)=>{
     s.classList.remove('active');
     const v=s.querySelector('video');if(v&&i!==idx){v.pause();}
@@ -755,8 +737,6 @@ function goToSlide(idx){
   if(dot)dot.classList.add('active');
 }
 
-function rebuildDots(total){/* simplified — dots stay as-is */}
-
 /* ─── PWA ─── */
 let deferredPrompt=null;
 const IS_STANDALONE=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
@@ -764,31 +744,21 @@ const PWA_DISMISSED=localStorage.getItem('rc_pwa_dismissed');
 
 function initPWA(){
   if(IS_STANDALONE||PWA_DISMISSED){return;}
-
   window.addEventListener('beforeinstallprompt',(e)=>{
-    e.preventDefault();
-    deferredPrompt=e;
-    showPWABanner();
+    e.preventDefault();deferredPrompt=e;showPWABanner();
   });
-
-  // iOS fallback: show after 3 seconds if no beforeinstallprompt
   const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  if(isIOS&&!IS_STANDALONE){
-    setTimeout(showPWABanner,3000);
-  }
+  if(isIOS&&!IS_STANDALONE){setTimeout(showPWABanner,3000);}
 }
 
 function showPWABanner(){
-  const banner=document.getElementById('pwa-banner');
-  banner.classList.add('show');
+  document.getElementById('pwa-banner').classList.add('show');
   updatePWAText();
 }
 
 function updatePWAText(){
-  const t=T[lang||'ar'];
-  if(!t)return;
-  set('pwa-title',t.pwaTitle);
-  set('pwa-sub',t.pwaSub);
+  const t=T[lang||'ar'];if(!t)return;
+  set('pwa-title',t.pwaTitle);set('pwa-sub',t.pwaSub);
   document.getElementById('pwa-install-btn').textContent=t.pwaInstall;
 }
 
@@ -802,7 +772,6 @@ async function installPWA(){
       localStorage.setItem('rc_pwa_dismissed','1');
     }
   } else {
-    // iOS manual instruction
     const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
     if(isIOS){
       alert(lang==='en'?'Tap the Share button ↑ then "Add to Home Screen"':lang==='ku'?'بۆتۆنی هاوبەشکردن ↑ دابگرە پاشان "زیادکردن بۆ شاشەی سەرەکی"':'اضغط زر المشاركة ↑ ثم "إضافة إلى الشاشة الرئيسية"');
@@ -921,73 +890,103 @@ function renderCars(){
   }).join('');
 }
 
-/* ─── BACKGROUND FINES CHECK ─── */
+/* ══════════════════════════════════════════════════════
+   ✅ الإصلاح الرئيسي — فحص الغرامات في الخلفية
+   ══════════════════════════════════════════════════════ */
 function startBackgroundFinesCheck(){
   cars.forEach((c,i)=>{
-    const cache=finesCache[c.id];
-    if(!cache||(Date.now()-cache.checkedAt)>86400000){
-      setTimeout(()=>backgroundCheckFines(c),i*2200);
+    const cache = finesCache[c.id];
+    const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
+    const stuck = cache && cache.count === 'checking' && age > 120000; // عالق أكثر من دقيقتين
+
+    const needsCheck =
+      !cache                                           // لم يُفحص أبداً
+      || (cache.count !== '?' && age > 86400000)      // فحص ناجح قديم → أعِد بعد 24 ساعة
+      || (cache.count === '?' && age > 3600000)       // فشل سابق → أعِد بعد ساعة واحدة
+      || stuck;                                        // عالق في حالة checking
+
+    if(needsCheck){
+      setTimeout(()=>backgroundCheckFines(c), i * 2200);
     }
   });
 }
 
 async function backgroundCheckFines(c){
-  const cache=finesCache[c.id];
-  if(cache&&cache.checkedAt&&(Date.now()-cache.checkedAt)<86400000){return;}
+  const cache = finesCache[c.id];
+  const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
 
-  finesCache[c.id]={count:'checking',total:''};
-  updateBadge(c.id,'checking','');
+  // تجاهل إذا كان الفحص الأخير ناجحاً ولم تمضِ 24 ساعة
+  if(cache && cache.checkedAt && cache.count !== '?' && cache.count !== 'checking' && age < 86400000){
+    return;
+  }
+  // تجاهل إذا كان يفحص الآن وليس عالقاً
+  if(cache && cache.count === 'checking' && age < 120000){
+    return;
+  }
 
-  const targetUrl=`https://htp.moi.gov.krd/fines_form_data_${c.type}.php`;
-  const body=new URLSearchParams({
-    'Sinif':c.type,'plate':c.number,
-    'PlateChar':c.letter==='0'?'':c.letter,'SanNumber':c.salyana
+  // ✅ احتفظ بـ checkedAt القديم أثناء الفحص حتى لا يُحذف
+  finesCache[c.id] = {
+    count: 'checking',
+    total: '',
+    checkedAt: (cache && cache.checkedAt) ? cache.checkedAt : null
+  };
+  updateBadge(c.id, 'checking', '');
+
+  const targetUrl = `https://htp.moi.gov.krd/fines_form_data_${c.type}.php`;
+  const body = new URLSearchParams({
+    'Sinif': c.type, 'plate': c.number,
+    'PlateChar': c.letter === '0' ? '' : c.letter, 'SanNumber': c.salyana
   });
-  const proxies=[
-    url=>`https://corsproxy.io/?${encodeURIComponent(url)}`,
-    url=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+  const proxies = [
+    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
   ];
 
-  let html='';
+  let html = '';
   for(const proxyFn of proxies){
     try{
-      const res=await fetch(proxyFn(targetUrl),{
-        method:'POST',
-        headers:{'Content-Type':'application/x-www-form-urlencoded','x-requested-with':'XMLHttpRequest'},
-        body:body.toString()
+      const res = await fetch(proxyFn(targetUrl), {
+        method: 'POST',
+        headers: {'Content-Type':'application/x-www-form-urlencoded','x-requested-with':'XMLHttpRequest'},
+        body: body.toString()
       });
-      if(res.ok){html=await res.text();if(html.length>100)break;}
-    }catch(e){continue;}
+      if(res.ok){ html = await res.text(); if(html.length > 100) break; }
+    }catch(e){ continue; }
   }
 
   try{
-    const countMatch=html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/)||
-                     html.match(/عدد المخالفات[^\d]*(\d+)/i)||
-                     html.match(/Total[^:]*:\s*(\d+)/i);
-    const totalMatch=html.match(/بڕى\s+گشتى[^\d]*([\d,]+)/)||
-                     html.match(/المجموع الكلي[^\d]*([\d,]+)/i)||
-                     html.match(/Total Amount[^\d]*([\d,]+)/i);
+    const countMatch = html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/) ||
+                       html.match(/عدد المخالفات[^\d]*(\d+)/i) ||
+                       html.match(/Total[^:]*:\s*(\d+)/i);
+    const totalMatch = html.match(/بڕى\s+گشتى[^\d]*([\d,]+)/) ||
+                       html.match(/المجموع الكلي[^\d]*([\d,]+)/i) ||
+                       html.match(/Total Amount[^\d]*([\d,]+)/i);
 
-    let count='0',total='';
-    if(html.length<100){count='?';}
-    else if(countMatch){count=countMatch[1].trim();}
-    else{const rows=(html.match(/<tr[\s>]/gi)||[]).length;count=rows>1?String(rows-1):'0';}
+    let count = '0', total = '';
+    if(html.length < 100){ count = '?'; }
+    else if(countMatch){ count = countMatch[1].trim(); }
+    else{ const rows = (html.match(/<tr[\s>]/gi)||[]).length; count = rows > 1 ? String(rows-1) : '0'; }
 
     if(totalMatch){
-      const raw=parseInt(totalMatch[1].replace(/,/g,''));
-      total=raw>=1000?Math.round(raw/1000)+'K':String(raw);
+      const raw = parseInt(totalMatch[1].replace(/,/g,''));
+      total = raw >= 1000 ? Math.round(raw/1000)+'K' : String(raw);
     }
 
-    finesCache[c.id]={count,total,checkedAt:Date.now()};
+    // ✅ دائماً احفظ checkedAt عند النجاح
+    finesCache[c.id] = {count, total, checkedAt: Date.now()};
     saveFinesCache();
-    updateBadge(c.id,count,total);
-    if(curCar===c.id)refreshFinesSummaryCard(c.id);
+    updateBadge(c.id, count, total);
+    if(curCar === c.id) refreshFinesSummaryCard(c.id);
+
   }catch(err){
-    finesCache[c.id]={count:'?',total:''};
-    updateBadge(c.id,'?','');
-    if(curCar===c.id)refreshFinesSummaryCard(c.id);
+    // ✅ دائماً احفظ checkedAt حتى عند الفشل، لضمان إعادة المحاولة لاحقاً
+    finesCache[c.id] = {count: '?', total: '', checkedAt: Date.now()};
+    saveFinesCache();
+    updateBadge(c.id, '?', '');
+    if(curCar === c.id) refreshFinesSummaryCard(c.id);
   }
 }
+/* ══════════════════════════════════════════════════════ */
 
 function loadFines(){
   const c=cars.find(x=>x.id===curCar);if(!c)return;
@@ -1017,8 +1016,8 @@ function openCarDetail(carId){
     <div class="car-detail-item"><div class="car-detail-label">${t.letter}</div><div class="car-detail-value">${c.letter!=='0'?c.letter:'—'}</div></div>
     <div class="car-detail-item"><div class="car-detail-label">${t.salyana}</div><div class="car-detail-value">${c.salyana}</div></div>
     <div class="car-detail-item"><div class="car-detail-label">${t.carType}</div><div class="car-detail-value">${t.types[c.type]}</div></div>`;
-  const cached=finesCache[carId];
   refreshFinesSummaryCard(carId);
+  const cached=finesCache[carId];
   if(!cached||cached.count==='checking'){if(!cached)backgroundCheckFines(c);pollFinesSummary(carId);}
   set('fines-btn-txt',t.checkFines);
   openModal('modal-car-detail');
@@ -1066,6 +1065,7 @@ function deleteCar(){
   cars=cars.filter(c=>c.id!==curCar);
   delete oilData[curCar];delete finesCache[curCar];
   saveCars();localStorage.setItem('rc_oil',JSON.stringify(oilData));
+  saveFinesCache();
   closeModal('modal-car-detail');renderMain();toast(T[lang].saved,'success');
 }
 
@@ -1180,22 +1180,14 @@ async function submitFeedback(){
   const t=T[lang];
   const text=document.getElementById('feedback-text').value.trim();
   if(!text){toast(t.noFeedback,'error');return;}
-
   const btn=document.getElementById('feedback-btn');
-  btn.textContent=t.feedbackSending;
-  btn.disabled=true;
-  btn.classList.add('btn-sending');
-
+  btn.textContent=t.feedbackSending;btn.disabled=true;btn.classList.add('btn-sending');
   try{
     await sendSheet({sheet:'feedback',name:user?.name||'',phone:user?.phone||'',feedback:text,timestamp:new Date().toISOString()});
     document.getElementById('feedback-text').value='';
     toast(t.sent,'success');
   }catch(e){toast(t.error,'error');}
-  finally{
-    btn.textContent=t.feedbackBtn;
-    btn.disabled=false;
-    btn.classList.remove('btn-sending');
-  }
+  finally{btn.textContent=t.feedbackBtn;btn.disabled=false;btn.classList.remove('btn-sending');}
 }
 
 /* ─── COMPANY ─── */
@@ -1230,7 +1222,7 @@ function toast(msg,type=''){
   toastT=setTimeout(()=>el.className='',2800);
 }
 
-/* ─── SERVICE WORKER (PWA offline support) ─── */
+/* ─── SERVICE WORKER ─── */
 if('serviceWorker' in navigator){
   const swCode=`
 self.addEventListener('install',e=>self.skipWaiting());
@@ -1255,10 +1247,4 @@ self.addEventListener('fetch',e=>{
 }
 </script>
 </body>
-
 </html>
-
-
-
-
-
