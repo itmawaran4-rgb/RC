@@ -914,7 +914,7 @@ async function backgroundCheckFines(c){
   const targetUrl = `https://htp.moi.gov.krd/fines_form_data_${c.type}.php`;
   const body = new URLSearchParams({
     'Sinif': c.type, 'plate': c.number,
-    'PlateChar': c.letter === '0' ? '' : c.letter, 'SanNumber': c.salyana
+    'PlateChar': c.letter, 'SanNumber': c.salyana
   });
   const proxies = [
     url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
@@ -929,12 +929,13 @@ async function backgroundCheckFines(c){
         headers: {'Content-Type':'application/x-www-form-urlencoded','x-requested-with':'XMLHttpRequest'},
         body: body.toString()
       });
-      if(res.ok){ html = await res.text(); if(html.length > 100) break; }
+      // ✅ جديد  
+     if(res.ok){ html = await res.text(); if(html.length > 30) break; }
     }catch(e){ continue; }
   }
 
   // ✅ 2. إذا فشل الاتصال — استعد البيانات القديمة بدلاً من حفظ '?'
-  if(html.length < 100){
+  if(html.length < 30){
     if(oldValid){
       // أعد البيانات القديمة، واضبط إعادة المحاولة بعد ساعة واحدة
       finesCache[c.id] = {...oldValid, checkedAt: Date.now() - 82800000};
