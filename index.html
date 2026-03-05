@@ -990,7 +990,7 @@ function loadFines(){
 
   // ✅ أعد الفحص وحدّث الرقم في الواجهة
   if(!finesCache[c.id] || finesCache[c.id].count !== 'checking'){
-    if(finesCache[c.id]) finesCache[c.id].checkedAt = null;
+    if(finesCache[c.id]) finesCache[c.id].checkedAt = 1;
     backgroundCheckFines(c);
     pollFinesSummary(c.id);
   }
