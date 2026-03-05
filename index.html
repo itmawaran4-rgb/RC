@@ -992,12 +992,7 @@ function loadFines(){
   const fields={'Sinif':c.type,'plate':c.number,'PlateChar':c.letter==='0'?'':c.letter,'SanNumber':c.salyana};
   for(const key in fields){const input=document.createElement('input');input.type='hidden';input.name=key;input.value=fields[key];form.appendChild(input);}
   document.body.appendChild(form);form.submit();document.body.removeChild(form);
-
-  // ✅ الجديد: أعد تحميل الرقم في الواجهة فوراً
-  forceCheckFines(c);
 }
-
-// ✅ دالة جديدة: تجاهل الـ 24 ساعة وافحص فوراً
 function forceCheckFines(c){
   const cache = finesCache[c.id];
   // أعد ضبط checkedAt فقط إذا لم يكن يفحص الآن
