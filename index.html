@@ -893,6 +893,23 @@ function renderCars(){
 /* ══════════════════════════════════════════════════════
    ✅ الإصلاح الرئيسي — فحص الغرامات في الخلفية
    ══════════════════════════════════════════════════════ */
+   function startBackgroundFinesCheck(){
+  cars.forEach((c,i)=>{
+    const cache = finesCache[c.id];
+    const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
+    const stuck = cache && cache.count === 'checking' && age > 120000;
+
+    const needsCheck =
+      !cache
+      || (cache.count !== '?' && age > 86400000)
+      || (cache.count === '?' && age > 3600000)
+      || stuck;
+
+    if(needsCheck){
+      setTimeout(()=>backgroundCheckFines(c), i * 2200);
+    }
+  });
+}
 async function backgroundCheckFines(c){
   const cache = finesCache[c.id];
   const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
@@ -932,6 +949,7 @@ async function backgroundCheckFines(c){
       // ✅ جديد  
      if(res.ok){ html = await res.text(); if(html.length > 30) break; }
     }catch(e){ continue; }
+    if(html.length > 30) { console.log('FINES HTML:', html); break; }
   }
 
   // ✅ 2. إذا فشل الاتصال — استعد البيانات القديمة بدلاً من حفظ '?'
