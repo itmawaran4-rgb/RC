@@ -893,42 +893,21 @@ function renderCars(){
 /* ══════════════════════════════════════════════════════
    ✅ الإصلاح الرئيسي — فحص الغرامات في الخلفية
    ══════════════════════════════════════════════════════ */
-function startBackgroundFinesCheck(){
-  cars.forEach((c,i)=>{
-    const cache = finesCache[c.id];
-    const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
-    const stuck = cache && cache.count === 'checking' && age > 120000; // عالق أكثر من دقيقتين
-
-    const needsCheck =
-      !cache                                           // لم يُفحص أبداً
-      || (cache.count !== '?' && age > 86400000)      // فحص ناجح قديم → أعِد بعد 24 ساعة
-      || (cache.count === '?' && age > 3600000)       // فشل سابق → أعِد بعد ساعة واحدة
-      || stuck;                                        // عالق في حالة checking
-
-    if(needsCheck){
-      setTimeout(()=>backgroundCheckFines(c), i * 2200);
-    }
-  });
-}
-
 async function backgroundCheckFines(c){
   const cache = finesCache[c.id];
   const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
 
-  // تجاهل إذا كان الفحص الأخير ناجحاً ولم تمضِ 24 ساعة
-  if(cache && cache.checkedAt && cache.count !== '?' && cache.count !== 'checking' && age < 86400000){
-    return;
-  }
-  // تجاهل إذا كان يفحص الآن وليس عالقاً
-  if(cache && cache.count === 'checking' && age < 120000){
-    return;
-  }
+  if(cache && cache.checkedAt && cache.count !== '?' && cache.count !== 'checking' && age < 86400000) return;
+  if(cache && cache.count === 'checking' && age < 120000) return;
 
-  // ✅ احتفظ بـ checkedAt القديم أثناء الفحص حتى لا يُحذف
+  // ✅ 1. احفظ البيانات الصالحة القديمة قبل بدء الفحص
+  const oldValid = (cache && cache.count !== 'checking' && cache.count !== '?' && cache.checkedAt)
+    ? {...cache} : null;
+
   finesCache[c.id] = {
     count: 'checking',
-    total: '',
-    checkedAt: (cache && cache.checkedAt) ? cache.checkedAt : null
+    total: oldValid ? oldValid.total : '',
+    checkedAt: oldValid ? oldValid.checkedAt : null
   };
   updateBadge(c.id, 'checking', '');
 
@@ -954,6 +933,21 @@ async function backgroundCheckFines(c){
     }catch(e){ continue; }
   }
 
+  // ✅ 2. إذا فشل الاتصال — استعد البيانات القديمة بدلاً من حفظ '?'
+  if(html.length < 100){
+    if(oldValid){
+      // أعد البيانات القديمة، واضبط إعادة المحاولة بعد ساعة واحدة
+      finesCache[c.id] = {...oldValid, checkedAt: Date.now() - 82800000};
+    } else {
+      finesCache[c.id] = {count: '?', total: '', checkedAt: Date.now()};
+    }
+    saveFinesCache();
+    const restored = finesCache[c.id];
+    updateBadge(c.id, restored.count, restored.total || '');
+    if(curCar === c.id) refreshFinesSummaryCard(c.id);
+    return; // ← توقف هنا، لا تكمل
+  }
+
   try{
     const countMatch = html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/) ||
                        html.match(/عدد المخالفات[^\d]*(\d+)/i) ||
@@ -963,8 +957,7 @@ async function backgroundCheckFines(c){
                        html.match(/Total Amount[^\d]*([\d,]+)/i);
 
     let count = '0', total = '';
-    if(html.length < 100){ count = '?'; }
-    else if(countMatch){ count = countMatch[1].trim(); }
+    if(countMatch){ count = countMatch[1].trim(); }
     else{ const rows = (html.match(/<tr[\s>]/gi)||[]).length; count = rows > 1 ? String(rows-1) : '0'; }
 
     if(totalMatch){
@@ -972,17 +965,21 @@ async function backgroundCheckFines(c){
       total = raw >= 1000 ? Math.round(raw/1000)+'K' : String(raw);
     }
 
-    // ✅ دائماً احفظ checkedAt عند النجاح
     finesCache[c.id] = {count, total, checkedAt: Date.now()};
     saveFinesCache();
     updateBadge(c.id, count, total);
     if(curCar === c.id) refreshFinesSummaryCard(c.id);
 
   }catch(err){
-    // ✅ دائماً احفظ checkedAt حتى عند الفشل، لضمان إعادة المحاولة لاحقاً
-    finesCache[c.id] = {count: '?', total: '', checkedAt: Date.now()};
+    // ✅ 3. عند خطأ في التحليل — استعد البيانات القديمة أيضاً
+    if(oldValid){
+      finesCache[c.id] = {...oldValid, checkedAt: Date.now() - 82800000};
+    } else {
+      finesCache[c.id] = {count: '?', total: '', checkedAt: Date.now()};
+    }
     saveFinesCache();
-    updateBadge(c.id, '?', '');
+    const restored = finesCache[c.id];
+    updateBadge(c.id, restored.count, restored.total || '');
     if(curCar === c.id) refreshFinesSummaryCard(c.id);
   }
 }
