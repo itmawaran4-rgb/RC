@@ -987,22 +987,21 @@ async function backgroundCheckFines(c){
 
 function loadFines(){
   const c=cars.find(x=>x.id===curCar);if(!c)return;
+
+  // ✅ أعد الفحص وحدّث الرقم في الواجهة
+  if(!finesCache[c.id] || finesCache[c.id].count !== 'checking'){
+    if(finesCache[c.id]) finesCache[c.id].checkedAt = null;
+    backgroundCheckFines(c);
+    pollFinesSummary(c.id);
+  }
+
+  // افتح صفحة وزارة الداخلية
   const form=document.createElement('form');
   form.method='POST';form.action=`https://htp.moi.gov.krd/fines_form_data_${c.type}.php`;form.target='_blank';
   const fields={'Sinif':c.type,'plate':c.number,'PlateChar':c.letter==='0'?'':c.letter,'SanNumber':c.salyana};
   for(const key in fields){const input=document.createElement('input');input.type='hidden';input.name=key;input.value=fields[key];form.appendChild(input);}
   document.body.appendChild(form);form.submit();document.body.removeChild(form);
 }
-function forceCheckFines(c){
-  const cache = finesCache[c.id];
-  // أعد ضبط checkedAt فقط إذا لم يكن يفحص الآن
-  if(!cache || cache.count !== 'checking'){
-    if(finesCache[c.id]) finesCache[c.id].checkedAt = null;
-    backgroundCheckFines(c);
-    pollFinesSummary(c.id);
-  }
-}
-
 function updateBadge(id,count,total){
   const b=document.getElementById('badge-'+id);if(!b)return;
   if(count==='checking'){b.className='car-fines-badge checking';b.textContent='⏳';}
