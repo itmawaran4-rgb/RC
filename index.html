@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>RC Service</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
 <!-- PWA Manifest (inline blob) -->
 <script>
 (function(){
@@ -121,6 +119,22 @@ body.ltr .hamburger-btn{right:auto;left:16px;}
   margin-bottom:10px;display:flex;align-items:center;gap:6px;
 }
 .sb-section-hdr::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* Profile accordion toggle */
+.sb-profile-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;padding:10px 0 10px;margin-bottom:0;
+  user-select:none;
+}
+.sb-profile-toggle:hover .sb-profile-toggle-icon{color:var(--gold);}
+.sb-profile-toggle-icon{
+  font-size:13px;color:var(--muted);transition:transform .25s ease;
+}
+.sb-profile-toggle-icon.open{transform:rotate(180deg);}
+.sb-profile-collapsible{
+  display:none;animation:fadeIn .22s ease;
+}
+.sb-profile-collapsible.open{display:block;}
 
 /* Profile card */
 .sb-profile-card{
@@ -519,19 +533,24 @@ body.ltr .hamburger-btn{right:auto;left:16px;}
     <button class="sb-close-btn" onclick="closeSidebar()">✕</button>
   </div>
 
-  <!-- Section 1: Profile -->
+  <!-- Section 1: Profile (collapsed by default) -->
   <div class="sb-section">
-    <div class="sb-section-hdr" id="sb-profile-hdr">👤 معلوماتي</div>
-    <div class="sb-profile-card" id="sb-profile-card">
-      <div class="sb-profile-banner"></div>
-      <div class="sb-profile-body" id="sb-profile-body">
-        <div style="color:var(--muted);font-size:13px;text-align:center;padding:10px 0">—</div>
-      </div>
+    <div class="sb-profile-toggle" onclick="toggleSbProfile()" id="sb-profile-hdr">
+      <span>👤 <span id="sb-profile-hdr-txt">معلوماتي</span></span>
+      <span class="sb-profile-toggle-icon" id="sb-profile-chevron">▼</span>
     </div>
-    <div class="sb-qr-wrap" id="sb-qr-wrap">
-      <div class="sb-qr-label" id="sb-qr-label">📱 باركود رقم الهاتف</div>
-      <div id="sb-qr-code"></div>
-      <div class="sb-qr-phone" id="sb-qr-phone"></div>
+    <div class="sb-profile-collapsible" id="sb-profile-collapsible">
+      <div class="sb-profile-card" id="sb-profile-card">
+        <div class="sb-profile-banner"></div>
+        <div class="sb-profile-body" id="sb-profile-body">
+          <div style="color:var(--muted);font-size:13px;text-align:center;padding:10px 0">—</div>
+        </div>
+      </div>
+      <div class="sb-qr-wrap" id="sb-qr-wrap">
+        <div class="sb-qr-label" id="sb-qr-label">📱 باركود رقم الهاتف</div>
+        <div id="sb-qr-code"></div>
+        <div class="sb-qr-phone" id="sb-qr-phone"></div>
+      </div>
     </div>
   </div>
 
@@ -866,9 +885,11 @@ function setTheme(t){
   localStorage.setItem('rc_theme',t);
   applyTheme(t);
   updateThemeButtons();
-  // Regenerate QR with correct colors when theme changes
-  if(user && user.phone){
-    setTimeout(()=>renderSidebarQR(user.phone), 50);
+  // Force QR redraw with new background color
+  qrRendered=false;
+  lastQrPhone='';
+  if(sbProfileOpen && user && user.phone){
+    loadQRLibraryThen(()=>renderSidebarQR(user.phone));
   }
 }
 function applyTheme(t){
@@ -882,7 +903,40 @@ function updateThemeButtons(){
 }
 
 /* ─── SIDEBAR ─── */
+/* ─── LAZY QR LOADER ─── */
+let qrLibLoaded=false, qrLibLoading=false, qrLibCallbacks=[];
+function loadQRLibraryThen(cb){
+  if(qrLibLoaded){cb();return;}
+  qrLibCallbacks.push(cb);
+  if(qrLibLoading)return;
+  qrLibLoading=true;
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+  s.onload=()=>{qrLibLoaded=true;qrLibLoading=false;qrLibCallbacks.forEach(fn=>fn());qrLibCallbacks=[];};
+  s.onerror=()=>{qrLibLoading=false;qrLibCallbacks=[];};
+  document.head.appendChild(s);
+}
+
+/* ─── SIDEBAR PROFILE ACCORDION ─── */
+let sbProfileOpen=false;
+function toggleSbProfile(){
+  sbProfileOpen=!sbProfileOpen;
+  document.getElementById('sb-profile-collapsible').classList.toggle('open',sbProfileOpen);
+  document.getElementById('sb-profile-chevron').classList.toggle('open',sbProfileOpen);
+  // Load QR only on first open
+  if(sbProfileOpen && user && user.phone){
+    loadQRLibraryThen(()=>renderSidebarQR(user.phone));
+  }
+}
+
 function openSidebar(){
+  // Reset profile accordion when reopening
+  sbProfileOpen=false;
+  const col=document.getElementById('sb-profile-collapsible');
+  const icon=document.getElementById('sb-profile-chevron');
+  if(col) col.classList.remove('open');
+  if(icon) icon.classList.remove('open');
+
   document.getElementById('sidebar').classList.add('open');
   document.getElementById('sidebar-overlay').classList.add('open');
   document.body.style.overflow='hidden';
@@ -899,7 +953,7 @@ function renderSidebar(){
 
   // Update texts
   set('sb-menu-label', t.sbMenu);
-  set('sb-profile-hdr', '👤 '+t.sbProfile);
+  set('sb-profile-hdr-txt', t.sbProfile);
   set('sb-qr-label', t.sbQrLabel);
   set('sb-lang-hdr', '🌐 '+t.sbLang);
   set('sb-theme-hdr', '🎨 '+t.sbTheme);
@@ -912,10 +966,9 @@ function renderSidebar(){
     if(btn) btn.classList.toggle('active', l===lang);
   });
 
-  // Theme buttons
   updateThemeButtons();
 
-  // Profile info
+  // Profile info (pre-render for when accordion opens)
   const body=document.getElementById('sb-profile-body');
   if(user && body){
     const genderMap={male:t.male||'ذكر', female:t.female||'أنثى'};
@@ -926,11 +979,9 @@ function renderSidebar(){
       <div class="sb-info-row"><span class="sb-info-icon">🎂</span><span class="sb-info-val" style="direction:ltr;text-align:start">${user.dob||'—'}</span></div>
       <div class="sb-info-row"><span class="sb-info-icon">⚧</span><span class="sb-info-val">${genderMap[user.gender]||user.gender||'—'}</span></div>
     `;
-    // QR code
-    renderSidebarQR(user.phone);
   } else if(body){
     body.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:10px 0">—</div>';
-    document.getElementById('sb-qr-wrap').style.display='none';
+    const qrw=document.getElementById('sb-qr-wrap');if(qrw)qrw.style.display='none';
   }
 }
 
@@ -940,54 +991,32 @@ let lastQrPhone='';
 function renderSidebarQR(phone){
   const container=document.getElementById('sb-qr-code');
   const phoneEl=document.getElementById('sb-qr-phone');
-  if(!container) return;
+  if(!container||!phone) return;
 
-  // Rebuild if phone changed or first time
-  if(phone===lastQrPhone && qrRendered && container.children.length>0){
-    // Just update colors if theme changed
-    return;
-  }
+  // Skip if already rendered for same phone
+  if(phone===lastQrPhone && qrRendered && container.children.length>0) return;
 
   container.innerHTML='';
   qrRendered=false;
 
-  if(!phone){
-    document.getElementById('sb-qr-wrap').style.display='none';
-    return;
-  }
-
   document.getElementById('sb-qr-wrap').style.display='flex';
   if(phoneEl) phoneEl.textContent=phone;
 
-  const isDark = theme==='dark';
-  const qrDark = '#f5a623';
-  const qrLight = isDark ? '#1a2035' : '#f0f3fa';
-
+  const isDark=theme==='dark';
   try{
-    if(typeof QRCode !== 'undefined'){
-      new QRCode(container,{
-        text: 'tel:+'+phone.replace(/\D/g,''),
-        width:160,height:160,
-        colorDark: qrDark,
-        colorLight: qrLight,
-        correctLevel: QRCode.CorrectLevel.M
-      });
-      qrRendered=true;
-      lastQrPhone=phone;
-      // Style the generated element
-      setTimeout(()=>{
-        const img=container.querySelector('img');
-        const canvas=container.querySelector('canvas');
-        const el=img||canvas;
-        if(el){
-          el.style.borderRadius='10px';
-          el.style.display='block';
-        }
-      },100);
-    } else {
-      // Fallback: show phone prominently
-      container.innerHTML=`<div style="font-size:13px;color:var(--muted);padding:10px;text-align:center">QR library loading...</div>`;
-    }
+    new QRCode(container,{
+      text:'tel:+'+phone.replace(/\D/g,''),
+      width:160,height:160,
+      colorDark:'#f5a623',
+      colorLight:isDark?'#1a2035':'#f0f3fa',
+      correctLevel:QRCode.CorrectLevel.M
+    });
+    qrRendered=true;
+    lastQrPhone=phone;
+    setTimeout(()=>{
+      const el=container.querySelector('img')||container.querySelector('canvas');
+      if(el){el.style.borderRadius='10px';el.style.display='block';}
+    },80);
   }catch(e){
     container.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:10px">${phone}</div>`;
   }
