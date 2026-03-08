@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>RC Service</title>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <!-- PWA Manifest (inline blob) -->
 <script>
 (function(){
@@ -46,14 +48,144 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 body.ltr{direction:ltr;}
 body.ltr *{font-family:var(--font-en);letter-spacing:.02em;}
 
+/* ─── LIGHT MODE ─── */
+body.light-mode{
+  --bg:#f0f3fa;--surface:#ffffff;--card:#e8ecf5;--border:#c8cedf;
+  --text:#1a2035;--muted:#7b84a0;--shadow:0 8px 32px rgba(0,0,0,.12);
+}
+body.light-mode::before{
+  background:radial-gradient(ellipse 70% 50% at 20% 0%,rgba(245,166,35,.06) 0%,transparent 60%),
+  radial-gradient(ellipse 60% 60% at 80% 100%,rgba(15,212,176,.04) 0%,transparent 60%);
+}
+body.light-mode .form-control{background:#ffffff;color:var(--text);}
+body.light-mode .car-card:hover,body.light-mode .oil-header:hover{background:#d8dff0;}
+body.light-mode .modal-sheet{background:#f0f3fa;}
+body.light-mode .feedback-textarea{background:#ffffff;}
+
 .screen{display:none;flex-direction:column;align-items:center;min-height:100vh;padding:0 0 50px;position:relative;z-index:1;}
 .screen.active{display:flex;animation:fadeIn .35s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
 /* ─── BRAND HEADER ─── */
-.brand-header{width:100%;padding:16px 20px 10px;display:flex;align-items:center;justify-content:center;}
+.brand-header{width:100%;padding:16px 20px 10px;display:flex;align-items:center;justify-content:center;position:relative;}
 .brand-logo-img{height:54px;width:auto;max-width:160px;object-fit:contain;filter:drop-shadow(0 4px 14px rgba(245,166,35,.35));}
 
+/* ─── HAMBURGER BUTTON ─── */
+.hamburger-btn{
+  position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  background:var(--card);border:1.5px solid var(--border);border-radius:10px;
+  width:40px;height:40px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:5px;cursor:pointer;transition:var(--tr);z-index:10;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+body.ltr .hamburger-btn{right:auto;left:16px;}
+.hamburger-btn span{display:block;width:20px;height:2.5px;background:var(--text);border-radius:2px;transition:var(--tr);}
+.hamburger-btn:hover{border-color:var(--gold);background:rgba(245,166,35,.08);}
+.hamburger-btn:hover span{background:var(--gold);}
+
+/* ─── SIDEBAR ─── */
+#sidebar-overlay{
+  display:none;position:fixed;inset:0;z-index:150;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(5px);
+}
+#sidebar-overlay.open{display:block;animation:fadeIn .22s ease;}
+
+#sidebar{
+  position:fixed;top:0;right:-320px;width:300px;max-width:88vw;
+  height:100vh;z-index:151;background:var(--surface);
+  border-left:1px solid var(--border);
+  box-shadow:-14px 0 48px rgba(0,0,0,.45);
+  transition:right .32s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;display:flex;flex-direction:column;
+}
+#sidebar.open{right:0;}
+
+.sb-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 18px 16px;border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,rgba(245,166,35,.08),rgba(15,212,176,.04));
+  flex-shrink:0;
+}
+.sb-top-title{font-size:16px;font-weight:800;color:var(--gold);display:flex;align-items:center;gap:7px;}
+.sb-close-btn{
+  width:32px;height:32px;border-radius:50%;background:var(--card);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:14px;color:var(--muted);transition:var(--tr);
+}
+.sb-close-btn:hover{color:var(--text);background:var(--border);}
+
+.sb-section{padding:18px 16px 0;}
+.sb-section-hdr{
+  font-size:11px;font-weight:700;color:var(--muted);
+  letter-spacing:.09em;text-transform:uppercase;
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.sb-section-hdr::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* Profile card */
+.sb-profile-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;margin-bottom:14px;
+}
+.sb-profile-banner{
+  height:6px;background:linear-gradient(90deg,var(--gold),var(--teal));
+}
+.sb-profile-body{padding:14px;}
+.sb-info-row{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 0;font-size:14px;
+  border-bottom:1px solid var(--border);
+}
+.sb-info-row:last-child{border-bottom:none;padding-bottom:0;}
+.sb-info-icon{font-size:15px;width:24px;text-align:center;flex-shrink:0;color:var(--gold);}
+.sb-info-val{flex:1;font-weight:600;}
+
+/* QR code */
+.sb-qr-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  padding:16px;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);margin-bottom:18px;
+}
+.sb-qr-label{font-size:12px;color:var(--muted);margin-bottom:12px;font-weight:600;display:flex;align-items:center;gap:5px;}
+#sb-qr-code{border-radius:10px;overflow:hidden;}
+#sb-qr-code img,#sb-qr-code canvas{display:block;border-radius:8px;}
+.sb-qr-phone{font-size:13px;color:var(--teal);margin-top:8px;font-family:var(--font-en);font-weight:700;letter-spacing:.04em;}
+
+/* Language buttons */
+.sb-lang-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.sb-lang-btn{
+  background:var(--card);border:1.5px solid var(--border);border-radius:10px;
+  padding:12px 14px;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:var(--tr);color:var(--text);
+  font-size:15px;font-weight:700;font-family:inherit;
+}
+.sb-lang-btn:hover{border-color:var(--gold);background:rgba(245,166,35,.06);}
+.sb-lang-btn.active{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,rgba(245,166,35,.15),rgba(245,166,35,.05));
+  color:var(--gold);
+}
+.sb-lang-btn.active .sb-lang-check{display:block;}
+.sb-lang-check{display:none;color:var(--gold);font-size:16px;}
+.sb-lang-flag{font-size:20px;}
+
+/* Theme buttons */
+.sb-theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;}
+.sb-theme-btn{
+  background:var(--card);border:1.5px solid var(--border);border-radius:10px;
+  padding:14px 10px;cursor:pointer;transition:var(--tr);
+  color:var(--muted);font-size:13px;font-weight:700;font-family:inherit;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+.sb-theme-btn .th-icon{font-size:24px;display:block;}
+.sb-theme-btn:hover{border-color:var(--gold);}
+.sb-theme-btn.active{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,rgba(245,166,35,.15),rgba(245,166,35,.04));
+  color:var(--gold);
+}
+
+/* ─── REST OF ORIGINAL STYLES ─── */
 #oil-alert{display:none;width:calc(100% - 32px);max-width:480px;background:linear-gradient(135deg,rgba(255,77,109,.15),rgba(255,77,109,.06));border:1px solid var(--red);border-radius:var(--radius);padding:12px 16px;margin:0 16px 12px;animation:pulseBorder 2s infinite;}
 #oil-alert.show{display:flex;align-items:center;gap:10px;}
 @keyframes pulseBorder{0%,100%{box-shadow:0 0 0 0 rgba(255,77,109,.3)}50%{box-shadow:0 0 0 6px rgba(255,77,109,0)}}
@@ -88,7 +220,6 @@ body.ltr *{font-family:var(--font-en);letter-spacing:.02em;}
 #screen-main{align-items:stretch;padding-bottom:140px;}
 .main-content{padding:0 16px;display:flex;flex-direction:column;gap:14px;width:100%;}
 
-/* ─── ADV BANNER ─── */
 .ad-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;position:relative;min-height:100px;}
 .ad-label{position:absolute;top:7px;inset-inline-start:7px;background:rgba(0,0,0,.6);font-size:10px;padding:2px 7px;border-radius:4px;color:var(--muted);font-family:var(--font-en);z-index:3;}
 .ad-slide{display:none;width:100%;animation:fadeIn .4s ease;}
@@ -138,14 +269,12 @@ body.ltr *{font-family:var(--font-en);letter-spacing:.02em;}
 .oil-km-badge{background:rgba(15,212,176,.12);border:1px solid rgba(15,212,176,.3);color:var(--teal);border-radius:20px;padding:2px 10px;font-size:12px;font-family:var(--font-en);font-weight:700;}
 .oil-date{font-size:12px;color:var(--muted);margin-top:3px;}
 
-/* ─── FEEDBACK ─── */
 .feedback-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
 .feedback-title{font-size:15px;font-weight:700;margin-bottom:10px;}
 .feedback-textarea{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:11px;color:var(--text);font-size:14px;font-family:inherit;resize:none;outline:none;height:78px;transition:var(--tr);}
 .feedback-textarea:focus{border-color:var(--teal);}
 .btn-sending{background:linear-gradient(135deg,#3a4a6b,#2a3558) !important;color:var(--muted) !important;box-shadow:none !important;}
 
-/* ─── COMPANY INFO ─── */
 .company-info{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
 .company-title{font-size:15px;font-weight:700;margin-bottom:12px;color:var(--gold);}
 .company-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px;}
@@ -161,7 +290,6 @@ body.ltr *{font-family:var(--font-en);letter-spacing:.02em;}
 .contact-btn.outline-btn:hover{background:rgba(15,212,176,.08);transform:translateY(-2px);}
 .contact-btns-wrap{display:flex;flex-direction:column;gap:0;margin-bottom:8px;}
 
-/* ─── MODALS ─── */
 .modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;}
 .modal-overlay.open{display:flex;animation:fadeIn .18s ease;}
 .modal-sheet{background:var(--card);border-radius:22px 22px 0 0;padding:22px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,.5);animation:slideUp .3s cubic-bezier(.4,0,.2,1);position:relative;}
@@ -220,7 +348,6 @@ body.ltr *{font-family:var(--font-en);letter-spacing:.02em;}
 .next-oil-box-km span{font-size:14px;font-weight:400;color:var(--muted);}
 .next-oil-box-diff{font-size:12px;color:var(--muted);margin-top:3px;}
 
-/* ─── PWA INSTALL BANNER ─── */
 #pwa-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:linear-gradient(135deg,#1c2340,#111627);border-top:2px solid var(--gold);padding:18px 20px 22px;box-shadow:0 -12px 40px rgba(0,0,0,.65);}
 #pwa-banner.show{display:flex;flex-direction:column;align-items:center;gap:14px;animation:slideUp .4s cubic-bezier(.4,0,.2,1);}
 .pwa-top-row{display:flex;align-items:center;gap:14px;width:100%;}
@@ -305,6 +432,12 @@ body.ltr *{font-family:var(--font-en);letter-spacing:.02em;}
 <div id="screen-main" class="screen">
   <div class="brand-header">
     <img class="brand-logo-img" src="logo2.png" alt="RC Service" onerror="this.outerHTML='<span style=\'font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:22px;color:var(--gold)\'>RC Service</span>'">
+    <!-- HAMBURGER BUTTON -->
+    <button class="hamburger-btn" onclick="openSidebar()" id="hamburger-btn" aria-label="Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
   </div>
   <div id="oil-alert">
     <span class="alert-icon">⚠️</span>
@@ -356,7 +489,6 @@ body.ltr *{font-family:var(--font-en);letter-spacing:.02em;}
 
     <div class="company-info">
       <div class="company-title" id="company-title">📍 RC Service</div>
-
       <div class="contact-btns-wrap" style="margin-bottom:10px;">
         <a class="contact-btn primary-btn" id="btn-contact-us" href="https://linktr.ee/mawaranpages" target="_blank">
           📞 <span id="lbl-contact-us">تواصل معنا</span>
@@ -365,12 +497,78 @@ body.ltr *{font-family:var(--font-en);letter-spacing:.02em;}
           📍 <span id="lbl-nearest-agent">أقرب وكيل معتمد</span>
         </a>
       </div>
-
       <div class="company-item"><span class="ci-icon">💬</span><span id="lbl-cwa">واتساب:</span>&nbsp;<a href="" id="company-wa" target="_blank"></a></div>
       <div class="company-item"><span class="ci-icon">🏢</span><span id="lbl-caddr">العنوان:</span>&nbsp;<span id="company-addr"></span></div>
     </div>
 
   </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SIDEBAR OVERLAY + PANEL
+══════════════════════════════════════ -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+<div id="sidebar">
+
+  <!-- Header -->
+  <div class="sb-top">
+    <div class="sb-top-title">
+      <span>☰</span>
+      <span id="sb-menu-label">القائمة</span>
+    </div>
+    <button class="sb-close-btn" onclick="closeSidebar()">✕</button>
+  </div>
+
+  <!-- Section 1: Profile -->
+  <div class="sb-section">
+    <div class="sb-section-hdr" id="sb-profile-hdr">👤 معلوماتي</div>
+    <div class="sb-profile-card" id="sb-profile-card">
+      <div class="sb-profile-banner"></div>
+      <div class="sb-profile-body" id="sb-profile-body">
+        <div style="color:var(--muted);font-size:13px;text-align:center;padding:10px 0">—</div>
+      </div>
+    </div>
+    <div class="sb-qr-wrap" id="sb-qr-wrap">
+      <div class="sb-qr-label" id="sb-qr-label">📱 باركود رقم الهاتف</div>
+      <div id="sb-qr-code"></div>
+      <div class="sb-qr-phone" id="sb-qr-phone"></div>
+    </div>
+  </div>
+
+  <!-- Section 2: Language -->
+  <div class="sb-section">
+    <div class="sb-section-hdr" id="sb-lang-hdr">🌐 تغيير اللغة</div>
+    <div class="sb-lang-grid">
+      <button class="sb-lang-btn" id="sb-lang-ar" onclick="switchLang('ar')">
+        <span>🇮🇶 عربي</span>
+        <span class="sb-lang-check">✓</span>
+      </button>
+      <button class="sb-lang-btn" id="sb-lang-ku" onclick="switchLang('ku')">
+        <span>🏴 کوردی</span>
+        <span class="sb-lang-check">✓</span>
+      </button>
+      <button class="sb-lang-btn" id="sb-lang-en" onclick="switchLang('en')">
+        <span>🇬🇧 English</span>
+        <span class="sb-lang-check">✓</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Section 3: Theme -->
+  <div class="sb-section" style="padding-bottom:30px;">
+    <div class="sb-section-hdr" id="sb-theme-hdr">🎨 المظهر</div>
+    <div class="sb-theme-grid">
+      <button class="sb-theme-btn active" id="btn-theme-dark" onclick="setTheme('dark')">
+        <span class="th-icon">🌙</span>
+        <span id="lbl-theme-dark">ليلي</span>
+      </button>
+      <button class="sb-theme-btn" id="btn-theme-light" onclick="setTheme('light')">
+        <span class="th-icon">☀️</span>
+        <span id="lbl-theme-light">عادي</span>
+      </button>
+    </div>
+  </div>
+
 </div>
 
 <!-- MODAL: ADD CAR -->
@@ -562,6 +760,11 @@ ar:{
   pwaTitle:'ثبّت التطبيق',pwaSub:'أضف RC Service إلى شاشتك الرئيسية للوصول السريع',pwaInstall:'تثبيت',pwaLater:'لاحقاً',
   cities:['اربيل','السليمانية','دهوك','كركوك','بغداد','البصرة','الموصل','النجف','أخرى'],
   cityVals:['اربيل','السليمانية','دهوك','كركوك','بغداد','البصرة','الموصل','النجف','other'],
+  // Sidebar
+  sbMenu:'القائمة',sbProfile:'معلوماتي',sbQrLabel:'📱 باركود رقم الهاتف',
+  sbLang:'تغيير اللغة',sbTheme:'المظهر',
+  darkMode:'ليلي',lightMode:'عادي',
+  sbName:'الاسم',sbPhone:'الهاتف',sbCity:'المدينة',sbDob:'تاريخ الميلاد',sbGender:'الجنس',
 },
 ku:{
   regTitle:'زانیاریەکانی شوفێر',regSub:'تەنها جارێک پاشەکەوت دەکرێت',
@@ -592,6 +795,11 @@ ku:{
   pwaTitle:'ئەپێکەت دادبنێ',pwaSub:'RC Service زیادبکە بۆ شاشەی سەرەکیەکەت',pwaInstall:'دادانان',pwaLater:'دواتر',
   cities:['هەولێر','سلێمانی','دهۆک','کەرکووک','بەغداد','بەسرە','مووسڵ','نەجەف','ئەوتری'],
   cityVals:['هەولێر','سلێمانی','دهۆک','کەرکووک','بەغداد','بەسرە','مووسڵ','نەجەف','other'],
+  // Sidebar
+  sbMenu:'مینیو',sbProfile:'زانیاریەکانم',sbQrLabel:'📱 باركۆدی مۆبایل',
+  sbLang:'گۆڕینی زمان',sbTheme:'ڕووکار',
+  darkMode:'شەوانە',lightMode:'ڕۆژانە',
+  sbName:'ناو',sbPhone:'مۆبایل',sbCity:'شار',sbDob:'بەروار',sbGender:'رەگەز',
 },
 en:{
   regTitle:'Driver Information',regSub:'Saved once, never asked again',
@@ -622,6 +830,11 @@ en:{
   pwaTitle:'Install App',pwaSub:'Add RC Service to your home screen for quick access',pwaInstall:'Install',pwaLater:'Later',
   cities:['Erbil','Sulaymaniyah','Dohuk','Kirkuk','Baghdad','Basra','Mosul','Najaf','Other'],
   cityVals:['Erbil','Sulaymaniyah','Dohuk','Kirkuk','Baghdad','Basra','Mosul','Najaf','other'],
+  // Sidebar
+  sbMenu:'Menu',sbProfile:'My Profile',sbQrLabel:'📱 Phone QR Code',
+  sbLang:'Change Language',sbTheme:'Appearance',
+  darkMode:'Dark',lightMode:'Light',
+  sbName:'Name',sbPhone:'Phone',sbCity:'City',sbDob:'Birthday',sbGender:'Gender',
 }};
 
 /* ─── STATE ─── */
@@ -631,9 +844,11 @@ let cars   = JSON.parse(localStorage.getItem('rc_cars')  || '[]');
 let oilData= JSON.parse(localStorage.getItem('rc_oil')   || '{}');
 let finesCache = JSON.parse(localStorage.getItem('rc_finesCache') || '{}');
 let curCar=null;
+let theme  = localStorage.getItem('rc_theme') || 'dark';
 
 /* ─── INIT ─── */
 document.addEventListener('DOMContentLoaded',()=>{
+  initTheme();
   initPWA();
   if(!lang){show('screen-lang');return;}
   applyLang(lang);
@@ -641,6 +856,155 @@ document.addEventListener('DOMContentLoaded',()=>{
   show('screen-main');renderMain();checkAlerts();applyCompany();initADV();
   setTimeout(startBackgroundFinesCheck, 1500);
 });
+
+/* ─── THEME ─── */
+function initTheme(){
+  applyTheme(theme);
+}
+function setTheme(t){
+  theme=t;
+  localStorage.setItem('rc_theme',t);
+  applyTheme(t);
+  updateThemeButtons();
+  // Regenerate QR with correct colors when theme changes
+  if(user && user.phone){
+    setTimeout(()=>renderSidebarQR(user.phone), 50);
+  }
+}
+function applyTheme(t){
+  document.body.classList.toggle('light-mode', t==='light');
+}
+function updateThemeButtons(){
+  const btnD=document.getElementById('btn-theme-dark');
+  const btnL=document.getElementById('btn-theme-light');
+  if(btnD) btnD.classList.toggle('active', theme==='dark');
+  if(btnL) btnL.classList.toggle('active', theme==='light');
+}
+
+/* ─── SIDEBAR ─── */
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  renderSidebar();
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function renderSidebar(){
+  const t=T[lang]||T['ar'];
+
+  // Update texts
+  set('sb-menu-label', t.sbMenu);
+  set('sb-profile-hdr', '👤 '+t.sbProfile);
+  set('sb-qr-label', t.sbQrLabel);
+  set('sb-lang-hdr', '🌐 '+t.sbLang);
+  set('sb-theme-hdr', '🎨 '+t.sbTheme);
+  set('lbl-theme-dark', t.darkMode);
+  set('lbl-theme-light', t.lightMode);
+
+  // Active language highlight
+  ['ar','ku','en'].forEach(l=>{
+    const btn=document.getElementById('sb-lang-'+l);
+    if(btn) btn.classList.toggle('active', l===lang);
+  });
+
+  // Theme buttons
+  updateThemeButtons();
+
+  // Profile info
+  const body=document.getElementById('sb-profile-body');
+  if(user && body){
+    const genderMap={male:t.male||'ذكر', female:t.female||'أنثى'};
+    body.innerHTML=`
+      <div class="sb-info-row"><span class="sb-info-icon">👤</span><span class="sb-info-val">${user.name||'—'}</span></div>
+      <div class="sb-info-row"><span class="sb-info-icon">📱</span><span class="sb-info-val" style="direction:ltr;text-align:start">${user.phone||'—'}</span></div>
+      <div class="sb-info-row"><span class="sb-info-icon">🏙️</span><span class="sb-info-val">${user.city||'—'}</span></div>
+      <div class="sb-info-row"><span class="sb-info-icon">🎂</span><span class="sb-info-val" style="direction:ltr;text-align:start">${user.dob||'—'}</span></div>
+      <div class="sb-info-row"><span class="sb-info-icon">⚧</span><span class="sb-info-val">${genderMap[user.gender]||user.gender||'—'}</span></div>
+    `;
+    // QR code
+    renderSidebarQR(user.phone);
+  } else if(body){
+    body.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:10px 0">—</div>';
+    document.getElementById('sb-qr-wrap').style.display='none';
+  }
+}
+
+let qrRendered=false;
+let lastQrPhone='';
+
+function renderSidebarQR(phone){
+  const container=document.getElementById('sb-qr-code');
+  const phoneEl=document.getElementById('sb-qr-phone');
+  if(!container) return;
+
+  // Rebuild if phone changed or first time
+  if(phone===lastQrPhone && qrRendered && container.children.length>0){
+    // Just update colors if theme changed
+    return;
+  }
+
+  container.innerHTML='';
+  qrRendered=false;
+
+  if(!phone){
+    document.getElementById('sb-qr-wrap').style.display='none';
+    return;
+  }
+
+  document.getElementById('sb-qr-wrap').style.display='flex';
+  if(phoneEl) phoneEl.textContent=phone;
+
+  const isDark = theme==='dark';
+  const qrDark = '#f5a623';
+  const qrLight = isDark ? '#1a2035' : '#f0f3fa';
+
+  try{
+    if(typeof QRCode !== 'undefined'){
+      new QRCode(container,{
+        text: 'tel:+'+phone.replace(/\D/g,''),
+        width:160,height:160,
+        colorDark: qrDark,
+        colorLight: qrLight,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      qrRendered=true;
+      lastQrPhone=phone;
+      // Style the generated element
+      setTimeout(()=>{
+        const img=container.querySelector('img');
+        const canvas=container.querySelector('canvas');
+        const el=img||canvas;
+        if(el){
+          el.style.borderRadius='10px';
+          el.style.display='block';
+        }
+      },100);
+    } else {
+      // Fallback: show phone prominently
+      container.innerHTML=`<div style="font-size:13px;color:var(--muted);padding:10px;text-align:center">QR library loading...</div>`;
+    }
+  }catch(e){
+    container.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:10px">${phone}</div>`;
+  }
+}
+
+/* Switch language from sidebar (stays on current screen) */
+function switchLang(l){
+  lang=l;
+  localStorage.setItem('rc_lang',l);
+  applyLang(l);
+  if(user){
+    renderMain();checkAlerts();
+  }
+  // Re-render sidebar texts
+  renderSidebar();
+  toast(T[l].saved,'success');
+}
 
 /* ─── ADV SLIDESHOW ─── */
 let advIndex=0;
@@ -739,16 +1103,11 @@ let deferredPrompt=null;
 const IS_STANDALONE=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
 
 function initPWA(){
-  // لا تُظهر البانر إذا كان التطبيق مثبتاً بالفعل
   if(IS_STANDALONE){return;}
-
-  // اعترض حدث التثبيت وخزّنه
   window.addEventListener('beforeinstallprompt',(e)=>{
     e.preventDefault();
     deferredPrompt=e;
   });
-
-  // أظهر البانر فوراً
   showPWABanner();
 }
 
@@ -775,15 +1134,12 @@ async function installPWA(){
       document.getElementById('pwa-banner').classList.remove('show');
     }
   } else {
-    // iOS: تعليمات يدوية
     const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
     if(isIOS){
       alert(lang==='en'?'Tap the Share button ↑ then "Add to Home Screen"':lang==='ku'?'بۆتۆنی هاوبەشکردن ↑ دابگرە پاشان "زیادکردن بۆ شاشەی سەرەکی"':'اضغط زر المشاركة ↑ ثم "إضافة إلى الشاشة الرئيسية"');
     }
   }
 }
-
-function dismissPWA(){/* محذوف — لا يوجد زر لاحقاً */}
 
 /* ─── LANG ─── */
 function selectLang(l){lang=l;localStorage.setItem('rc_lang',l);applyLang(l);show('screen-register');}
@@ -890,34 +1246,28 @@ function renderCars(){
   }).join('');
 }
 
-/* ══════════════════════════════════════════════════════
-   ✅ الإصلاح الرئيسي — فحص الغرامات في الخلفية
-   ══════════════════════════════════════════════════════ */
-   function startBackgroundFinesCheck(){
+function startBackgroundFinesCheck(){
   cars.forEach((c,i)=>{
     const cache = finesCache[c.id];
     const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
     const stuck = cache && cache.count === 'checking' && age > 120000;
-
     const needsCheck =
       !cache
       || (cache.count !== '?' && age > 86400000)
       || (cache.count === '?' && age > 3600000)
       || stuck;
-
     if(needsCheck){
       setTimeout(()=>backgroundCheckFines(c), i * 2200);
     }
   });
 }
+
 async function backgroundCheckFines(c){
   const cache = finesCache[c.id];
   const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
-
   if(cache && cache.checkedAt && cache.count !== '?' && cache.count !== 'checking' && age < 86400000) return;
   if(cache && cache.count === 'checking' && age < 120000) return;
 
-  // ✅ 1. احفظ البيانات الصالحة القديمة قبل بدء الفحص
   const oldValid = (cache && cache.count !== 'checking' && cache.count !== '?' && cache.checkedAt)
     ? {...cache} : null;
 
@@ -946,16 +1296,13 @@ async function backgroundCheckFines(c){
         headers: {'Content-Type':'application/x-www-form-urlencoded','x-requested-with':'XMLHttpRequest'},
         body: body.toString()
       });
-      // ✅ جديد  
-     if(res.ok){ html = await res.text(); if(html.length > 30) break; }
+      if(res.ok){ html = await res.text(); if(html.length > 30) break; }
     }catch(e){ continue; }
-    if(html.length > 30) { console.log('FINES HTML:', html); break; }
+    if(html.length > 30) break;
   }
 
-  // ✅ 2. إذا فشل الاتصال — استعد البيانات القديمة بدلاً من حفظ '?'
   if(html.length < 30){
     if(oldValid){
-      // أعد البيانات القديمة، واضبط إعادة المحاولة بعد ساعة واحدة
       finesCache[c.id] = {...oldValid, checkedAt: Date.now() - 82800000};
     } else {
       finesCache[c.id] = {count: '?', total: '', checkedAt: Date.now()};
@@ -964,7 +1311,7 @@ async function backgroundCheckFines(c){
     const restored = finesCache[c.id];
     updateBadge(c.id, restored.count, restored.total || '');
     if(curCar === c.id) refreshFinesSummaryCard(c.id);
-    return; // ← توقف هنا، لا تكمل
+    return;
   }
 
   try{
@@ -990,7 +1337,6 @@ async function backgroundCheckFines(c){
     if(curCar === c.id) refreshFinesSummaryCard(c.id);
 
   }catch(err){
-    // ✅ 3. عند خطأ في التحليل — استعد البيانات القديمة أيضاً
     if(oldValid){
       finesCache[c.id] = {...oldValid, checkedAt: Date.now() - 82800000};
     } else {
@@ -1002,25 +1348,21 @@ async function backgroundCheckFines(c){
     if(curCar === c.id) refreshFinesSummaryCard(c.id);
   }
 }
-/* ══════════════════════════════════════════════════════ */
 
 function loadFines(){
   const c=cars.find(x=>x.id===curCar);if(!c)return;
-
-  // ✅ أعد الفحص وحدّث الرقم في الواجهة
   if(!finesCache[c.id] || finesCache[c.id].count !== 'checking'){
     if(finesCache[c.id]) finesCache[c.id].checkedAt = 1;
     backgroundCheckFines(c);
     pollFinesSummary(c.id);
   }
-
-  // افتح صفحة وزارة الداخلية
   const form=document.createElement('form');
   form.method='POST';form.action=`https://htp.moi.gov.krd/fines_form_data_${c.type}.php`;form.target='_blank';
   const fields={'Sinif':c.type,'plate':c.number,'PlateChar':c.letter==='0'?'':c.letter,'SanNumber':c.salyana};
   for(const key in fields){const input=document.createElement('input');input.type='hidden';input.name=key;input.value=fields[key];form.appendChild(input);}
   document.body.appendChild(form);form.submit();document.body.removeChild(form);
 }
+
 function updateBadge(id,count,total){
   const b=document.getElementById('badge-'+id);if(!b)return;
   if(count==='checking'){b.className='car-fines-badge checking';b.textContent='⏳';}
@@ -1237,6 +1579,11 @@ function today(){return new Date().toISOString().split('T')[0];}
 
 document.querySelectorAll('.modal-overlay').forEach(o=>{
   o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id);});
+});
+
+// Close sidebar on Escape key
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeSidebar();
 });
 
 let toastT;
