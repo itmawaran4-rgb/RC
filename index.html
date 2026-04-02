@@ -2212,7 +2212,7 @@
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycbzXdOgSTUeSMAZArFHsW94jhCBJBgKB665jMGq7YGxmsVm8QFkDUx6BwPwjrC-7p1ul/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycbzKCq9Q6Rs2XInmWcf-G73nqKftzJmzkJddcAQKuS7GoPBjKPELVPt04z6RHW5ey1E1/exec',
       COMPANY: { whatsapp: '9647505009006', address: 'Erbil, 60 Mtr street next to Zirak Fish' },
       ADV_FILES: ['ADV/ad3.mp4'],
     };
@@ -2668,6 +2668,7 @@
           localStorage.setItem('rc_gear', JSON.stringify(gearData));
           renderMain();
           checkAlerts();
+          setTimeout(startBackgroundFinesCheck, 500);
         }
       } catch (err) {
         console.error("Error load from Sheets:", err);
