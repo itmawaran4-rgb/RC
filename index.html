@@ -2152,21 +2152,27 @@
           <span class="expand-chevron" id="gear-expand-chevron">▼</span>
         </div>
         <div class="expand-body" id="gear-expand">
-          <div id="gear-last-info" style="font-size:13px;color:var(--muted);margin-bottom:12px"></div>
-          <div class="form-group">
-            <label class="form-label" id="lbl-gear-km">الكيلومتر عند التغيير</label>
-            <input class="form-control" id="gear-km" type="number" placeholder="120000">
+          <div class="oil-detail-grid" id="gear-entries" style="margin-bottom:12px;"></div>
+          <div class="divider"></div>
+          <button class="btn-primary" onclick="toggleNewGearForm()" style="background:transparent;color:var(--gold);border:1.5px solid var(--border);box-shadow:none">➕ <span id="new-gear-txt">تسجيل تغيير جديد</span></button>
+
+          <div id="new-gear-form" style="display:none;margin-top:18px">
+            <div class="divider"></div>
+            <div style="font-size:15px;font-weight:800;margin-bottom:14px" id="new-gear-title">تغيير كير جديد</div>
+            <div class="form-group">
+              <label class="form-label" id="lbl-gear-km">الكيلومتر عند التغيير</label>
+              <input class="form-control" id="gear-km" type="number" placeholder="120000">
+            </div>
+            <div class="form-group">
+              <label class="form-label" id="lbl-gear-date">التاريخ</label>
+              <input class="form-control" id="gear-date" type="date">
+            </div>
+            <div class="form-group">
+              <label class="form-label" id="lbl-gear-notes">ملاحظات</label>
+              <textarea class="form-control" id="gear-notes" rows="2" placeholder="..."></textarea>
+            </div>
+            <button class="btn-primary" onclick="saveGear()" style="background:linear-gradient(135deg, #f5a623, #c07b10);">💾 <span id="save-gear-btn-txt">حفظ تغيير الكير</span></button>
           </div>
-          <div class="form-group">
-            <label class="form-label" id="lbl-gear-date">التاريخ</label>
-            <input class="form-control" id="gear-date" type="date">
-          </div>
-          <div class="form-group">
-            <label class="form-label" id="lbl-gear-notes">ملاحظات</label>
-            <textarea class="form-control" id="gear-notes" rows="2" placeholder="..."></textarea>
-          </div>
-          <button class="btn-primary" onclick="saveGear()">💾 <span id="save-gear-btn-txt">حفظ تغيير
-              الكير</span></button>
         </div>
       </div>
 
@@ -2792,7 +2798,19 @@
 
       // قسم الكير
       const gd = gearData[carId];
-      set('gear-last-info', gd ? `${t.gearLast ? t.gearLast(gd.date) : 'آخر تغيير: ' + gd.date}` : lang === 'en' ? 'No gearbox change recorded' : 'لا يوجد سجل لتغيير الكير');
+      if(document.getElementById('new-gear-form')) document.getElementById('new-gear-form').style.display = 'none';
+      const gel = document.getElementById('gear-entries');
+      if (!gd || (!gd.km && !gd.date)) { 
+        if(gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${lang === 'en' ? 'No gearbox change recorded' : 'لا يوجد سجل لتغيير الكير'}</div>`; 
+      } else {
+        if(gel) gel.innerHTML = `<div class="oil-detail-card" style="border:1.5px solid rgba(245,166,35,.4); background:var(--surface);">
+      <div class="oil-detail-header">
+        <div class="oil-detail-km" style="color:var(--gold); font-size:22px; font-weight:900; font-family:var(--font-en);">${gd.km}<span style="font-size:14px;font-weight:400; color:var(--text)"> ${t.km || 'km'}</span></div>
+        <div class="oil-detail-date" style="font-size:12px; color:var(--muted);">${gd.date}</div>
+      </div>
+      ${gd.notes ? `<div class="oil-notes" style="font-size:13px; color:var(--muted); margin-top:7px;">${gd.notes}</div>` : ''}
+    </div>`;
+      }
       document.getElementById('gear-date').value = today();
       document.getElementById('gear-km').value = '';
       document.getElementById('gear-notes').value = '';
@@ -2882,6 +2900,8 @@
     /* ═══════════════════════════════════════
        GEAR (الكير)
     ═══════════════════════════════════════ */
+    function toggleNewGearForm() { const f = document.getElementById('new-gear-form'); if(f) f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
+
     function saveGear() {
       const t = T[lang];
       const km = document.getElementById('gear-km').value.trim();
@@ -2892,11 +2912,15 @@
       localStorage.setItem('rc_gear', JSON.stringify(gearData));
       // تحديث Google Sheets
       sendSheet({ sheet: 'cars', action: 'update_gear', car_id: String(curCar), user_phone: user?.phone || '', car_name: cars.find(c => c.id === curCar)?.name || '', gearKm: km, gearDate: date, gearNotes: notes });
-      set('gear-last-info', `${t.gearLast ? t.gearLast(date) : 'آخر تغيير: ' + date}`);
+      
+      openCarDetail(curCar);
+      const gearBody = document.getElementById('gear-expand');
+      const gearChevron = document.getElementById('gear-expand-chevron');
+      if (gearBody && !gearBody.classList.contains('open')) {
+        gearBody.classList.add('open');
+        if (gearChevron) gearChevron.classList.add('open');
+      }
       toast(t.gearSaved || t.saved, 'success');
-      // أغلق القسم بعد الحفظ
-      document.getElementById('gear-expand').classList.remove('open');
-      document.getElementById('gear-expand-chevron').classList.remove('open');
     }
 
     /* ═══════════════════════════════════════
