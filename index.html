@@ -438,6 +438,8 @@ body.ltr .hamburger-btn{right:auto;left:16px;}
       <div class="cars-list" id="cars-list">
         <div class="no-cars"><span>🚗</span><div id="no-cars-text">لا توجد سيارات. اضغط + لإضافة.</div></div>
       </div>
+      <!-- زر طلب كرين تحت السيارات -->
+      <button class="btn-service" style="margin-top:14px;border-color:rgba(245,166,35,.5);color:var(--gold);" onclick="openCraneModal()">🚛 <span id="lbl-crane-btn">طلب كرين</span></button>
     </div>
 
     <!-- OIL SECTION -->
@@ -577,8 +579,65 @@ body.ltr .hamburger-btn{right:auto;left:16px;}
     </div>
     <button class="btn-check" id="btn-check-fines" onclick="loadFines()">🔍 <span id="fines-btn-txt">عرض تفاصيل الغرامات</span></button>
 
-    <!-- زر طلب كرين -->
-    <button class="btn-service" onclick="openCraneModal()">🚛 <span id="lbl-crane-btn">طلب كرين</span></button>
+    <!-- قسم الزيت (قابل للطي) -->
+    <div class="expand-section" id="oil-expand-section">
+      <div class="expand-header" onclick="toggleExpand('oil-expand')">
+        <div class="expand-header-left">🛢️ <span id="lbl-oil-section-title">تغيير الزيت</span></div>
+        <span class="expand-chevron" id="oil-expand-chevron">▼</span>
+      </div>
+      <div class="expand-body" id="oil-expand">
+        <div class="oil-detail-grid" id="oil-entries" style="margin-bottom:12px;"></div>
+        <div class="divider"></div>
+        <button class="btn-primary" onclick="toggleNewOilForm()">➕ <span id="new-oil-txt">تسجيل تغيير جديد</span></button>
+
+        <div id="new-oil-form" style="display:none;margin-top:18px">
+          <div class="divider"></div>
+          <div style="font-size:15px;font-weight:800;margin-bottom:14px" id="new-oil-title">تغيير زيت جديد</div>
+          <div class="form-group">
+            <label class="form-label" id="lbl-oil-km">الكيلومتر الحالي</label>
+            <input class="form-control" id="oil-km" type="number" placeholder="85000" oninput="updateNextOilKm()">
+          </div>
+          <div class="form-group">
+            <label class="form-label" id="lbl-oil-interval">المسافة للتغيير القادم</label>
+            <select class="form-control" id="oil-interval" onchange="updateNextOilKm()">
+              <option value="0" id="opt-interval-none">-- اختر المسافة --</option>
+              <option value="3000">3,000 km</option>
+              <option value="5000">5,000 km</option>
+              <option value="8000">8,000 km</option>
+              <option value="10000">10,000 km</option>
+              <option value="15000">15,000 km</option>
+            </select>
+          </div>
+          <div class="next-oil-box" id="next-oil-box">
+            <div class="next-oil-box-label" id="next-oil-box-label">كيلومتر التغيير القادم</div>
+            <div class="next-oil-box-km" id="next-oil-box-km">—<span> km</span></div>
+            <div class="next-oil-box-diff" id="next-oil-box-diff"></div>
+          </div>
+          <div class="form-group" style="margin-top:14px">
+            <label class="form-label" id="lbl-oil-date">التاريخ</label>
+            <input class="form-control" id="oil-date" type="date">
+          </div>
+          <div class="form-group">
+            <div class="checkbox-wrap">
+              <input type="checkbox" id="oil-filter">
+              <label for="oil-filter" id="lbl-filter">تم تغيير الفلتر أيضاً</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" id="lbl-oil-notes">ملاحظات</label>
+            <textarea class="form-control" id="oil-notes" rows="2" placeholder="..."></textarea>
+          </div>
+          <div class="form-group">
+            <div class="reminder-label-txt" id="lbl-reminder">تذكير بتغيير الزيت بعد</div>
+            <div class="reminder-row">
+              <input type="number" class="reminder-num" id="oil-reminder" min="0" max="999" placeholder="0" value="0">
+              <span class="reminder-unit" id="reminder-unit">يوم  (0 = بلا تذكير)</span>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="saveOil()" id="save-oil-btn">حفظ</button>
+        </div>
+      </div>
+    </div>
 
     <!-- قسم الكير (قابل للطي) -->
     <div class="expand-section" id="gear-expand-section">
@@ -608,65 +667,6 @@ body.ltr .hamburger-btn{right:auto;left:16px;}
   </div>
 </div>
 
-<!-- ══ MODAL: OIL ══ -->
-<div class="modal-overlay" id="modal-oil">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('modal-oil')">✕</button>
-    <div class="modal-title" id="oil-modal-title">سجل تغيير الزيت</div>
-    <div class="modal-sub"   id="oil-modal-sub">آخر تغيير مسجل</div>
-    <div class="oil-detail-grid" id="oil-entries"></div>
-    <div class="divider"></div>
-    <button class="btn-primary" onclick="toggleNewOilForm()">➕ <span id="new-oil-txt">تسجيل تغيير جديد</span></button>
-
-    <div id="new-oil-form" style="display:none;margin-top:18px">
-      <div class="divider"></div>
-      <div style="font-size:15px;font-weight:800;margin-bottom:14px" id="new-oil-title">تغيير زيت جديد</div>
-      <div class="form-group">
-        <label class="form-label" id="lbl-oil-km">الكيلومتر الحالي</label>
-        <input class="form-control" id="oil-km" type="number" placeholder="85000" oninput="updateNextOilKm()">
-      </div>
-      <div class="form-group">
-        <label class="form-label" id="lbl-oil-interval">المسافة للتغيير القادم</label>
-        <select class="form-control" id="oil-interval" onchange="updateNextOilKm()">
-          <option value="0" id="opt-interval-none">-- اختر المسافة --</option>
-          <option value="3000">3,000 km</option>
-          <option value="5000">5,000 km</option>
-          <option value="8000">8,000 km</option>
-          <option value="10000">10,000 km</option>
-          <option value="15000">15,000 km</option>
-        </select>
-      </div>
-      <div class="next-oil-box" id="next-oil-box">
-        <div class="next-oil-box-label" id="next-oil-box-label">كيلومتر التغيير القادم</div>
-        <div class="next-oil-box-km" id="next-oil-box-km">—<span> km</span></div>
-        <div class="next-oil-box-diff" id="next-oil-box-diff"></div>
-      </div>
-      <div class="form-group" style="margin-top:14px">
-        <label class="form-label" id="lbl-oil-date">التاريخ</label>
-        <input class="form-control" id="oil-date" type="date">
-      </div>
-      <div class="form-group">
-        <div class="checkbox-wrap">
-          <input type="checkbox" id="oil-filter">
-          <label for="oil-filter" id="lbl-filter">تم تغيير الفلتر أيضاً</label>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label" id="lbl-oil-notes">ملاحظات</label>
-        <textarea class="form-control" id="oil-notes" rows="2" placeholder="..."></textarea>
-      </div>
-      <div class="form-group">
-        <div class="reminder-label-txt" id="lbl-reminder">تذكير بتغيير الزيت بعد</div>
-        <div class="reminder-row">
-          <input type="number" class="reminder-num" id="oil-reminder" min="0" max="999" placeholder="0" value="0">
-          <span class="reminder-unit" id="reminder-unit">يوم  (0 = بلا تذكير)</span>
-        </div>
-      </div>
-      <button class="btn-primary" onclick="saveOil()" id="save-oil-btn">حفظ</button>
-    </div>
-  </div>
-</div>
 
 <!-- ══ MODAL: CRANE ══ -->
 <div class="modal-overlay" id="modal-crane">
@@ -998,6 +998,7 @@ function applyLang(l){
   t.cities.forEach((c,i)=>{const o=document.createElement('option');o.value=t.cityVals[i];o.textContent=c;cs.appendChild(o);});
   set('cars-title',t.carsTitle);set('no-cars-text',t.noCars);
   set('oil-section-title',t.oilTitle);set('oil-section-sub',t.oilSub);
+  set('lbl-oil-section-title',t.oilTitle);
   set('add-car-title',t.addCarTitle);set('add-car-sub',t.addCarSub);
   set('lbl-gov',t.govLabel||t.gov);set('lbl-car-name',t.carName);
   set('fines-btn-txt',t.checkFines);set('del-btn-txt',t.delBtn);
@@ -1248,6 +1249,34 @@ function openCarDetail(carId){
   document.getElementById('gear-km').value='';
   document.getElementById('gear-notes').value='';
 
+  // منطق الزيت
+  document.getElementById('new-oil-form').style.display='none';
+  const entries=oilData[carId]||[];
+  const el=document.getElementById('oil-entries');
+  if(!entries.length){el.innerHTML=`<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${t.noOilyet}</div>`;}
+  else{
+    const last=entries[entries.length-1];
+    el.innerHTML=`<div class="oil-detail-card">
+      <div class="oil-detail-header">
+        <div class="oil-detail-km">${last.km}<span style="font-size:14px;font-weight:400"> ${t.km}</span></div>
+        <div class="oil-detail-date">${last.date}</div>
+      </div>
+      <div class="oil-detail-meta">
+        <span class="oil-tag ${last.filter?'':'no'}">${last.filter?t.filterYes:t.filterNo}</span>
+        ${last.remind>0?`<span class="oil-tag">🔔 ${last.remind}d</span>`:''}
+        ${last.nextKm?`<span class="oil-tag" style="background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.35);color:var(--gold)">→ ${Number(last.nextKm).toLocaleString()} km</span>`:''}
+      </div>
+      ${last.notes?`<div class="oil-notes">${last.notes}</div>`:''}
+    </div>`;
+  }
+  document.getElementById('oil-date').value=today();
+  document.getElementById('oil-km').value='';
+  document.getElementById('oil-notes').value='';
+  document.getElementById('oil-filter').checked=false;
+  document.getElementById('oil-reminder').value='0';
+  document.getElementById('oil-interval').value='0';
+  document.getElementById('next-oil-box').style.display='none';
+
   // إخفاء زر الغرامات إن لا يوجد موديول
   document.getElementById('btn-check-fines').style.display=mod?'':'none';
   document.getElementById('fines-summary-card').style.display=mod?'':'none';
@@ -1314,7 +1343,7 @@ function saveGear(){
   gearData[curCar]={km,date,notes,ts:Date.now()};
   localStorage.setItem('rc_gear',JSON.stringify(gearData));
   // تحديث Google Sheets
-  sendSheet({sheet:'cars',action:'update_gear',car_id:String(curCar),gearKm:km,gearDate:date,gearNotes:notes});
+  sendSheet({sheet:'cars',action:'update_gear',car_id:String(curCar),user_phone:user?.phone||'',car_name:cars.find(c=>c.id===curCar)?.name||'',gearKm:km,gearDate:date,gearNotes:notes});
   set('gear-last-info',`${t.gearLast?t.gearLast(date):'آخر تغيير: '+date}`);
   toast(t.gearSaved||t.saved,'success');
   // أغلق القسم بعد الحفظ
@@ -1344,38 +1373,13 @@ function renderOilList(){
 }
 
 function openOilModal(carId){
-  const t=T[lang];
-  const c=cars.find(x=>x.id===carId);if(!c)return;
-  curCar=carId;
-  set('oil-modal-title',c.name);set('oil-modal-sub',t.oilModalSub);
-  document.getElementById('new-oil-form').style.display='none';
-  const entries=oilData[carId]||[];
-  const el=document.getElementById('oil-entries');
-  if(!entries.length){el.innerHTML=`<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${t.noOilyet}</div>`;}
-  else{
-    // عرض آخر تغيير فقط (الأحدث)
-    const last=entries[entries.length-1];
-    el.innerHTML=`<div class="oil-detail-card">
-      <div class="oil-detail-header">
-        <div class="oil-detail-km">${last.km}<span style="font-size:14px;font-weight:400"> ${t.km}</span></div>
-        <div class="oil-detail-date">${last.date}</div>
-      </div>
-      <div class="oil-detail-meta">
-        <span class="oil-tag ${last.filter?'':'no'}">${last.filter?t.filterYes:t.filterNo}</span>
-        ${last.remind>0?`<span class="oil-tag">🔔 ${last.remind}d</span>`:''}
-        ${last.nextKm?`<span class="oil-tag" style="background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.35);color:var(--gold)">→ ${Number(last.nextKm).toLocaleString()} km</span>`:''}
-      </div>
-      ${last.notes?`<div class="oil-notes">${last.notes}</div>`:''}
-    </div>`;
+  openCarDetail(carId);
+  const oilBody = document.getElementById('oil-expand');
+  const oilChevron = document.getElementById('oil-expand-chevron');
+  if(oilBody && !oilBody.classList.contains('open')) {
+    oilBody.classList.add('open');
+    if(oilChevron) oilChevron.classList.add('open');
   }
-  document.getElementById('oil-date').value=today();
-  document.getElementById('oil-km').value='';
-  document.getElementById('oil-notes').value='';
-  document.getElementById('oil-filter').checked=false;
-  document.getElementById('oil-reminder').value='0';
-  document.getElementById('oil-interval').value='0';
-  document.getElementById('next-oil-box').style.display='none';
-  openModal('modal-oil');
 }
 
 function toggleNewOilForm(){const f=document.getElementById('new-oil-form');f.style.display=f.style.display==='none'?'block':'none';}
@@ -1408,7 +1412,7 @@ function saveOil(){
   localStorage.setItem('rc_oil',JSON.stringify(oilData));
 
   // إرسال إلى Google Sheets (تحديث السطر)
-  sendSheet({sheet:'cars',action:'update_oil',car_id:String(curCar),oilKm:km,oilDate:date,oilFilter:filter,oilNotes:notes,oilNextKm:nextKm});
+  sendSheet({sheet:'cars',action:'update_oil',car_id:String(curCar),user_phone:user?.phone||'',car_name:cars.find(c=>c.id===curCar)?.name||'',oilKm:km,oilDate:date,oilFilter:filter,oilNotes:notes,oilNextKm:nextKm});
 
   document.getElementById('new-oil-form').style.display='none';
   openOilModal(curCar);renderOilList();checkAlerts();toast(t.saved,'success');
