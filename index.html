@@ -2724,7 +2724,8 @@
         const cache = finesCache[c.id];
         const age = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
         const stuck = cache && cache.count === 'checking' && age > 120000;
-        const needsCheck = !cache || (cache.count !== '?' && age > 86400000) || (cache.count === '?' && age > 3600000) || stuck;
+        const isError = cache && (cache.count === '!' || cache.count === '?');
+        const needsCheck = !cache || isError || age > 86400000 || stuck;
         if (needsCheck) setTimeout(() => backgroundCheckFines(c), i * 2200);
       });
     }
@@ -2734,10 +2735,9 @@
       if (!mod) return;
       const cache = finesCache[c.id];
       const age = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
-      if (cache && cache.checkedAt && cache.count !== '?' && cache.count !== 'checking' && age < 86400000) return;
+      if (cache && cache.checkedAt && cache.count !== '?' && cache.count !== '!' && cache.count !== 'checking' && age < 86400000) return;
       if (cache && cache.count === 'checking' && age < 120000) return;
-      const oldValid = (cache && cache.count !== 'checking' && cache.count !== '?' && cache.checkedAt) ? { ...cache } : null;
-      finesCache[c.id] = { count: 'checking', total: oldValid ? oldValid.total : '', checkedAt: oldValid ? oldValid.checkedAt : null };
+      finesCache[c.id] = { count: 'checking', total: cache ? cache.total : '', checkedAt: cache ? cache.checkedAt : null };
       updateBadge(c.id, 'checking', '');
       const targetUrl = mod.getFinesUrl(c);
       const body = mod.buildFormData(c);
@@ -2750,18 +2750,19 @@
         try { const res = await fetch(proxyFn(targetUrl), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'x-requested-with': 'XMLHttpRequest' }, body: body.toString() }); if (res.ok) { html = await res.text(); if (html.length > 30) break; } } catch (e) { continue; }
         if (html.length > 30) break;
       }
-      if (html.length < 30) {
-        if (oldValid) finesCache[c.id] = { ...oldValid, checkedAt: Date.now() - 82800000 };
-        else finesCache[c.id] = { count: '?', total: '', checkedAt: Date.now() };
+      
+      // Check for parsing errors or empty responses
+      if (html.length < 30 || html.toLowerCase().includes('502 bad gateway') || html.toLowerCase().includes('gateway time-out')) {
+        finesCache[c.id] = { count: '!', total: '', checkedAt: Date.now() };
         saveFinesCache(); const r = finesCache[c.id]; updateBadge(c.id, r.count, r.total || ''); if (curCar === c.id) refreshFinesSummaryCard(c.id); return;
       }
+      
       try {
         const { count, total } = mod.parseHtmlResponse(html);
         finesCache[c.id] = { count, total, checkedAt: Date.now() };
         saveFinesCache(); updateBadge(c.id, count, total); if (curCar === c.id) refreshFinesSummaryCard(c.id);
       } catch (err) {
-        if (oldValid) finesCache[c.id] = { ...oldValid, checkedAt: Date.now() - 82800000 };
-        else finesCache[c.id] = { count: '?', total: '', checkedAt: Date.now() };
+        finesCache[c.id] = { count: '!', total: '', checkedAt: Date.now() };
         saveFinesCache(); const r = finesCache[c.id]; updateBadge(c.id, r.count, r.total || ''); if (curCar === c.id) refreshFinesSummaryCard(c.id);
       }
     }
@@ -2871,7 +2872,7 @@
       set('fines-summary-label', t.finesSummaryLabel);
       if (!cached || cached.count === 'checking') { dot.className = 'fines-status-dot checking'; countEl.className = 'fines-summary-count muted'; countEl.textContent = t.finesChecking; }
       else if (cached.count === '0') { dot.className = 'fines-status-dot done-ok'; countEl.className = 'fines-summary-count green'; countEl.textContent = t.finesNone; }
-      else if (cached.count === '?') { dot.className = 'fines-status-dot'; countEl.className = 'fines-summary-count muted'; countEl.textContent = t.finesUnknown; }
+      else if (cached.count === '?' || cached.count === '!') { dot.className = 'fines-status-dot'; countEl.className = 'fines-summary-count muted'; countEl.textContent = cached.count === '!' ? '!' : t.finesUnknown; }
       else { dot.className = 'fines-status-dot done-bad'; countEl.className = 'fines-summary-count red'; const totalTxt = cached.total ? ` · ${cached.total}` : ''; countEl.textContent = t.finesFound(cached.count) + totalTxt; }
     }
 
