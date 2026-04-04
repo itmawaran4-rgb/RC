@@ -1956,13 +1956,6 @@
       </div>
 
 
-      <!-- FEEDBACK -->
-      <div class="feedback-section">
-        <div class="feedback-title" id="feedback-title">💬 أرسل ملاحظاتك</div>
-        <textarea class="feedback-textarea" id="feedback-text" placeholder="..."></textarea>
-        <button class="btn-primary" style="margin-top:9px" id="feedback-btn" onclick="submitFeedback()">إرسال</button>
-      </div>
-
       <!-- COMPANY -->
       <div class="company-info">
         <div class="company-title" id="company-title">📍 RC Service</div>
@@ -1978,6 +1971,15 @@
             id="company-wa" target="_blank"></a></div>
         <div class="company-item"><span class="ci-icon">🏢</span><span id="lbl-caddr">العنوان:</span>&nbsp;<span
             id="company-addr"></span></div>
+      </div>
+
+      <!-- FEEDBACK -->
+      <div class="feedback-section">
+        <div class="feedback-title" id="feedback-title" style="font-size:13px;margin-bottom:6px;">💬 أرسل ملاحظاتك</div>
+        <div style="display:flex; gap:8px; align-items:stretch;">
+          <textarea class="feedback-textarea" id="feedback-text" placeholder="..." style="height:42px; padding:10px; font-size:13px; flex:1; resize:none;"></textarea>
+          <button class="btn-primary" id="feedback-btn" onclick="submitFeedback()" style="width:auto; padding:0 16px; margin:0; font-size:13px; border-radius:10px;">إرسال</button>
+        </div>
       </div>
 
     </div>
@@ -2154,7 +2156,9 @@
         <div class="expand-body" id="gear-expand">
           <div class="oil-detail-grid" id="gear-entries" style="margin-bottom:12px;"></div>
           <div class="divider"></div>
-          <button class="btn-primary" onclick="toggleNewGearForm()" style="background:transparent;color:var(--gold);border:1.5px solid var(--border);box-shadow:none">➕ <span id="new-gear-txt">تسجيل تغيير جديد</span></button>
+          <button class="btn-primary" onclick="toggleNewGearForm()"
+            style="background:transparent;color:var(--gold);border:1.5px solid var(--border);box-shadow:none">➕ <span
+              id="new-gear-txt">تسجيل تغيير جديد</span></button>
 
           <div id="new-gear-form" style="display:none;margin-top:18px">
             <div class="divider"></div>
@@ -2171,7 +2175,9 @@
               <label class="form-label" id="lbl-gear-notes">ملاحظات</label>
               <textarea class="form-control" id="gear-notes" rows="2" placeholder="..."></textarea>
             </div>
-            <button class="btn-primary" onclick="saveGear()" style="background:linear-gradient(135deg, #f5a623, #c07b10);">💾 <span id="save-gear-btn-txt">حفظ تغيير الكير</span></button>
+            <button class="btn-primary" onclick="saveGear()"
+              style="background:linear-gradient(135deg, #f5a623, #c07b10);">💾 <span id="save-gear-btn-txt">حفظ تغيير
+                الكير</span></button>
           </div>
         </div>
       </div>
@@ -2798,15 +2804,16 @@
 
       // قسم الكير
       const gd = gearData[carId];
-      if(document.getElementById('new-gear-form')) document.getElementById('new-gear-form').style.display = 'none';
+      if (document.getElementById('new-gear-form')) document.getElementById('new-gear-form').style.display = 'none';
       const gel = document.getElementById('gear-entries');
-      if (!gd || (!gd.km && !gd.date)) { 
-        if(gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${lang === 'en' ? 'No gearbox change recorded' : 'لا يوجد سجل لتغيير الكير'}</div>`; 
+      if (!gd || (!gd.km && !gd.date)) {
+        if (gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${lang === 'en' ? 'No gearbox change recorded' : 'لا يوجد سجل لتغيير الكير'}</div>`;
       } else {
-        if(gel) gel.innerHTML = `<div class="oil-detail-card" style="border:1.5px solid rgba(245,166,35,.4); background:var(--surface);">
+        const niceGearDate = gd.date ? formatNiceDate(gd.date) : '';
+        if (gel) gel.innerHTML = `<div class="oil-detail-card" style="border:1.5px solid rgba(245,166,35,.4); background:var(--surface);">
       <div class="oil-detail-header">
         <div class="oil-detail-km" style="color:var(--gold); font-size:22px; font-weight:900; font-family:var(--font-en);">${gd.km}<span style="font-size:14px;font-weight:400; color:var(--text)"> ${t.km || 'km'}</span></div>
-        <div class="oil-detail-date" style="font-size:12px; color:var(--muted);">${gd.date}</div>
+        <div class="oil-detail-date" style="font-size:12px; color:var(--muted);">${niceGearDate}</div>
       </div>
       ${gd.notes ? `<div class="oil-notes" style="font-size:13px; color:var(--muted); margin-top:7px;">${gd.notes}</div>` : ''}
     </div>`;
@@ -2822,10 +2829,11 @@
       if (!entries.length) { el.innerHTML = `<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${t.noOilyet}</div>`; }
       else {
         const last = entries[entries.length - 1];
+        const niceOilDate = last.date ? formatNiceDate(last.date) : '';
         el.innerHTML = `<div class="oil-detail-card">
       <div class="oil-detail-header">
         <div class="oil-detail-km">${last.km}<span style="font-size:14px;font-weight:400"> ${t.km}</span></div>
-        <div class="oil-detail-date">${last.date}</div>
+        <div class="oil-detail-date">${niceOilDate}</div>
       </div>
       <div class="oil-detail-meta">
         <span class="oil-tag ${last.filter ? '' : 'no'}">${last.filter ? t.filterYes : t.filterNo}</span>
@@ -2900,7 +2908,7 @@
     /* ═══════════════════════════════════════
        GEAR (الكير)
     ═══════════════════════════════════════ */
-    function toggleNewGearForm() { const f = document.getElementById('new-gear-form'); if(f) f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
+    function toggleNewGearForm() { const f = document.getElementById('new-gear-form'); if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
 
     function saveGear() {
       const t = T[lang];
@@ -2912,7 +2920,7 @@
       localStorage.setItem('rc_gear', JSON.stringify(gearData));
       // تحديث Google Sheets
       sendSheet({ sheet: 'cars', action: 'update_gear', car_id: String(curCar), user_phone: user?.phone || '', car_name: cars.find(c => c.id === curCar)?.name || '', gearKm: km, gearDate: date, gearNotes: notes });
-      
+
       openCarDetail(curCar);
       const gearBody = document.getElementById('gear-expand');
       const gearChevron = document.getElementById('gear-expand-chevron');
@@ -2939,7 +2947,7 @@
         <div class="oil-car-name">${c.name}</div>
         ${last ? `<div class="oil-km-badge">${last.km} ${t.km}</div>` : `<div class="oil-km-badge" style="color:var(--muted);border-color:var(--border)">${t.noOil}</div>`}
       </div>
-      <div class="oil-date">${last ? last.date : ''} ${last && last.nextKm ? `<span style="color:var(--gold)">→ ${Number(last.nextKm).toLocaleString()} km</span>` : ''}</div>
+      <div class="oil-date">${last ? formatNiceDate(last.date) : ''} ${last && last.nextKm ? `<span style="color:var(--gold)">→ ${Number(last.nextKm).toLocaleString()} km</span>` : ''}</div>
     </div>`;
       }).join('');
     }
@@ -3104,6 +3112,19 @@
     }
 
     /* ─── HELPERS ─── */
+    function formatNiceDate(val) {
+      if (!val) return '';
+      try {
+        let dStr = String(val).split(' ')[0];
+        if (dStr.includes('T')) dStr = dStr.split('T')[0];
+        const d = new Date(dStr);
+        if (!isNaN(d)) {
+          const loc = lang === 'en' ? 'en-GB' : (lang === 'ku' ? 'ckb-IQ' : 'ar-IQ');
+          return d.toLocaleDateString(loc, { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+      } catch (e) {}
+      return String(val).split('T')[0].split(' ')[0];
+    }
     function openModal(id) { document.getElementById(id).classList.add('open'); }
     function closeModal(id) { document.getElementById(id).classList.remove('open'); }
     function get(id) { const e = document.getElementById(id); return e ? e.value : ''; }
