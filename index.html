@@ -2226,7 +2226,7 @@
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycbyxv4hD0M2wIELIt1mfMLszVnGeFWLNAJQESMm_TPJ2iFLHTVSt5EXaJiE4pCzPT1np/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycbxv7padKl5q0JFzv-Ga_qCfKCHlVCNVlK9GFwB2LCD7oZJ3sh2rXzzSz2DMb75Umls_/exec',
       COMPANY: { whatsapp: '9647505009006', address: 'Erbil, 60st | Baghdad, aldora | Diyala, baquba' },
       ADV_FILES: ['ADV/ad3.mp4'],
     };
@@ -2795,7 +2795,10 @@ async function loadFines() {
     style="display:inline-block;margin-top:12px;padding:9px 20px;border-radius:9px;
            border:1.5px solid var(--gold);color:var(--gold);font-size:13px;
            font-weight:700;text-decoration:none;">🔗 فتح موقع المرور</a>`;
-
+const result = await queryFinesViaGAS(c);
+  console.log("نقطة فحص المرور:", result); // أضف هذا السطر لمراقبة الخطأ
+  const { count, total } = result;
+  
   if (count === '0') {
     detailBox.innerHTML = `<div style="text-align:center;padding:14px">
       <div style="color:var(--teal);font-size:18px;font-weight:800">✅ ${t.finesNone}</div>
