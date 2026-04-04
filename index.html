@@ -2150,7 +2150,7 @@
       <!-- قسم الكير (قابل للطي) -->
       <div class="expand-section" id="gear-expand-section">
         <div class="expand-header" onclick="toggleExpand('gear-expand')">
-          <div class="expand-header-left">⚙️ <span id="lbl-gear-section">تغيير الكير</span></div>
+          <div class="expand-header-left">⚙️ <span id="lbl-gear-section">تبديل زيت الكير</span></div>
           <span class="expand-chevron" id="gear-expand-chevron">▼</span>
         </div>
         <div class="expand-body" id="gear-expand">
@@ -2162,7 +2162,7 @@
 
           <div id="new-gear-form" style="display:none;margin-top:18px">
             <div class="divider"></div>
-            <div style="font-size:15px;font-weight:800;margin-bottom:14px" id="new-gear-title">تغيير كير جديد</div>
+            <div style="font-size:15px;font-weight:800;margin-bottom:14px" id="new-gear-title">تبديل زيت كير جديد</div>
             <div class="form-group">
               <label class="form-label" id="lbl-gear-km">الكيلومتر عند التغيير</label>
               <input class="form-control" id="gear-km" type="number" placeholder="120000">
@@ -2176,7 +2176,7 @@
               <textarea class="form-control" id="gear-notes" rows="2" placeholder="..."></textarea>
             </div>
             <button class="btn-primary" onclick="saveGear()"
-              style="background:linear-gradient(135deg, #f5a623, #c07b10);">💾 <span id="save-gear-btn-txt">حفظ تغيير
+              style="background:linear-gradient(135deg, #f5a623, #c07b10);">💾 <span id="save-gear-btn-txt">حفظ تبديل زيت
                 الكير</span></button>
           </div>
         </div>
@@ -2268,8 +2268,8 @@
         craneLoading: '📡 جارٍ تحديد موقعك...', craneFetching: 'جارٍ البحث عن الكرينات...',
         craneNone: 'لا يوجد كرين متاح حالياً', craneError: 'تعذّر الحصول على الموقع',
         craneWa: 'تواصل عبر واتساب', craneKm: d => `${d} كم`,
-        gearSection: 'تغيير الكير', gearKm: 'الكيلومتر عند التغيير', gearDate: 'التاريخ', gearNotes: 'ملاحظات',
-        saveGear: 'حفظ تغيير الكير', gearSaved: 'تم حفظ تغيير الكير ✓', gearLast: d => `آخر تغيير: ${d}`,
+        gearSection: 'تبديل زيت الكير', gearKm: 'الكيلومتر عند التغيير', gearDate: 'التاريخ', gearNotes: 'ملاحظات',
+        saveGear: 'حفظ تبديل زيت الكير', gearSaved: 'تم حفظ تبديل زيت الكير ✓', gearLast: d => `آخر تغيير: ${d}`,
         govLabel: 'المحافظة', govPlaceholder: '-- اختر المحافظة --',
       },
       ku: {
@@ -2307,8 +2307,8 @@
         craneLoading: '📡 شوێنەکەت دیاریدەکرێت...', craneFetching: 'گەڕان بۆ کرێنەکان...',
         craneNone: 'هیچ کرێنێک بەردەست نییە', craneError: 'شوێن نەدۆزرایەوە',
         craneWa: 'پەیوەندی لە ڕێگەی واتساب', craneKm: d => `${d} کم`,
-        gearSection: 'گۆڕینی گیەر', gearKm: 'کیلۆمەتر لەکاتی گۆڕین', gearDate: 'بەروار', gearNotes: 'تێبینی',
-        saveGear: 'پاشەکەوتکردنی گۆڕینی گیەر', gearSaved: 'گۆڕینی گیەر پاشەکەوتکرا ✓', gearLast: d => `دوایین گۆڕین: ${d}`,
+        gearSection: 'گۆڕینی رۆنی گێڕ', gearKm: 'کیلۆمەتر لەکاتی گۆڕین', gearDate: 'بەروار', gearNotes: 'تێبینی',
+        saveGear: 'پاشەکەوتکردنی گۆڕینی رۆنی گێڕ', gearSaved: 'گۆڕینی رۆنی گێڕ پاشەکەوتکرا ✓', gearLast: d => `دوایین گۆڕین: ${d}`,
         govLabel: 'پارێزگا', govPlaceholder: '-- پارێزگا هەڵبژێرە --',
       },
       en: {
@@ -2346,8 +2346,8 @@
         craneLoading: '📡 Locating you...', craneFetching: 'Searching for cranes...',
         craneNone: 'No crane available currently', craneError: 'Could not get location',
         craneWa: 'Contact via WhatsApp', craneKm: d => `${d} km`,
-        gearSection: 'Gearbox Change', gearKm: 'Kilometer at change', gearDate: 'Date', gearNotes: 'Notes',
-        saveGear: 'Save Gearbox Change', gearSaved: 'Gearbox change saved ✓', gearLast: d => `Last change: ${d}`,
+        gearSection: 'Gearbox Oil Change', gearKm: 'Kilometer at change', gearDate: 'Date', gearNotes: 'Notes',
+        saveGear: 'Save Gearbox Oil Change', gearSaved: 'Gearbox oil change saved ✓', gearLast: d => `Last change: ${d}`,
         govLabel: 'Governorate', govPlaceholder: '-- Select Governorate --',
       },
     };
@@ -2532,7 +2532,7 @@
       set('oil-alert-title', t.oilAlertTitle); set('fines-summary-label', t.finesSummaryLabel);
       set('lbl-contact-us', t.contactUs); set('lbl-nearest-agent', t.nearestAgent);
       set('lbl-crane-btn', t.craneBtn || 'طلب كرين');
-      set('lbl-gear-section', t.gearSection || 'تغيير الكير');
+      set('lbl-gear-section', t.gearSection || 'تبديل زيت الكير');
       set('lbl-gear-km', t.gearKm || 'الكيلومتر'); set('lbl-gear-date', t.gearDate || 'التاريخ');
       set('lbl-gear-notes', t.gearNotes || 'ملاحظات'); set('save-gear-btn-txt', t.saveGear || 'حفظ');
       updatePWAText();
@@ -3118,10 +3118,13 @@
       try {
         let dStr = String(val).split(' ')[0];
         if (dStr.includes('T')) dStr = dStr.split('T')[0];
+        const parts = dStr.split('-');
+        if (parts.length === 3) {
+          return `${parts[2].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[0]}`;
+        }
         const d = new Date(dStr);
         if (!isNaN(d)) {
-          const loc = lang === 'en' ? 'en-GB' : (lang === 'ku' ? 'ckb-IQ' : 'ar-IQ');
-          return d.toLocaleDateString(loc, { day: 'numeric', month: 'short', year: 'numeric' });
+          return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
         }
       } catch (e) {}
       return String(val).split('T')[0].split(' ')[0];
