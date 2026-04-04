@@ -1,48 +1,26 @@
-/**
- * ═══════════════════════════════════════════════
- *  FINES MODULE — محافظة أربيل  (Sequence: 22)
- *  كل محافظة تحصل على ملف منفصل بنفس الواجهة
- * ═══════════════════════════════════════════════
- *
- *  EXPORTED INTERFACE  (يجب أن تبقى ثابتة في كل محافظة):
- *
- *  GOVERNORATE_INFO  — معلومات المحافظة
- *  FINES_FIELDS      — الحقول المطلوبة عند إضافة سيارة
- *  buildFormData()   — يبني FormData / URLSearchParams من بيانات السيارة
- *  getFinesUrl()     — يرجع URL نموذج الغرامات
- *  parseHtmlResponse()— يحلل HTML الراجع ويستخرج count + total
- */
-
 const FINES_ERBIL = (function () {
 
-  /* ── معلومات المحافظة ── */
   const GOVERNORATE_INFO = {
-    id        : 'erbil',
-    sequence  : 22,
-    nameAr    : 'أربيل',
-    nameKu    : 'هەولێر',
-    nameEn    : 'Erbil',
-    baseUrl   : 'https://htp.moi.gov.krd',
-    formPath  : '/fines_form_data_{type}.php',
+    id       : 'erbil',
+    sequence : 22,
+    nameAr   : 'أربيل',
+    nameKu   : 'هەولێر',
+    nameEn   : 'Erbil',
+    baseUrl  : 'https://htp.moi.gov.krd',
+    formPath : '/fines_form_data_{type}.php',
   };
 
-  /* ── الحقول المطلوبة (يعرضها UI عند اختيار هذه المحافظة) ──
-   *  type      : نوع الحقل  (text | number | select)
-   *  key       : مفتاح القيمة في كائن السيارة
-   *  required  : مطلوب؟
-   *  options   : فقط لنوع select
-   */
   const FINES_FIELDS = [
     {
       key: 'type', type: 'select', required: true,
       labelAr: 'نوع السيارة', labelKu: 'جۆری ئەوتۆمبێل', labelEn: 'Vehicle Type',
       options: [
-        { value: '1', labelAr: 'خصوصي',      labelKu: 'تایبه‌ت',     labelEn: 'Private'      },
-        { value: '2', labelAr: 'أجرة',        labelKu: 'كرئ',         labelEn: 'Taxi'         },
-        { value: '3', labelAr: 'حمل',         labelKu: 'بارهه‌ڵگر',   labelEn: 'Cargo'        },
-        { value: '4', labelAr: 'زراعي',       labelKu: 'كشتوكاڵ',     labelEn: 'Agricultural' },
-        { value: '5', labelAr: 'إنشائي',      labelKu: 'بیناسازى',    labelEn: 'Construction' },
-        { value: '6', labelAr: 'دراجة نارية', labelKu: 'ماتۆرسكیل',  labelEn: 'Motorcycle'   },
+        { value: '1', labelAr: 'خصوصي',      labelKu: 'تایبه‌ت',    labelEn: 'Private'      },
+        { value: '2', labelAr: 'أجرة',        labelKu: 'كرئ',        labelEn: 'Taxi'         },
+        { value: '3', labelAr: 'حمل',         labelKu: 'بارهه‌ڵگر',  labelEn: 'Cargo'        },
+        { value: '4', labelAr: 'زراعي',       labelKu: 'كشتوكاڵ',    labelEn: 'Agricultural' },
+        { value: '5', labelAr: 'إنشائي',      labelKu: 'بیناسازى',   labelEn: 'Construction' },
+        { value: '6', labelAr: 'دراجة نارية', labelKu: 'ماتۆرسكیل', labelEn: 'Motorcycle'   },
       ],
     },
     {
@@ -54,7 +32,7 @@ const FINES_ERBIL = (function () {
       key: 'plateLetter', type: 'select', required: false,
       labelAr: 'الحرف', labelKu: 'پیت', labelEn: 'Letter',
       options: [
-        { value: '0',  labelAr: '-- بلا --', labelKu: '-- بەبێ --', labelEn: '-- None --' },
+        { value: '0', labelAr: '-- بلا --', labelKu: '-- بەبێ --', labelEn: '-- None --' },
         ...['A','B','C','D','E','F','G','H','I','J','K','L','M',
             'N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
           .map(l => ({ value: l, labelAr: l, labelKu: l, labelEn: l })),
@@ -65,27 +43,8 @@ const FINES_ERBIL = (function () {
       labelAr: 'رقم السنوية', labelKu: 'ژمارەی سالیانە', labelEn: 'Annual License No.',
       placeholder: '',
     },
-function parseHtmlResponse(html) {
-  // ① صفحة فارغة أو قصيرة جداً → خطأ
-  if (!html || html.trim().length < 300) return { count: '!', total: '' };
+  ];
 
-  // ② لا يحتوي على أي محتوى يخص الغرامات → خطأ (صفحة خاطئة)
-  const hasFinesContent =
-    html.includes('سه‌رپێچى') || html.includes('سەرپێچی') ||
-    html.includes('مخالف')    || html.includes('plate')   ||
-    html.includes('<table')   || html.includes('<tr')     ||
-    html.includes('Sinif')    || html.includes('SanNumber');
-
-  if (!hasFinesContent) return { count: '!', total: '' };
-
-  // ③ مؤشرات "لا توجد مخالفات" صريحة
-  const lowerHtml = html.toLowerCase();
-  const noFinesHints = [
-    'no record', 'not found', 'result is empty',
-    'لا توجد', 'نەدۆزرایەوە', '0 record', 'لايوجد'
-];
-
-  /* ── بناء FormData للإرسال ── */
   function buildFormData(car) {
     return new URLSearchParams({
       'Sinif'    : car.type,
@@ -95,77 +54,71 @@ function parseHtmlResponse(html) {
     });
   }
 
-  /* ── URL الغرامات ── */
   function getFinesUrl(car) {
     return `${GOVERNORATE_INFO.baseUrl}${GOVERNORATE_INFO.formPath.replace('{type}', car.type)}`;
   }
 
-  /* ── تحليل HTML الراجع ── */
-function parseHtmlResponse(html) {
-  // ① صفحة فارغة أو قصيرة جداً → خطأ
-  if (!html || html.trim().length < 300) return { count: '!', total: '' };
+  function parseHtmlResponse(html) {
+    // ① فارغ أو قصير جداً
+    if (!html || html.trim().length < 300) return { count: '!', total: '' };
 
-  // ② لا يحتوي على أي محتوى يخص الغرامات → خطأ (صفحة خاطئة)
-  const hasFinesContent =
-    html.includes('سه‌رپێچى') || html.includes('سەرپێچی') ||
-    html.includes('مخالف')    || html.includes('plate')   ||
-    html.includes('<table')   || html.includes('<tr')     ||
-    html.includes('Sinif')    || html.includes('SanNumber');
+    // ② لا يحتوي على محتوى يخص الغرامات
+    const hasFinesContent =
+      html.includes('سه‌رپێچى') || html.includes('سەرپێچی') ||
+      html.includes('مخالف')    || html.includes('plate')   ||
+      html.includes('<table')   || html.includes('<tr')     ||
+      html.includes('Sinif')    || html.includes('SanNumber');
 
-  if (!hasFinesContent) return { count: '!', total: '' };
+    if (!hasFinesContent) return { count: '!', total: '' };
 
-  // ③ مؤشرات "لا توجد مخالفات" صريحة
-  const lowerHtml = html.toLowerCase();
-  const noFinesHints = [
-    'no record', 'not found', 'result is empty',
-    'لا توجد', 'نەدۆزرایەوە', '0 record', 'لايوجد'
-  ];
-  const hasNoFinesHint = noFinesHints.some(h => lowerHtml.includes(h));
+    // ③ مؤشرات "لا توجد مخالفات"
+    const lowerHtml = html.toLowerCase();
+    const noFinesHints = [
+      'no record', 'not found', 'result is empty',
+      'لا توجد', 'نەدۆزرایەوە', '0 record', 'لايوجد',
+    ];
+    const hasNoFinesHint = noFinesHints.some(h => lowerHtml.includes(h));
 
-  let count = '0';
-  let total = '';
+    let count = '0';
+    let total = '';
 
-  // ④ استخراج العدد
-  const countMatch =
-    html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/)  ||
-    html.match(/عدد المخالفات[^\d]*(\d+)/i)            ||
-    html.match(/Total[^:]*:\s*(\d+)/i);
+    // ④ استخراج العدد
+    const countMatch =
+      html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/) ||
+      html.match(/عدد المخالفات[^\d]*(\d+)/i)          ||
+      html.match(/Total[^:]*:\s*(\d+)/i);
 
-  if (countMatch) {
-    count = countMatch[1].trim();
-  } else {
-    const rows = (html.match(/<tr[\s>]/gi) || []).length;
-    if (rows > 1) {
-      count = String(rows - 1); // خصم سطر الرأس
-    } else if (hasNoFinesHint) {
-      count = '0';
-    } else if (rows === 0) {
-      // جدول غير موجود ولا تأكيد بالصفر → غير محدد
-      return { count: '!', total: '' };
+    if (countMatch) {
+      count = countMatch[1].trim();
+    } else {
+      const rows = (html.match(/<tr[\s>]/gi) || []).length;
+      if (rows > 1) {
+        count = String(rows - 1);
+      } else if (hasNoFinesHint) {
+        count = '0';
+      } else if (rows === 0) {
+        return { count: '!', total: '' };
+      }
     }
+
+    // ⑤ استخراج المجموع المالي
+    const totalMatch =
+      html.match(/بڕى\s+گشتى[^\d]*([\d,]+)/)        ||
+      html.match(/المجموع الكلي[^\d]*([\d,]+)/i)       ||
+      html.match(/Total Amount[^\d]*([\d,]+)/i);
+
+    if (totalMatch) {
+      const raw = parseInt(totalMatch[1].replace(/,/g, ''));
+      total = raw >= 1000 ? Math.round(raw / 1000) + 'K' : String(raw);
+    }
+
+    return { count, total };
   }
 
-  // ⑤ استخراج المجموع المالي
-  const totalMatch =
-    html.match(/بڕى\s+گشتى[^\d]*([\d,]+)/)           ||
-    html.match(/المجموع الكلي[^\d]*([\d,]+)/i)          ||
-    html.match(/Total Amount[^\d]*([\d,]+)/i);
-
-  if (totalMatch) {
-    const raw = parseInt(totalMatch[1].replace(/,/g, ''));
-    total = raw >= 1000 ? Math.round(raw / 1000) + 'K' : String(raw);
-  }
-
-  return { count, total };
-}
-
-  /* ── الواجهة العامة ── */
   return { GOVERNORATE_INFO, FINES_FIELDS, buildFormData, getFinesUrl, parseHtmlResponse };
 })();
 
-/* تصدير للاستخدام في index.html */
 if (typeof window !== 'undefined') {
   window.FINES_MODULES = window.FINES_MODULES || {};
   window.FINES_MODULES['erbil'] = FINES_ERBIL;
-  return { count, total };
 }
