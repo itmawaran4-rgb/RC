@@ -2083,6 +2083,8 @@
         </div>
         <div class="fines-status-dot checking" id="fines-status-dot"></div>
       </div>
+      <!-- نتيجة الغرامات الداخلية -->
+<div id="fines-inline-result" style="display:none; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:12px; animation: fadeIn .3s ease;"></div>
       <button class="btn-check" id="btn-check-fines" onclick="loadFines()">🔍 <span id="fines-btn-txt">عرض تفاصيل
           الغرامات</span></button>
 
@@ -2224,7 +2226,7 @@
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycbzKCq9Q6Rs2XInmWcf-G73nqKftzJmzkJddcAQKuS7GoPBjKPELVPt04z6RHW5ey1E1/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycbxnpM9FXhU1cDPJPhrzkIGNhBLlclGmCKGNypWA5VezuU_mpvwzBk1900hsUn5O8yyI/exec',
       COMPANY: { whatsapp: '9647505009006', address: 'Erbil, 60st | Baghdad, aldora | Diyala, baquba' },
       ADV_FILES: ['ADV/ad3.mp4'],
     };
@@ -2767,17 +2769,85 @@
       }
     }
 
-    function loadFines() {
-      const c = cars.find(x => x.id === curCar); if (!c) return;
-      const mod = getFinesModule(c.governorate);
-      if (!mod) { toast(T[lang].error, 'error'); return; }
-      if (!finesCache[c.id] || finesCache[c.id].count !== 'checking') { if (finesCache[c.id]) finesCache[c.id].checkedAt = 1; backgroundCheckFines(c); pollFinesSummary(c.id); }
-      const form = document.createElement('form');
-      form.method = 'POST'; form.action = mod.getFinesUrl(c); form.target = '_blank';
-      const bodyParams = mod.buildFormData(c);
-      for (const [k, v] of bodyParams.entries()) { const input = document.createElement('input'); input.type = 'hidden'; input.name = k; input.value = v; form.appendChild(input); }
-      document.body.appendChild(form); form.submit(); document.body.removeChild(form);
-    }
+async function loadFines() {
+  const c = cars.find(x => x.id === curCar); if (!c) return;
+  const mod = getFinesModule(c.governorate);
+  if (!mod) { toast(T[lang].error, 'error'); return; }
+
+  const t = T[lang];
+  const detailBox = document.getElementById('fines-inline-result');
+  detailBox.style.display = 'block';
+  detailBox.innerHTML = `<div style="text-align:center;padding:16px;color:var(--muted);font-size:14px">⏳ ${t.finesChecking}</div>`;
+
+  const targetUrl = mod.getFinesUrl(c);
+  const body      = mod.buildFormData(c);
+
+  const proxies = [
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+    u => `https://thingproxy.freeboard.io/fetch/${u}`,
+  ];
+
+  let html = '';
+  for (const pFn of proxies) {
+    try {
+      const ctrl  = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 12000);
+      const res   = await fetch(pFn(targetUrl), {
+        method : 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'x-requested-with': 'XMLHttpRequest' },
+        body   : body.toString(),
+        signal : ctrl.signal,
+      });
+      clearTimeout(timer);
+      if (res.ok) { html = await res.text(); if (html.trim().length > 200) break; }
+    } catch { continue; }
+  }
+
+  let count = '!', total = '';
+  if (html.trim().length > 200) {
+    try { ({ count, total } = mod.parseHtmlResponse(html)); } catch { count = '!'; }
+  }
+
+  finesCache[c.id] = { count, total, checkedAt: Date.now() };
+  saveFinesCache();
+  refreshFinesSummaryCard(c.id);
+  updateBadge(c.id, count, total);
+
+  // ── عرض النتيجة داخل المودال ──
+  const openBtn = `<a href="${targetUrl}" target="_blank"
+    style="display:inline-block;margin-top:12px;padding:9px 20px;border-radius:9px;
+           border:1.5px solid var(--gold);color:var(--gold);font-size:13px;
+           font-weight:700;text-decoration:none;">
+    🔗 فتح موقع المرور
+  </a>`;
+
+  if (count === '0') {
+    detailBox.innerHTML = `
+      <div style="text-align:center;padding:14px">
+        <div style="color:var(--teal);font-size:18px;font-weight:800">✅ ${t.finesNone}</div>
+        ${openBtn}
+      </div>`;
+  } else if (count === '!') {
+    detailBox.innerHTML = `
+      <div style="text-align:center;padding:14px">
+        <div style="color:var(--muted);font-size:13px;margin-bottom:4px">⚠️ تعذّر تحميل النتيجة عبر الشبكة</div>
+        <div style="color:var(--muted);font-size:12px">افتح موقع المرور وأدخل البيانات يدوياً</div>
+        ${openBtn}
+      </div>`;
+  } else {
+    detailBox.innerHTML = `
+      <div style="text-align:center;padding:14px">
+        <div style="color:var(--red);font-size:26px;font-weight:900;font-family:var(--font-en)">
+          ${count}
+        </div>
+        <div style="color:var(--red);font-size:13px;font-weight:700">
+          ${t.finesFound(count)}${total ? ' — ' + total : ''}
+        </div>
+        ${openBtn}
+      </div>`;
+  }
+}
 
     function updateBadge(id, count, total) {
       const b = document.getElementById('badge-' + id); if (!b) return;
@@ -2791,6 +2861,9 @@
       const t = T[lang];
       const c = cars.find(x => x.id === carId); if (!c) return;
       curCar = carId;
+      // إخفاء نتيجة الغرامات السابقة
+       const prevFines = document.getElementById('fines-inline-result');
+       if (prevFines) { prevFines.style.display = 'none'; prevFines.innerHTML = ''; }
       set('d-car-name', c.name);
       const plate = c.plateNumber ? `${c.plateNumber}${c.plateLetter && c.plateLetter !== '0' ? ' - ' + c.plateLetter : ''}` : '';
       const mod = getFinesModule(c.governorate);
@@ -2887,14 +2960,21 @@
       }, 500);
     }
 
-    function deleteCar() {
-      if (!confirm(T[lang].delConfirm)) return;
-      cars = cars.filter(c => c.id !== curCar);
-      delete oilData[curCar]; delete gearData[curCar]; delete finesCache[curCar];
-      saveCars(); localStorage.setItem('rc_oil', JSON.stringify(oilData)); localStorage.setItem('rc_gear', JSON.stringify(gearData));
-      saveFinesCache(); closeModal('modal-car-detail'); renderMain(); toast(T[lang].saved, 'success');
-    }
-
+function deleteCar() {
+  if (!confirm(T[lang].delConfirm)) return;
+  // ① فك ربط رقم الهاتف بالسيارة في Sheets (تبقى البيانات لكن بدون صاحب)
+  sendSheet({ sheet: 'cars', action: 'unlink_car', car_id: String(curCar), user_phone: user?.phone || '' });
+  // ② حذف محلي
+  cars = cars.filter(c => c.id !== curCar);
+  delete oilData[curCar]; delete gearData[curCar]; delete finesCache[curCar];
+  saveCars();
+  localStorage.setItem('rc_oil', JSON.stringify(oilData));
+  localStorage.setItem('rc_gear', JSON.stringify(gearData));
+  saveFinesCache();
+  closeModal('modal-car-detail');
+  renderMain();
+  toast(T[lang].saved, 'success');
+}
     /* ═══════════════════════════════════════
        EXPAND SECTIONS (كير / إلخ)
     ═══════════════════════════════════════ */
