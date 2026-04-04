@@ -45,14 +45,14 @@ const FINES_ERBIL = (function () {
     },
   ];
 
-  function buildFormData(car) {
-    return new URLSearchParams({
-      'Sinif'    : car.type,
-      'plate'    : car.plateNumber,
-      'PlateChar': car.plateLetter === '0' ? '' : car.plateLetter,
-      'SanNumber': car.salyanaNumber,
-    });
-  }
+function buildFormData(car) {
+  return new URLSearchParams({
+    'Sinif'    : car.type        || '1',
+    'plate'    : car.plateNumber || '',
+    'PlateChar': car.plateLetter || '0',   // الموقع يتوقع '0' وليس ''
+    'SanNumber': car.salyanaNumber || '',
+  });
+}
 
   function getFinesUrl(car) {
     return `${GOVERNORATE_INFO.baseUrl}${GOVERNORATE_INFO.formPath.replace('{type}', car.type)}`;
