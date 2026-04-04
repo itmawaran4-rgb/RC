@@ -2084,7 +2084,6 @@
         <div class="fines-status-dot checking" id="fines-status-dot"></div>
       </div>
       <!-- نتيجة الغرامات الداخلية -->
-<div id="fines-inline-result" style="display:none; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:12px; animation: fadeIn .3s ease;"></div>
       <button class="btn-check" id="btn-check-fines" onclick="loadFines()">🔍 <span id="fines-btn-txt">عرض تفاصيل
           الغرامات</span></button>
 
@@ -2778,42 +2777,27 @@ async function loadFines() {
   const mod = getFinesModule(c.governorate);
   if (!mod) { toast(T[lang].error, 'error'); return; }
 
-  const t         = T[lang];
-  const detailBox = document.getElementById('fines-inline-result');
-  detailBox.style.display = 'block';
-  detailBox.innerHTML = `<div style="text-align:center;padding:16px;color:var(--muted);font-size:14px">⏳ ${t.finesChecking}</div>`;
+  const formData = mod.buildFormData(c);
+  const url = mod.getFinesUrl(c);
 
-  const result = await queryFinesViaGAS(c);
-  console.log("نقطة فحص المرور:", result); // أضف هذا السطر لمراقبة الخطأ
-  const { count, total } = result;
+  // إنشاء نموذج POST مخفي وفتحه في تبويب جديد
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = url;
+  form.target = '_blank';
+  form.style.display = 'none';
 
-  finesCache[c.id] = { count, total: total || '', checkedAt: Date.now() };
-  saveFinesCache();
-  refreshFinesSummaryCard(c.id);
-  updateBadge(c.id, count, total || '');
+  formData.forEach((value, key) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = value;
+    form.appendChild(input);
+  });
 
-  const openBtn = `<a href="${mod.getFinesUrl(c)}" target="_blank"
-    style="display:inline-block;margin-top:12px;padding:9px 20px;border-radius:9px;
-           border:1.5px solid var(--gold);color:var(--gold);font-size:13px;
-           font-weight:700;text-decoration:none;">🔗 فتح موقع المرور</a>`;
-  
-  if (count === '0') {
-    detailBox.innerHTML = `<div style="text-align:center;padding:14px">
-      <div style="color:var(--teal);font-size:18px;font-weight:800">✅ ${t.finesNone}</div>
-      ${openBtn}</div>`;
-  } else if (count === '!') {
-    detailBox.innerHTML = `<div style="text-align:center;padding:14px">
-      <div style="color:var(--muted);font-size:13px;margin-bottom:4px">⚠️ تعذّر تحميل النتيجة</div>
-      <div style="color:var(--muted);font-size:12px">افتح موقع المرور مباشرةً</div>
-      ${openBtn}</div>`;
-  } else {
-    detailBox.innerHTML = `<div style="text-align:center;padding:14px">
-      <div style="color:var(--red);font-size:26px;font-weight:900;font-family:var(--font-en)">${count}</div>
-      <div style="color:var(--red);font-size:13px;font-weight:700">
-        ${t.finesFound(count)}${total ? ' — ' + total : ''}
-      </div>
-      ${openBtn}</div>`;
-  }
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
 }
 
     function updateBadge(id, count, total) {
