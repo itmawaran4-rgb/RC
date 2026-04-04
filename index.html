@@ -2784,6 +2784,7 @@ async function loadFines() {
   detailBox.innerHTML = `<div style="text-align:center;padding:16px;color:var(--muted);font-size:14px">⏳ ${t.finesChecking}</div>`;
 
   const result = await queryFinesViaGAS(c);
+  console.log("نقطة فحص المرور:", result); // أضف هذا السطر لمراقبة الخطأ
   const { count, total } = result;
 
   finesCache[c.id] = { count, total: total || '', checkedAt: Date.now() };
@@ -2795,9 +2796,6 @@ async function loadFines() {
     style="display:inline-block;margin-top:12px;padding:9px 20px;border-radius:9px;
            border:1.5px solid var(--gold);color:var(--gold);font-size:13px;
            font-weight:700;text-decoration:none;">🔗 فتح موقع المرور</a>`;
-const result = await queryFinesViaGAS(c);
-  console.log("نقطة فحص المرور:", result); // أضف هذا السطر لمراقبة الخطأ
-  const { count, total } = result;
   
   if (count === '0') {
     detailBox.innerHTML = `<div style="text-align:center;padding:14px">
