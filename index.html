@@ -2754,14 +2754,13 @@ async function queryFinesViaGAS(c) {
     + '&plate='     + encodeURIComponent(c.plateNumber || '')
     + '&plateChar=' + encodeURIComponent(c.plateLetter || '0')
     + '&sanNumber=' + encodeURIComponent(c.salyanaNumber || '');
-  try {
-    const ctrl  = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 20000);
-    const res   = await fetch(url, { signal: ctrl.signal });
-    clearTimeout(timer);
-    if (!res.ok) return { count: '!', total: '' };
-    return await res.json();
-  } catch {
+ try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    const json = await res.json();
+    console.log('Fines result:', json); // ← شوف هنا في الكونسول
+    return json;
+  } catch(e) {
+    console.error('Fines fetch error:', e);
     return { count: '!', total: '' };
   }
 }
