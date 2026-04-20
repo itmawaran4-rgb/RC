@@ -833,6 +833,12 @@
        INIT
     ═══════════════════════════════════════ */
     document.addEventListener('DOMContentLoaded', () => {
+        Object.keys(finesCache).forEach(k => {
+    if (['cors', '?', '!'].includes(finesCache[k]?.count)) delete finesCache[k];
+  });
+  saveFinesCache();
+
+  initTheme(); initPWA();
       initTheme(); initPWA();
       if (!lang) { show('screen-lang'); return; }
       applyLang(lang);
