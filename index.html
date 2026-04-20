@@ -1239,9 +1239,10 @@
         const isStale = !cache || cache.count === '!' || age > 86400000 || stuck;
         // إعادة الفحص لحالات: لا cache، خطأ، أو منتهية الصلاحية
         // لا نُعيد الفحص لـ 'cors' أو '?' لأنها ستفشل مجدداً
-        if (isStale && cache?.count !== 'cors' && cache?.count !== '?') {
-          setTimeout(() => backgroundCheckFines(c), i * 2200);
-        }
+const isError = cache?.count === 'cors' || cache?.count === '?' || cache?.count === '!';
+if (isStale || isError) {
+  setTimeout(() => backgroundCheckFines(c), i * 2200);
+}
       });
     }
 
@@ -1255,7 +1256,6 @@
       if (cache && cache.checkedAt && !['?', '!', 'checking', 'cors'].includes(cache.count) && age < 86400000) return;
       if (cache && cache.count === 'checking' && age < 120000) return;
       // لا نُعيد المحاولة إذا كان CORS يمنعنا
-      if (cache && cache.count === 'cors') return;
 
       finesCache[c.id] = { count: 'checking', total: cache?.total || '', checkedAt: cache?.checkedAt || null };
       updateBadge(c.id, 'checking', '');
