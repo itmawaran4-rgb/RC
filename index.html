@@ -969,11 +969,50 @@
     /* ─── PWA ─── */
     let deferredPrompt = null;
     const IS_STANDALONE = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    function initPWA() {
-      if (IS_STANDALONE) return;
-      window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
-      showPWABanner();
+function initPWA() {
+  if (IS_STANDALONE) return;
+  
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // أظهر البانر فقط بعد ما يتوفر الـ event
+    showPWABanner();
+  });
+}
+
+// استبدل showPWABanner
+function showPWABanner() {
+  if (IS_STANDALONE || !deferredPrompt) return;
+  updatePWAText();
+  document.getElementById('pwa-banner').classList.add('show');
+}
+
+// استبدل installPWA
+async function installPWA() {
+  if (deferredPrompt) {
+    try {
+      await deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if (choice.outcome === 'accepted') {
+        document.getElementById('pwa-banner').classList.remove('show');
+      }
+    } catch(e) {
+      console.log('PWA prompt error:', e);
     }
+    deferredPrompt = null;
+    return;
+  }
+  
+  // iOS fallback
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (isIOS) {
+    alert(lang === 'en' 
+      ? 'Tap Share ↑ then "Add to Home Screen"' 
+      : lang === 'ku' 
+      ? 'بۆتۆنی هاوبەشکردن ↑ دابگرە' 
+      : 'اضغط زر المشاركة ↑ ثم "إضافة إلى الشاشة الرئيسية"');
+  }
+}
     function showPWABanner() { if (IS_STANDALONE) return; document.getElementById('pwa-banner').classList.add('show'); updatePWAText(); }
     function updatePWAText() { const t = T[lang || 'ar']; if (!t) return; set('pwa-title', t.pwaTitle); set('pwa-sub', t.pwaSub); const btn = document.getElementById('pwa-install-btn'); if (btn) btn.textContent = '📲 ' + t.pwaInstall; }
     async function installPWA() {
