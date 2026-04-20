@@ -1203,32 +1203,28 @@
      * يحاول فحص الغرامات مباشرة من المتصفح باستخدام localStorage للبيانات.
      * إذا منع CORS الطلب، يُعاد { count: '?', total: '' } دون خطأ.
      */
-    async function checkFinesDirectly(c) {
-      const mod = getFinesModule(c.governorate);
-      if (!mod) return { count: '?', total: '' };
+async function checkFinesDirectly(c) {
+  const mod = getFinesModule(c.governorate);
+  if (!mod) return { count: '?', total: '' };
 
-      // بيانات السيارة من localStorage (c هو الكائن المُمرَّر مباشرة)
-      const formData = mod.buildFormData(c);
-      const url = mod.getFinesUrl(c);
+  try {
+    const params = new URLSearchParams({
+      action: 'check_fines',
+      plateNumber: c.plateNumber || '',
+      plateLetter: c.plateLetter || '',
+      salyanaNumber: c.salyanaNumber || '',
+      type: c.type || '1'
+    });
 
-      try {
-        const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 20000);
-        const res = await fetch(url, {
-          method: 'POST',
-          body: formData,
-          // لا نضع headers إضافية لتجنب preflight
-        });
-        clearTimeout(timer);
-        if (!res.ok) return { count: '!', total: '' };
-        const html = await res.text();
-        return mod.parseHtmlResponse(html);
-      } catch (err) {
-        // CORS أو خطأ شبكة — نعيد 'cors' لنعرض رسالة مناسبة
-        if (err.name === 'AbortError') return { count: '!', total: '' };
-        return { count: 'cors', total: '' };
-      }
-    }
+    const res = await fetch(CONFIG.SHEET_URL + '?' + params.toString());
+    if (!res.ok) return { count: '!', total: '' };
+    const html = await res.text();
+    if (html.startsWith('ERROR:')) return { count: '!', total: '' };
+    return mod.parseHtmlResponse(html);
+  } catch (err) {
+    return { count: '!', total: '' };
+  }
+}
 
     function startBackgroundFinesCheck() {
       cars.forEach((c, i) => {
