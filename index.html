@@ -7,29 +7,21 @@
   <title>RC Service</title>
 
   <script>
-(function () {
-  const manifest = {
-    name: "RC Service",
-    short_name: "RC Service",
-    start_url: location.origin + location.pathname, // ← absolute URL
-    display: "standalone",
-    background_color: "#0b0f1a",
-    theme_color: "#f5a623",
-    icons: [
-      { src: location.origin + location.pathname.replace(/[^/]*$/, '') + "logo.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
-      { src: location.origin + location.pathname.replace(/[^/]*$/, '') + "logo.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
-    ]
-  };
-  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('link');
-  link.rel = 'manifest';
-  link.href = url;
-  document.head.appendChild(link);
-})();
+    (function () {
+      const manifest = {
+        name: "RC Service", short_name: "RC Service", start_url: "./", display: "standalone",
+        background_color: "#0b0f1a", theme_color: "#f5a623",
+        icons: [{ src: "logo.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+        { src: "logo.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }]
+      };
+      const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('link');
+      link.rel = 'manifest'; link.href = url;
+      document.head.appendChild(link);
+    })();
   </script>
   <meta name="theme-color" content="#f5a623">
-  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="RC Service">
@@ -57,286 +49,1793 @@
       --tr: all .28s cubic-bezier(.4, 0, .2, 1);
     }
 
-    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { font-size: 16px; scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--text); font-family: var(--font-ar); min-height: 100vh; overflow-x: hidden; position: relative; }
-    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 70% 50% at 20% 0%, rgba(245, 166, 35, .07) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 80% 100%, rgba(15, 212, 176, .05) 0%, transparent 60%); pointer-events: none; z-index: 0; }
-    body.ltr { direction: ltr; }
-    body.ltr * { font-family: var(--font-en); letter-spacing: .02em; }
-    body.light-mode { --bg: #f0f3fa; --surface: #ffffff; --card: #e8ecf5; --border: #c8cedf; --text: #1a2035; --muted: #7b84a0; --shadow: 0 8px 32px rgba(0, 0, 0, .12); }
-    body.light-mode::before { background: radial-gradient(ellipse 70% 50% at 20% 0%, rgba(245, 166, 35, .06) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 80% 100%, rgba(15, 212, 176, .04) 0%, transparent 60%); }
-    body.light-mode .form-control { background: #ffffff; color: var(--text); }
-    body.light-mode .car-card:hover, body.light-mode .oil-header:hover { background: #d8dff0; }
-    body.light-mode .modal-sheet { background: #f0f3fa; }
-    body.light-mode .feedback-textarea { background: #ffffff; }
-    .screen { display: none; flex-direction: column; align-items: center; min-height: 100vh; padding: 0 0 50px; position: relative; z-index: 1; }
-    .screen.active { display: flex; animation: fadeIn .35s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: translateY(0) } }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ar);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 20% 0%, rgba(245, 166, 35, .07) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 80% 100%, rgba(15, 212, 176, .05) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body.ltr {
+      direction: ltr;
+    }
+
+    body.ltr * {
+      font-family: var(--font-en);
+      letter-spacing: .02em;
+    }
+
+    body.light-mode {
+      --bg: #f0f3fa;
+      --surface: #ffffff;
+      --card: #e8ecf5;
+      --border: #c8cedf;
+      --text: #1a2035;
+      --muted: #7b84a0;
+      --shadow: 0 8px 32px rgba(0, 0, 0, .12);
+    }
+
+    body.light-mode::before {
+      background: radial-gradient(ellipse 70% 50% at 20% 0%, rgba(245, 166, 35, .06) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 60% at 80% 100%, rgba(15, 212, 176, .04) 0%, transparent 60%);
+    }
+
+    body.light-mode .form-control {
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    body.light-mode .car-card:hover,
+    body.light-mode .oil-header:hover {
+      background: #d8dff0;
+    }
+
+    body.light-mode .modal-sheet {
+      background: #f0f3fa;
+    }
+
+    body.light-mode .feedback-textarea {
+      background: #ffffff;
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 0 0 50px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .screen.active {
+      display: flex;
+      animation: fadeIn .35s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
 
     /* ─── BRAND HEADER ─── */
-    .brand-header { width: 100%; padding: 16px 20px 10px; display: flex; align-items: center; justify-content: center; position: relative; }
-    .brand-logo-img { height: 54px; width: auto; max-width: 160px; object-fit: contain; filter: drop-shadow(0 4px 14px rgba(245, 166, 35, .35)); }
+    .brand-header {
+      width: 100%;
+      padding: 16px 20px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .brand-logo-img {
+      height: 54px;
+      width: auto;
+      max-width: 160px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 14px rgba(245, 166, 35, .35));
+    }
 
     /* ─── HAMBURGER ─── */
-    .hamburger-btn { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; width: 40px; height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; transition: var(--tr); z-index: 10; box-shadow: 0 2px 10px rgba(0, 0, 0, .2); }
-    body.ltr .hamburger-btn { right: auto; left: 16px; }
-    .hamburger-btn span { display: block; width: 20px; height: 2.5px; background: var(--text); border-radius: 2px; transition: var(--tr); }
-    .hamburger-btn:hover { border-color: var(--gold); background: rgba(245, 166, 35, .08); }
-    .hamburger-btn:hover span { background: var(--gold); }
+    .hamburger-btn {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: var(--tr);
+      z-index: 10;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .2);
+    }
+
+    body.ltr .hamburger-btn {
+      right: auto;
+      left: 16px;
+    }
+
+    .hamburger-btn span {
+      display: block;
+      width: 20px;
+      height: 2.5px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: var(--tr);
+    }
+
+    .hamburger-btn:hover {
+      border-color: var(--gold);
+      background: rgba(245, 166, 35, .08);
+    }
+
+    .hamburger-btn:hover span {
+      background: var(--gold);
+    }
 
     /* ─── SIDEBAR ─── */
-    #sidebar-overlay { display: none; position: fixed; inset: 0; z-index: 150; background: rgba(0, 0, 0, .6); backdrop-filter: blur(5px); }
-    #sidebar-overlay.open { display: block; animation: fadeIn .22s ease; }
-    #sidebar { position: fixed; top: 0; right: -320px; width: 300px; max-width: 88vw; height: 100vh; z-index: 151; background: var(--surface); border-left: 1px solid var(--border); box-shadow: -14px 0 48px rgba(0, 0, 0, .45); transition: right .32s cubic-bezier(.4, 0, .2, 1); overflow-y: auto; display: flex; flex-direction: column; }
-    #sidebar.open { right: 0; }
-    .sb-top { display: flex; align-items: center; justify-content: space-between; padding: 20px 18px 16px; border-bottom: 1px solid var(--border); background: linear-gradient(135deg, rgba(245, 166, 35, .08), rgba(15, 212, 176, .04)); flex-shrink: 0; }
-    .sb-top-title { font-size: 16px; font-weight: 800; color: var(--gold); display: flex; align-items: center; gap: 7px; }
-    .sb-close-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; color: var(--muted); transition: var(--tr); }
-    .sb-close-btn:hover { color: var(--text); background: var(--border); }
-    .sb-section { padding: 18px 16px 0; }
-    .sb-section-hdr { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .09em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-    .sb-section-hdr::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-    .sb-profile-toggle { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 10px 0; user-select: none; }
-    .sb-profile-toggle-icon { font-size: 13px; color: var(--muted); transition: transform .25s ease; }
-    .sb-profile-toggle-icon.open { transform: rotate(180deg); }
-    .sb-profile-collapsible { display: none; animation: fadeIn .22s ease; }
-    .sb-profile-collapsible.open { display: block; }
-    .sb-profile-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
-    .sb-profile-banner { height: 6px; background: linear-gradient(90deg, var(--gold), var(--teal)); }
-    .sb-profile-body { padding: 14px; }
-    .sb-info-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: 14px; border-bottom: 1px solid var(--border); }
-    .sb-info-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .sb-info-icon { font-size: 15px; width: 24px; text-align: center; flex-shrink: 0; color: var(--gold); }
-    .sb-info-val { flex: 1; font-weight: 600; }
-    .sb-qr-wrap { display: flex; flex-direction: column; align-items: center; padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 18px; }
-    .sb-qr-label { font-size: 12px; color: var(--muted); margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-    #sb-qr-code { border-radius: 10px; overflow: hidden; }
-    #sb-qr-code img, #sb-qr-code canvas { display: block; border-radius: 8px; }
-    .sb-qr-phone { font-size: 13px; color: var(--teal); margin-top: 8px; font-family: var(--font-en); font-weight: 700; letter-spacing: .04em; }
-    .sb-lang-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
-    .sb-lang-btn { background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: var(--tr); color: var(--text); font-size: 15px; font-weight: 700; font-family: inherit; }
-    .sb-lang-btn:hover { border-color: var(--gold); background: rgba(245, 166, 35, .06); }
-    .sb-lang-btn.active { border-color: var(--gold); background: linear-gradient(135deg, rgba(245, 166, 35, .15), rgba(245, 166, 35, .05)); color: var(--gold); }
-    .sb-lang-btn.active .sb-lang-check { display: block; }
-    .sb-lang-check { display: none; color: var(--gold); font-size: 16px; }
-    .sb-theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
-    .sb-theme-btn { background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 10px; cursor: pointer; transition: var(--tr); color: var(--muted); font-size: 13px; font-weight: 700; font-family: inherit; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .sb-theme-btn .th-icon { font-size: 24px; display: block; }
-    .sb-theme-btn:hover { border-color: var(--gold); }
-    .sb-theme-btn.active { border-color: var(--gold); background: linear-gradient(135deg, rgba(245, 166, 35, .15), rgba(245, 166, 35, .04)); color: var(--gold); }
+    #sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: rgba(0, 0, 0, .6);
+      backdrop-filter: blur(5px);
+    }
+
+    #sidebar-overlay.open {
+      display: block;
+      animation: fadeIn .22s ease;
+    }
+
+    #sidebar {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      max-width: 88vw;
+      height: 100vh;
+      z-index: 151;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      box-shadow: -14px 0 48px rgba(0, 0, 0, .45);
+      transition: right .32s cubic-bezier(.4, 0, .2, 1);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #sidebar.open {
+      right: 0;
+    }
+
+    .sb-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 18px 16px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(245, 166, 35, .08), rgba(15, 212, 176, .04));
+      flex-shrink: 0;
+    }
+
+    .sb-top-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .sb-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--muted);
+      transition: var(--tr);
+    }
+
+    .sb-close-btn:hover {
+      color: var(--text);
+      background: var(--border);
+    }
+
+    .sb-section {
+      padding: 18px 16px 0;
+    }
+
+    .sb-section-hdr {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sb-section-hdr::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .sb-profile-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 10px 0;
+      user-select: none;
+    }
+
+    .sb-profile-toggle-icon {
+      font-size: 13px;
+      color: var(--muted);
+      transition: transform .25s ease;
+    }
+
+    .sb-profile-toggle-icon.open {
+      transform: rotate(180deg);
+    }
+
+    .sb-profile-collapsible {
+      display: none;
+      animation: fadeIn .22s ease;
+    }
+
+    .sb-profile-collapsible.open {
+      display: block;
+    }
+
+    .sb-profile-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .sb-profile-banner {
+      height: 6px;
+      background: linear-gradient(90deg, var(--gold), var(--teal));
+    }
+
+    .sb-profile-body {
+      padding: 14px;
+    }
+
+    .sb-info-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 0;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sb-info-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .sb-info-icon {
+      font-size: 15px;
+      width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+      color: var(--gold);
+    }
+
+    .sb-info-val {
+      flex: 1;
+      font-weight: 600;
+    }
+
+    .sb-qr-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 18px;
+    }
+
+    .sb-qr-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    #sb-qr-code {
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    #sb-qr-code img,
+    #sb-qr-code canvas {
+      display: block;
+      border-radius: 8px;
+    }
+
+    .sb-qr-phone {
+      font-size: 13px;
+      color: var(--teal);
+      margin-top: 8px;
+      font-family: var(--font-en);
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .sb-lang-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .sb-lang-btn {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: var(--tr);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+    }
+
+    .sb-lang-btn:hover {
+      border-color: var(--gold);
+      background: rgba(245, 166, 35, .06);
+    }
+
+    .sb-lang-btn.active {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, rgba(245, 166, 35, .15), rgba(245, 166, 35, .05));
+      color: var(--gold);
+    }
+
+    .sb-lang-btn.active .sb-lang-check {
+      display: block;
+    }
+
+    .sb-lang-check {
+      display: none;
+      color: var(--gold);
+      font-size: 16px;
+    }
+
+    .sb-theme-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .sb-theme-btn {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 10px;
+      cursor: pointer;
+      transition: var(--tr);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sb-theme-btn .th-icon {
+      font-size: 24px;
+      display: block;
+    }
+
+    .sb-theme-btn:hover {
+      border-color: var(--gold);
+    }
+
+    .sb-theme-btn.active {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, rgba(245, 166, 35, .15), rgba(245, 166, 35, .04));
+      color: var(--gold);
+    }
 
     /* ─── ALERTS ─── */
-    #oil-alert { display: none; width: calc(100% - 32px); max-width: 480px; background: linear-gradient(135deg, rgba(255, 77, 109, .15), rgba(255, 77, 109, .06)); border: 1px solid var(--red); border-radius: var(--radius); padding: 12px 16px; margin: 0 16px 12px; animation: pulseBorder 2s infinite; }
-    #oil-alert.show { display: flex; align-items: center; gap: 10px; }
-    @keyframes pulseBorder { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 77, 109, .3) } 50% { box-shadow: 0 0 0 6px rgba(255, 77, 109, 0) } }
-    .alert-icon { font-size: 20px; flex-shrink: 0; }
-    .alert-text { font-size: 13px; line-height: 1.5; }
-    .alert-text strong { color: var(--red); display: block; }
+    #oil-alert {
+      display: none;
+      width: calc(100% - 32px);
+      max-width: 480px;
+      background: linear-gradient(135deg, rgba(255, 77, 109, .15), rgba(255, 77, 109, .06));
+      border: 1px solid var(--red);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin: 0 16px 12px;
+      animation: pulseBorder 2s infinite;
+    }
+
+    #oil-alert.show {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @keyframes pulseBorder {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 77, 109, .3)
+      }
+
+      50% {
+        box-shadow: 0 0 0 6px rgba(255, 77, 109, 0)
+      }
+    }
+
+    .alert-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .alert-text {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .alert-text strong {
+      color: var(--red);
+      display: block;
+    }
 
     /* ─── LANG SCREEN ─── */
-    #screen-lang { justify-content: center; }
-    .lang-hero { text-align: center; padding: 40px 24px 32px; }
-    .lang-hero-img { height: 80px; width: auto; max-width: 200px; object-fit: contain; filter: drop-shadow(0 0 30px rgba(245, 166, 35, .5)); }
-    .rc-sub { font-size: 13px; color: var(--muted); letter-spacing: .18em; text-transform: uppercase; margin-top: 10px; font-family: var(--font-en); }
-    .lang-grid { display: flex; flex-direction: column; gap: 12px; width: calc(100% - 48px); max-width: 340px; }
-    .lang-btn { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: var(--tr); color: var(--text); font-size: 18px; font-weight: 700; }
-    .lang-btn:hover { border-color: var(--gold); background: #1f2840; transform: translateY(-2px); }
-    .lang-flag { font-size: 26px; }
-    .lang-native { font-size: 13px; color: var(--muted); }
+    #screen-lang {
+      justify-content: center;
+    }
+
+    .lang-hero {
+      text-align: center;
+      padding: 40px 24px 32px;
+    }
+
+    .lang-hero-img {
+      height: 80px;
+      width: auto;
+      max-width: 200px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 30px rgba(245, 166, 35, .5));
+    }
+
+    .rc-sub {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-top: 10px;
+      font-family: var(--font-en);
+    }
+
+    .lang-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: calc(100% - 48px);
+      max-width: 340px;
+    }
+
+    .lang-btn {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: var(--tr);
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .lang-btn:hover {
+      border-color: var(--gold);
+      background: #1f2840;
+      transform: translateY(-2px);
+    }
+
+    .lang-flag {
+      font-size: 26px;
+    }
+
+    .lang-native {
+      font-size: 13px;
+      color: var(--muted);
+    }
 
     /* ─── FORMS ─── */
-    .form-wrap { width: calc(100% - 32px); max-width: 440px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 26px 22px; box-shadow: var(--shadow); }
-    .form-title { font-size: 21px; font-weight: 800; margin-bottom: 4px; }
-    .form-sub { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
-    .form-group { margin-bottom: 14px; }
-    .form-label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; font-weight: 600; }
-    .form-control { width: 100%; background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 11px 13px; color: var(--text); font-size: 15px; font-family: inherit; outline: none; transition: var(--tr); }
-    .form-control:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(245, 166, 35, .12); }
-    .form-control option { background: var(--surface); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .btn-primary { width: 100%; padding: 14px; border-radius: var(--radius); background: linear-gradient(135deg, var(--gold), var(--gold-dim)); border: none; color: #000; font-weight: 800; font-size: 16px; font-family: inherit; cursor: pointer; transition: var(--tr); box-shadow: 0 4px 20px rgba(245, 166, 35, .3); }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245, 166, 35, .45); }
-    .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
-    .btn-teal { background: linear-gradient(135deg, var(--teal), #0aaa8e); color: #000; }
-    .btn-teal:hover { box-shadow: 0 8px 28px rgba(15, 212, 176, .4); }
+    .form-wrap {
+      width: calc(100% - 32px);
+      max-width: 440px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 26px 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .form-title {
+      font-size: 21px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .form-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .form-control {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 13px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: var(--tr);
+    }
+
+    .form-control:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(245, 166, 35, .12);
+    }
+
+    .form-control option {
+      background: var(--surface);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+      border: none;
+      color: #000;
+      font-weight: 800;
+      font-size: 16px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--tr);
+      box-shadow: 0 4px 20px rgba(245, 166, 35, .3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(245, 166, 35, .45);
+    }
+
+    .btn-primary:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-teal {
+      background: linear-gradient(135deg, var(--teal), #0aaa8e);
+      color: #000;
+    }
+
+    .btn-teal:hover {
+      box-shadow: 0 8px 28px rgba(15, 212, 176, .4);
+    }
 
     /* ─── MAIN ─── */
-    #screen-main { align-items: stretch; padding-bottom: 140px; }
-    .main-content { padding: 0 16px; display: flex; flex-direction: column; gap: 14px; width: 100%; }
+    #screen-main {
+      align-items: stretch;
+      padding-bottom: 140px;
+    }
+
+    .main-content {
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+    }
 
     /* ─── ADV ─── */
-    .ad-banner { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; position: relative; min-height: 100px; }
-    .ad-label { position: absolute; top: 7px; inset-inline-start: 7px; background: rgba(0, 0, 0, .6); font-size: 10px; padding: 2px 7px; border-radius: 4px; color: var(--muted); font-family: var(--font-en); z-index: 3; }
-    .ad-slide { display: none; width: 100%; animation: fadeIn .4s ease; }
-    .ad-slide.active { display: block; }
-    .ad-slide img { width: 100%; max-height: 200px; object-fit: cover; display: block; }
-    .ad-slide video { width: 100%; max-height: 200px; object-fit: cover; display: block; background: #000; }
-    .ad-dots { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 3; }
-    .ad-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .35); transition: var(--tr); }
-    .ad-dot.active { background: var(--gold); width: 16px; border-radius: 3px; }
+    .ad-banner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+      min-height: 100px;
+    }
+
+    .ad-label {
+      position: absolute;
+      top: 7px;
+      inset-inline-start: 7px;
+      background: rgba(0, 0, 0, .6);
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      color: var(--muted);
+      font-family: var(--font-en);
+      z-index: 3;
+    }
+
+    .ad-slide {
+      display: none;
+      width: 100%;
+      animation: fadeIn .4s ease;
+    }
+
+    .ad-slide.active {
+      display: block;
+    }
+
+    .ad-slide img {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .ad-slide video {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      display: block;
+      background: #000;
+    }
+
+    .ad-dots {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 5px;
+      z-index: 3;
+    }
+
+    .ad-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .35);
+      transition: var(--tr);
+    }
+
+    .ad-dot.active {
+      background: var(--gold);
+      width: 16px;
+      border-radius: 3px;
+    }
 
     /* ─── SECTION / CARS ─── */
-    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-    .section-title { font-size: 16px; font-weight: 700; }
-    .btn-add-car { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--gold-dim)); border: none; color: #000; font-size: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--tr); flex-shrink: 0; box-shadow: 0 2px 12px rgba(245, 166, 35, .35); }
-    .btn-add-car:hover { transform: scale(1.12) rotate(90deg); }
-    .cars-list { display: flex; flex-direction: column; gap: 9px; }
-    .car-card { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: var(--tr); position: relative; overflow: hidden; }
-    .car-card::before { content: ''; position: absolute; inset-inline-start: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--gold), var(--gold-dim)); }
-    .car-card:hover { border-color: var(--gold); background: #1f2840; }
-    .car-icon { font-size: 26px; flex-shrink: 0; }
-    .car-info { flex: 1; min-width: 0; }
-    .car-name { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .car-plate { font-size: 12px; color: var(--muted); font-family: var(--font-en); margin-top: 2px; }
-    .car-fines-badge { background: rgba(107, 118, 148, .12); border: 1px solid var(--border); color: var(--muted); border-radius: 20px; padding: 4px 11px; font-size: 12px; font-weight: 700; white-space: nowrap; flex-shrink: 0; transition: var(--tr); font-family: var(--font-en); }
-    .car-fines-badge.has-fines { background: rgba(255, 77, 109, .15); border-color: rgba(255, 77, 109, .35); color: var(--red); }
-    .car-fines-badge.no-fines { background: rgba(15, 212, 176, .1); border-color: rgba(15, 212, 176, .3); color: var(--teal); }
-    .car-fines-badge.checking { animation: pulse 1.4s ease-in-out infinite; }
-    @keyframes pulse { 0%, 100% { opacity: .5 } 50% { opacity: 1 } }
-    .no-cars { text-align: center; padding: 26px; color: var(--muted); font-size: 14px; background: var(--surface); border-radius: var(--radius); border: 1px dashed var(--border); }
-    .no-cars span { font-size: 32px; display: block; margin-bottom: 7px; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .btn-add-car {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+      border: none;
+      color: #000;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--tr);
+      flex-shrink: 0;
+      box-shadow: 0 2px 12px rgba(245, 166, 35, .35);
+    }
+
+    .btn-add-car:hover {
+      transform: scale(1.12) rotate(90deg);
+    }
+
+    .cars-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .car-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: var(--tr);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .car-card::before {
+      content: '';
+      position: absolute;
+      inset-inline-start: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--gold), var(--gold-dim));
+    }
+
+    .car-card:hover {
+      border-color: var(--gold);
+      background: #1f2840;
+    }
+
+    .car-icon {
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+
+    .car-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .car-name {
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .car-plate {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--font-en);
+      margin-top: 2px;
+    }
+
+    .car-fines-badge {
+      background: rgba(107, 118, 148, .12);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 20px;
+      padding: 4px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: var(--tr);
+      font-family: var(--font-en);
+    }
+
+    .car-fines-badge.has-fines {
+      background: rgba(255, 77, 109, .15);
+      border-color: rgba(255, 77, 109, .35);
+      color: var(--red);
+    }
+
+    .car-fines-badge.no-fines {
+      background: rgba(15, 212, 176, .1);
+      border-color: rgba(15, 212, 176, .3);
+      color: var(--teal);
+    }
+
+    .car-fines-badge.checking {
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: .5
+      }
+
+      50% {
+        opacity: 1
+      }
+    }
+
+    .no-cars {
+      text-align: center;
+      padding: 26px;
+      color: var(--muted);
+      font-size: 14px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px dashed var(--border);
+    }
+
+    .no-cars span {
+      font-size: 32px;
+      display: block;
+      margin-bottom: 7px;
+    }
 
     /* ─── OIL SECTION ─── */
-    .oil-section { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-    .oil-header { padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: var(--tr); }
-    .oil-header:hover { background: #1f2840; }
-    .oil-header-left { display: flex; align-items: center; gap: 10px; }
-    .oil-icon { font-size: 20px; }
-    .oil-title { font-size: 15px; font-weight: 700; }
-    .oil-subtitle { font-size: 12px; color: var(--muted); margin-top: 1px; }
-    .oil-chevron { font-size: 16px; color: var(--muted); transition: var(--tr); }
-    .oil-chevron.open { transform: rotate(180deg); }
-    .oil-body { display: none; padding: 0 16px 14px; border-top: 1px solid var(--border); }
-    .oil-body.open { display: block; animation: fadeIn .22s ease; }
-    .oil-car-item { background: var(--surface); border-radius: 10px; padding: 13px; margin-top: 10px; cursor: pointer; transition: var(--tr); border: 1px solid var(--border); }
-    .oil-car-item:hover { border-color: var(--teal); }
-    .oil-car-header { display: flex; align-items: center; justify-content: space-between; }
-    .oil-car-name { font-size: 14px; font-weight: 700; }
-    .oil-km-badge { background: rgba(15, 212, 176, .12); border: 1px solid rgba(15, 212, 176, .3); color: var(--teal); border-radius: 20px; padding: 2px 10px; font-size: 12px; font-family: var(--font-en); font-weight: 700; }
-    .oil-date { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .oil-section {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .oil-header {
+      padding: 13px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: var(--tr);
+    }
+
+    .oil-header:hover {
+      background: #1f2840;
+    }
+
+    .oil-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .oil-icon {
+      font-size: 20px;
+    }
+
+    .oil-title {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .oil-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .oil-chevron {
+      font-size: 16px;
+      color: var(--muted);
+      transition: var(--tr);
+    }
+
+    .oil-chevron.open {
+      transform: rotate(180deg);
+    }
+
+    .oil-body {
+      display: none;
+      padding: 0 16px 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .oil-body.open {
+      display: block;
+      animation: fadeIn .22s ease;
+    }
+
+    .oil-car-item {
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 13px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: var(--tr);
+      border: 1px solid var(--border);
+    }
+
+    .oil-car-item:hover {
+      border-color: var(--teal);
+    }
+
+    .oil-car-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .oil-car-name {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .oil-km-badge {
+      background: rgba(15, 212, 176, .12);
+      border: 1px solid rgba(15, 212, 176, .3);
+      color: var(--teal);
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 12px;
+      font-family: var(--font-en);
+      font-weight: 700;
+    }
+
+    .oil-date {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
 
     /* ─── FEEDBACK ─── */
-    .feedback-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
-    .feedback-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
-    .feedback-textarea { width: 100%; background: var(--card); border: 1.5px solid var(--border); border-radius: 10px; padding: 11px; color: var(--text); font-size: 14px; font-family: inherit; resize: none; outline: none; height: 78px; transition: var(--tr); }
-    .feedback-textarea:focus { border-color: var(--teal); }
-    .btn-sending { background: linear-gradient(135deg, #3a4a6b, #2a3558) !important; color: var(--muted) !important; box-shadow: none !important; }
+    .feedback-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .feedback-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .feedback-textarea {
+      width: 100%;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 11px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      height: 78px;
+      transition: var(--tr);
+    }
+
+    .feedback-textarea:focus {
+      border-color: var(--teal);
+    }
+
+    .btn-sending {
+      background: linear-gradient(135deg, #3a4a6b, #2a3558) !important;
+      color: var(--muted) !important;
+      box-shadow: none !important;
+    }
 
     /* ─── COMPANY ─── */
-    .company-info { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
-    .company-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--gold); }
-    .company-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
-    .company-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .company-item a { color: var(--teal); text-decoration: none; font-family: var(--font-en); }
-    .company-item a:hover { color: var(--gold); }
-    .ci-icon { font-size: 16px; width: 26px; text-align: center; flex-shrink: 0; }
-    .contact-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; border-radius: var(--radius); border: none; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; transition: var(--tr); text-decoration: none; margin-bottom: 8px; }
-    .contact-btn:last-of-type { margin-bottom: 0; }
-    .contact-btn.primary-btn { background: linear-gradient(135deg, var(--gold), var(--gold-dim)); color: #000; box-shadow: 0 4px 16px rgba(245, 166, 35, .3); }
-    .contact-btn.primary-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245, 166, 35, .4); }
-    .contact-btn.outline-btn { background: transparent; border: 1.5px solid var(--teal); color: var(--teal); }
-    .contact-btn.outline-btn:hover { background: rgba(15, 212, 176, .08); transform: translateY(-2px); }
-    .contact-btns-wrap { display: flex; flex-direction: column; gap: 0; margin-bottom: 8px; }
+    .company-info {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .company-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--gold);
+    }
+
+    .company-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .company-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .company-item a {
+      color: var(--teal);
+      text-decoration: none;
+      font-family: var(--font-en);
+    }
+
+    .company-item a:hover {
+      color: var(--gold);
+    }
+
+    .ci-icon {
+      font-size: 16px;
+      width: 26px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .contact-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px;
+      border-radius: var(--radius);
+      border: none;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--tr);
+      text-decoration: none;
+      margin-bottom: 8px;
+    }
+
+    .contact-btn:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .contact-btn.primary-btn {
+      background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+      color: #000;
+      box-shadow: 0 4px 16px rgba(245, 166, 35, .3);
+    }
+
+    .contact-btn.primary-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(245, 166, 35, .4);
+    }
+
+    .contact-btn.outline-btn {
+      background: transparent;
+      border: 1.5px solid var(--teal);
+      color: var(--teal);
+    }
+
+    .contact-btn.outline-btn:hover {
+      background: rgba(15, 212, 176, .08);
+      transform: translateY(-2px);
+    }
+
+    .contact-btns-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 8px;
+    }
 
     /* ─── MODAL ─── */
-    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0, 0, 0, .78); backdrop-filter: blur(6px); align-items: flex-end; justify-content: center; }
-    .modal-overlay.open { display: flex; animation: fadeIn .18s ease; }
-    .modal-sheet { background: var(--card); border-radius: 22px 22px 0 0; padding: 22px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: 0 -8px 40px rgba(0, 0, 0, .5); animation: slideUp .3s cubic-bezier(.4, 0, .2, 1); position: relative; }
-    @keyframes slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
-    .modal-handle { width: 38px; height: 4px; background: var(--border); border-radius: 4px; margin: 0 auto 18px; }
-    .modal-title { font-size: 19px; font-weight: 800; margin-bottom: 3px; }
-    .modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
-    .modal-close { position: absolute; top: 14px; inset-inline-end: 14px; width: 30px; height: 30px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 15px; color: var(--muted); transition: var(--tr); }
-    .modal-close:hover { color: var(--text); background: var(--border); }
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0, 0, 0, .78);
+      backdrop-filter: blur(6px);
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      animation: fadeIn .18s ease;
+    }
+
+    .modal-sheet {
+      background: var(--card);
+      border-radius: 22px 22px 0 0;
+      padding: 22px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 -8px 40px rgba(0, 0, 0, .5);
+      animation: slideUp .3s cubic-bezier(.4, 0, .2, 1);
+      position: relative;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%)
+      }
+
+      to {
+        transform: translateY(0)
+      }
+    }
+
+    .modal-handle {
+      width: 38px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      margin: 0 auto 18px;
+    }
+
+    .modal-title {
+      font-size: 19px;
+      font-weight: 800;
+      margin-bottom: 3px;
+    }
+
+    .modal-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      inset-inline-end: 14px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 15px;
+      color: var(--muted);
+      transition: var(--tr);
+    }
+
+    .modal-close:hover {
+      color: var(--text);
+      background: var(--border);
+    }
 
     /* ─── CAR DETAIL ─── */
-    .car-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .car-detail-item { background: var(--surface); border-radius: 10px; padding: 11px; border: 1px solid var(--border); }
-    .car-detail-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-    .car-detail-value { font-size: 15px; font-weight: 700; font-family: var(--font-en); }
-    .fines-summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-    .fines-summary-left { display: flex; align-items: center; gap: 10px; }
-    .fines-summary-icon { font-size: 22px; }
-    .fines-summary-label { font-size: 12px; color: var(--muted); }
-    .fines-summary-count { font-size: 26px; font-weight: 900; font-family: var(--font-en); color: var(--text); }
-    .fines-summary-count.red { color: var(--red); }
-    .fines-summary-count.green { color: var(--teal); }
-    .fines-summary-count.muted { color: var(--muted); font-size: 16px; }
-    .fines-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
-    .fines-status-dot.checking { background: var(--gold); animation: pulse 1s infinite; }
-    .fines-status-dot.done-ok { background: var(--teal); }
-    .fines-status-dot.done-bad { background: var(--red); }
-    .btn-check { width: 100%; padding: 13px; border-radius: var(--radius); background: linear-gradient(135deg, var(--gold), var(--gold-dim)); border: none; color: #000; font-weight: 800; font-size: 15px; font-family: inherit; cursor: pointer; transition: var(--tr); box-shadow: 0 4px 16px rgba(245, 166, 35, .3); margin-bottom: 10px; }
-    .btn-check:hover { transform: translateY(-2px); }
-    .btn-del { width: 100%; padding: 11px; border-radius: var(--radius); background: transparent; border: 1.5px solid rgba(255, 77, 109, .35); color: var(--red); font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: var(--tr); }
-    .btn-del:hover { background: rgba(255, 77, 109, .1); }
-    .btn-service { width: 100%; padding: 11px; border-radius: var(--radius); background: transparent; border: 1.5px solid rgba(15, 212, 176, .35); color: var(--teal); font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: var(--tr); margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 7px; }
-    .btn-service:hover { background: rgba(15, 212, 176, .1); }
+    .car-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .car-detail-item {
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 11px;
+      border: 1px solid var(--border);
+    }
+
+    .car-detail-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .car-detail-value {
+      font-size: 15px;
+      font-weight: 700;
+      font-family: var(--font-en);
+    }
+
+    .fines-summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .fines-summary-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .fines-summary-icon {
+      font-size: 22px;
+    }
+
+    .fines-summary-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .fines-summary-count {
+      font-size: 26px;
+      font-weight: 900;
+      font-family: var(--font-en);
+      color: var(--text);
+    }
+
+    .fines-summary-count.red {
+      color: var(--red);
+    }
+
+    .fines-summary-count.green {
+      color: var(--teal);
+    }
+
+    .fines-summary-count.muted {
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .fines-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .fines-status-dot.checking {
+      background: var(--gold);
+      animation: pulse 1s infinite;
+    }
+
+    .fines-status-dot.done-ok {
+      background: var(--teal);
+    }
+
+    .fines-status-dot.done-bad {
+      background: var(--red);
+    }
+
+    .btn-check {
+      width: 100%;
+      padding: 13px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+      border: none;
+      color: #000;
+      font-weight: 800;
+      font-size: 15px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--tr);
+      box-shadow: 0 4px 16px rgba(245, 166, 35, .3);
+      margin-bottom: 10px;
+    }
+
+    .btn-check:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-del {
+      width: 100%;
+      padding: 11px;
+      border-radius: var(--radius);
+      background: transparent;
+      border: 1.5px solid rgba(255, 77, 109, .35);
+      color: var(--red);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--tr);
+    }
+
+    .btn-del:hover {
+      background: rgba(255, 77, 109, .1);
+    }
+
+    /* ─── EXTRA SERVICE BUTTONS in car detail ─── */
+    .btn-service {
+      width: 100%;
+      padding: 11px;
+      border-radius: var(--radius);
+      background: transparent;
+      border: 1.5px solid rgba(15, 212, 176, .35);
+      color: var(--teal);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--tr);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .btn-service:hover {
+      background: rgba(15, 212, 176, .1);
+    }
 
     /* ─── OIL MODAL ─── */
-    .oil-detail-grid { display: flex; flex-direction: column; gap: 9px; }
-    .oil-detail-card { background: var(--surface); border-radius: 11px; padding: 13px; border: 1px solid var(--border); }
-    .oil-detail-header { display: flex; justify-content: space-between; align-items: flex-start; }
-    .oil-detail-km { font-size: 22px; font-weight: 900; color: var(--teal); font-family: var(--font-en); }
-    .oil-detail-date { font-size: 12px; color: var(--muted); }
-    .oil-detail-meta { display: flex; gap: 7px; margin-top: 7px; flex-wrap: wrap; }
-    .oil-tag { background: rgba(15, 212, 176, .1); border: 1px solid rgba(15, 212, 176, .3); color: var(--teal); border-radius: 20px; padding: 2px 9px; font-size: 12px; }
-    .oil-tag.no { background: rgba(107, 118, 148, .1); border-color: var(--border); color: var(--muted); }
-    .oil-notes { font-size: 13px; color: var(--muted); margin-top: 7px; line-height: 1.5; }
-    .divider { height: 1px; background: var(--border); margin: 14px 0; }
-    .checkbox-wrap { display: flex; align-items: center; gap: 10px; }
-    .checkbox-wrap input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--gold); cursor: pointer; }
-    .reminder-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
-    .reminder-label-txt { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
-    .reminder-num { width: 90px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 9px; padding: 9px 12px; color: var(--text); font-family: inherit; font-size: 16px; font-weight: 700; outline: none; transition: var(--tr); text-align: center; }
-    .reminder-num:focus { border-color: var(--gold); }
-    .reminder-unit { font-size: 13px; color: var(--muted); }
-    .next-oil-box { background: linear-gradient(135deg, rgba(15, 212, 176, .12), rgba(15, 212, 176, .04)); border: 1.5px solid rgba(15, 212, 176, .35); border-radius: var(--radius); padding: 14px 16px; margin-top: 10px; display: none; animation: fadeIn .25s ease; }
-    .next-oil-box-label { font-size: 11px; color: var(--teal); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
-    .next-oil-box-km { font-size: 30px; font-weight: 900; color: var(--teal); font-family: var(--font-en); line-height: 1; }
-    .next-oil-box-km span { font-size: 14px; font-weight: 400; color: var(--muted); }
-    .next-oil-box-diff { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .oil-detail-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
 
-    /* ─── EXPANDABLE SECTIONS ─── */
-    .expand-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
-    .expand-header { padding: 13px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: var(--tr); }
-    .expand-header:hover { background: rgba(255, 255, 255, .04); }
-    .expand-header-left { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 700; }
-    .expand-chevron { font-size: 14px; color: var(--muted); transition: transform .25s ease; }
-    .expand-chevron.open { transform: rotate(180deg); }
-    .expand-body { display: none; padding: 14px 16px; border-top: 1px solid var(--border); }
-    .expand-body.open { display: block; animation: fadeIn .22s ease; }
+    .oil-detail-card {
+      background: var(--surface);
+      border-radius: 11px;
+      padding: 13px;
+      border: 1px solid var(--border);
+    }
+
+    .oil-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .oil-detail-km {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--teal);
+      font-family: var(--font-en);
+    }
+
+    .oil-detail-date {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .oil-detail-meta {
+      display: flex;
+      gap: 7px;
+      margin-top: 7px;
+      flex-wrap: wrap;
+    }
+
+    .oil-tag {
+      background: rgba(15, 212, 176, .1);
+      border: 1px solid rgba(15, 212, 176, .3);
+      color: var(--teal);
+      border-radius: 20px;
+      padding: 2px 9px;
+      font-size: 12px;
+    }
+
+    .oil-tag.no {
+      background: rgba(107, 118, 148, .1);
+      border-color: var(--border);
+      color: var(--muted);
+    }
+
+    .oil-notes {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 7px;
+      line-height: 1.5;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .checkbox-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .checkbox-wrap input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    .reminder-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .reminder-label-txt {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .reminder-num {
+      width: 90px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      outline: none;
+      transition: var(--tr);
+      text-align: center;
+    }
+
+    .reminder-num:focus {
+      border-color: var(--gold);
+    }
+
+    .reminder-unit {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .next-oil-box {
+      background: linear-gradient(135deg, rgba(15, 212, 176, .12), rgba(15, 212, 176, .04));
+      border: 1.5px solid rgba(15, 212, 176, .35);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-top: 10px;
+      display: none;
+      animation: fadeIn .25s ease;
+    }
+
+    .next-oil-box-label {
+      font-size: 11px;
+      color: var(--teal);
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .next-oil-box-km {
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--teal);
+      font-family: var(--font-en);
+      line-height: 1;
+    }
+
+    .next-oil-box-km span {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    .next-oil-box-diff {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* ─── EXPANDABLE SECTIONS in modals ─── */
+    .expand-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .expand-header {
+      padding: 13px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: var(--tr);
+    }
+
+    .expand-header:hover {
+      background: rgba(255, 255, 255, .04);
+    }
+
+    .expand-header-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .expand-chevron {
+      font-size: 14px;
+      color: var(--muted);
+      transition: transform .25s ease;
+    }
+
+    .expand-chevron.open {
+      transform: rotate(180deg);
+    }
+
+    .expand-body {
+      display: none;
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .expand-body.open {
+      display: block;
+      animation: fadeIn .22s ease;
+    }
 
     /* ─── CRANE MODAL ─── */
-    .crane-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; }
-    .crane-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-    .crane-name { font-size: 15px; font-weight: 700; }
-    .crane-dist { font-size: 12px; color: var(--gold); font-family: var(--font-en); }
-    .crane-phone { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
-    .crane-wa-btn { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; padding: 10px; border-radius: 10px; background: linear-gradient(135deg, #25d366, #128c7e); border: none; color: #fff; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: var(--tr); }
-    .crane-wa-btn:hover { transform: translateY(-1px); }
-    .crane-loading { text-align: center; padding: 24px; color: var(--muted); font-size: 14px; }
-    .crane-error { text-align: center; padding: 24px; color: var(--red); font-size: 14px; }
+    .crane-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+
+    .crane-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .crane-name {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .crane-dist {
+      font-size: 12px;
+      color: var(--gold);
+      font-family: var(--font-en);
+    }
+
+    .crane-phone {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .crane-wa-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      border: none;
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--tr);
+    }
+
+    .crane-wa-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .crane-loading {
+      text-align: center;
+      padding: 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .crane-error {
+      text-align: center;
+      padding: 24px;
+      color: var(--red);
+      font-size: 14px;
+    }
 
     /* ─── PWA ─── */
-    #pwa-banner { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: linear-gradient(135deg, #1c2340, #111627); border-top: 2px solid var(--gold); padding: 18px 20px 22px; box-shadow: 0 -12px 40px rgba(0, 0, 0, .65); }
-    #pwa-banner.show { display: flex; flex-direction: column; align-items: center; gap: 14px; animation: slideUp .4s cubic-bezier(.4, 0, .2, 1); }
-    .pwa-top-row { display: flex; align-items: center; gap: 14px; width: 100%; }
-    .pwa-icon { width: 56px; height: 56px; border-radius: 16px; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 18px rgba(245, 166, 35, .5); }
-    .pwa-icon img { width: 100%; height: 100%; object-fit: cover; }
-    .pwa-text { flex: 1; min-width: 0; }
-    .pwa-title { font-size: 17px; font-weight: 900; margin-bottom: 4px; color: var(--text); }
-    .pwa-sub { font-size: 13px; color: var(--muted); line-height: 1.5; }
-    .btn-install { width: 100%; padding: 15px; border-radius: var(--radius); background: linear-gradient(135deg, var(--gold), var(--gold-dim)); border: none; color: #000; font-weight: 900; font-size: 17px; font-family: inherit; cursor: pointer; transition: var(--tr); box-shadow: 0 4px 20px rgba(245, 166, 35, .4); }
-    .btn-install:hover { transform: translateY(-2px); }
+    #pwa-banner {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: linear-gradient(135deg, #1c2340, #111627);
+      border-top: 2px solid var(--gold);
+      padding: 18px 20px 22px;
+      box-shadow: 0 -12px 40px rgba(0, 0, 0, .65);
+    }
 
-    #toast { position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%); background: var(--surface); border: 1px solid var(--border); border-radius: 50px; padding: 9px 20px; font-size: 14px; box-shadow: var(--shadow); z-index: 999; opacity: 0; transition: opacity .3s ease; white-space: nowrap; pointer-events: none; }
-    #toast.success { border-color: var(--teal); color: var(--teal); }
-    #toast.error { border-color: var(--red); color: var(--red); }
-    #toast.show { opacity: 1; }
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    #pwa-banner.show {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      animation: slideUp .4s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .pwa-top-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .pwa-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 4px 18px rgba(245, 166, 35, .5);
+    }
+
+    .pwa-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .pwa-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pwa-title {
+      font-size: 17px;
+      font-weight: 900;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .pwa-sub {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .btn-install {
+      width: 100%;
+      padding: 15px;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+      border: none;
+      color: #000;
+      font-weight: 900;
+      font-size: 17px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--tr);
+      box-shadow: 0 4px 20px rgba(245, 166, 35, .4);
+    }
+
+    .btn-install:hover {
+      transform: translateY(-2px);
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 72px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 9px 20px;
+      font-size: 14px;
+      box-shadow: var(--shadow);
+      z-index: 999;
+      opacity: 0;
+      transition: opacity .3s ease;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    #toast.success {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    #toast.error {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    #toast.show {
+      opacity: 1;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
   </style>
 </head>
 
@@ -347,21 +1846,32 @@
     <div class="lang-hero">
       <img class="lang-hero-img" src="logo2.png" alt="RC Service"
         onerror="this.style.display='none';document.getElementById('lang-fallback').style.display='block'">
-      <div id="lang-fallback" style="display:none;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:72px;color:var(--gold);text-shadow:0 0 60px rgba(245,166,35,.5)">RC</div>
+      <div id="lang-fallback"
+        style="display:none;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:72px;color:var(--gold);text-shadow:0 0 60px rgba(245,166,35,.5)">
+        RC</div>
       <div class="rc-sub">Road Care Service</div>
     </div>
     <div class="lang-grid">
       <button class="lang-btn" onclick="selectLang('ar')">
         <span>عربي</span>
-        <div style="text-align:end"><div class="lang-flag">🇮🇶</div><div class="lang-native">العربية</div></div>
+        <div style="text-align:end">
+          <div class="lang-flag">🇮🇶</div>
+          <div class="lang-native">العربية</div>
+        </div>
       </button>
       <button class="lang-btn" onclick="selectLang('ku')">
         <span>کوردی</span>
-        <div style="text-align:end"><div class="lang-flag">🏴</div><div class="lang-native">کوردی</div></div>
+        <div style="text-align:end">
+          <div class="lang-flag">🏴</div>
+          <div class="lang-native">کوردی</div>
+        </div>
       </button>
       <button class="lang-btn" onclick="selectLang('en')">
         <span>English</span>
-        <div style="text-align:end"><div class="lang-flag">🇬🇧</div><div class="lang-native">English</div></div>
+        <div style="text-align:end">
+          <div class="lang-flag">🇬🇧</div>
+          <div class="lang-native">English</div>
+        </div>
       </button>
     </div>
   </div>
@@ -436,10 +1946,15 @@
           <button class="btn-add-car" onclick="openAddCar()">+</button>
         </div>
         <div class="cars-list" id="cars-list">
-          <div class="no-cars"><span>🚗</span><div id="no-cars-text">لا توجد سيارات. اضغط + لإضافة.</div></div>
+          <div class="no-cars"><span>🚗</span>
+            <div id="no-cars-text">لا توجد سيارات. اضغط + لإضافة.</div>
+          </div>
         </div>
-        <button class="btn-service" style="margin-top:14px;border-color:rgba(245,166,35,.5);color:var(--gold);" onclick="openCraneModal()">🚛 <span id="lbl-crane-btn">طلب كرين</span></button>
+        <!-- زر طلب كرين تحت السيارات -->
+        <button class="btn-service" style="margin-top:14px;border-color:rgba(245,166,35,.5);color:var(--gold);"
+          onclick="openCraneModal()">🚛 <span id="lbl-crane-btn">طلب كرين</span></button>
       </div>
+
 
       <!-- COMPANY -->
       <div class="company-info">
@@ -452,8 +1967,10 @@
             📍 <span id="lbl-nearest-agent">أقرب وكيل معتمد</span>
           </a>
         </div>
-        <div class="company-item"><span class="ci-icon">💬</span><span id="lbl-cwa">واتساب:</span>&nbsp;<a href="" id="company-wa" target="_blank"></a></div>
-        <div class="company-item"><span class="ci-icon">🏢</span><span id="lbl-caddr">العنوان:</span>&nbsp;<span id="company-addr"></span></div>
+        <div class="company-item"><span class="ci-icon">💬</span><span id="lbl-cwa">واتساب:</span>&nbsp;<a href=""
+            id="company-wa" target="_blank"></a></div>
+        <div class="company-item"><span class="ci-icon">🏢</span><span id="lbl-caddr">العنوان:</span>&nbsp;<span
+            id="company-addr"></span></div>
       </div>
 
       <!-- FEEDBACK -->
@@ -468,7 +1985,9 @@
     </div>
   </div>
 
-  <!-- ══ SIDEBAR ══ -->
+  <!-- ══════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════ -->
   <div id="sidebar-overlay" onclick="closeSidebar()"></div>
   <div id="sidebar">
     <div class="sb-top">
@@ -495,16 +2014,21 @@
     <div class="sb-section">
       <div class="sb-section-hdr" id="sb-lang-hdr">🌐 تغيير اللغة</div>
       <div class="sb-lang-grid">
-        <button class="sb-lang-btn" id="sb-lang-ar" onclick="switchLang('ar')"><span>🇮🇶 عربي</span><span class="sb-lang-check">✓</span></button>
-        <button class="sb-lang-btn" id="sb-lang-ku" onclick="switchLang('ku')"><span>🏴 کوردی</span><span class="sb-lang-check">✓</span></button>
-        <button class="sb-lang-btn" id="sb-lang-en" onclick="switchLang('en')"><span>🇬🇧 English</span><span class="sb-lang-check">✓</span></button>
+        <button class="sb-lang-btn" id="sb-lang-ar" onclick="switchLang('ar')"><span>🇮🇶 عربي</span><span
+            class="sb-lang-check">✓</span></button>
+        <button class="sb-lang-btn" id="sb-lang-ku" onclick="switchLang('ku')"><span>🏴 کوردی</span><span
+            class="sb-lang-check">✓</span></button>
+        <button class="sb-lang-btn" id="sb-lang-en" onclick="switchLang('en')"><span>🇬🇧 English</span><span
+            class="sb-lang-check">✓</span></button>
       </div>
     </div>
     <div class="sb-section" style="padding-bottom:30px;">
       <div class="sb-section-hdr" id="sb-theme-hdr">🎨 المظهر</div>
       <div class="sb-theme-grid">
-        <button class="sb-theme-btn active" id="btn-theme-dark" onclick="setTheme('dark')"><span class="th-icon">🌙</span><span id="lbl-theme-dark">ليلي</span></button>
-        <button class="sb-theme-btn" id="btn-theme-light" onclick="setTheme('light')"><span class="th-icon">☀️</span><span id="lbl-theme-light">عادي</span></button>
+        <button class="sb-theme-btn active" id="btn-theme-dark" onclick="setTheme('dark')"><span
+            class="th-icon">🌙</span><span id="lbl-theme-dark">ليلي</span></button>
+        <button class="sb-theme-btn" id="btn-theme-light" onclick="setTheme('light')"><span
+            class="th-icon">☀️</span><span id="lbl-theme-light">عادي</span></button>
       </div>
     </div>
   </div>
@@ -516,18 +2040,25 @@
       <button class="modal-close" onclick="closeModal('modal-add-car')">✕</button>
       <div class="modal-title" id="add-car-title">إضافة سيارة</div>
       <div class="modal-sub" id="add-car-sub">أدخل بيانات السيارة والسنوية</div>
+
+      <!-- اختيار المحافظة -->
       <div class="form-group">
         <label class="form-label" id="lbl-gov">المحافظة</label>
         <select class="form-control" id="add-gov" onchange="onGovernorateChange()">
-          <option value="" id="opt-gov-placeholder">-- اختر --</option>
+          <option value="">-- اختر --</option>
           <option value="erbil">أربيل / هەولێر / Erbil</option>
+          <!-- محافظات أخرى ستُضاف مستقبلاً -->
         </select>
       </div>
+
       <div class="form-group">
         <label class="form-label" id="lbl-car-name">اسم السيارة</label>
         <input class="form-control" id="add-car-name" type="text" placeholder="كيا سبورتاج">
       </div>
+
+      <!-- الحقول الديناميكية حسب المحافظة -->
       <div id="gov-dynamic-fields"></div>
+
       <button class="btn-primary" id="add-car-btn" onclick="saveCar()">حفظ السيارة</button>
     </div>
   </div>
@@ -541,6 +2072,7 @@
       <div class="modal-sub" id="d-car-plate"></div>
       <div class="car-detail-grid" id="d-grid"></div>
 
+      <!-- الغرامات -->
       <div class="fines-summary-card" id="fines-summary-card">
         <div class="fines-summary-left">
           <span class="fines-summary-icon">📋</span>
@@ -551,9 +2083,11 @@
         </div>
         <div class="fines-status-dot checking" id="fines-status-dot"></div>
       </div>
-      <button class="btn-check" id="btn-check-fines" onclick="loadFines()">🔍 <span id="fines-btn-txt">عرض تفاصيل الغرامات</span></button>
+      <!-- نتيجة الغرامات الداخلية -->
+      <button class="btn-check" id="btn-check-fines" onclick="loadFines()">🔍 <span id="fines-btn-txt">عرض تفاصيل
+          الغرامات</span></button>
 
-      <!-- قسم الزيت -->
+      <!-- قسم الزيت (قابل للطي) -->
       <div class="expand-section" id="oil-expand-section">
         <div class="expand-header" onclick="toggleExpand('oil-expand')">
           <div class="expand-header-left">🛢️ <span id="lbl-oil-section-title">تغيير الزيت</span></div>
@@ -562,7 +2096,9 @@
         <div class="expand-body" id="oil-expand">
           <div class="oil-detail-grid" id="oil-entries" style="margin-bottom:12px;"></div>
           <div class="divider"></div>
-          <button class="btn-primary" onclick="toggleNewOilForm()">➕ <span id="new-oil-txt">تسجيل تغيير جديد</span></button>
+          <button class="btn-primary" onclick="toggleNewOilForm()">➕ <span id="new-oil-txt">تسجيل تغيير
+              جديد</span></button>
+
           <div id="new-oil-form" style="display:none;margin-top:18px">
             <div class="divider"></div>
             <div style="font-size:15px;font-weight:800;margin-bottom:14px" id="new-oil-title">تغيير زيت جديد</div>
@@ -612,7 +2148,7 @@
         </div>
       </div>
 
-      <!-- قسم الكير -->
+      <!-- قسم الكير (قابل للطي) -->
       <div class="expand-section" id="gear-expand-section">
         <div class="expand-header" onclick="toggleExpand('gear-expand')">
           <div class="expand-header-left">⚙️ <span id="lbl-gear-section">تبديل زيت الكير</span></div>
@@ -621,7 +2157,10 @@
         <div class="expand-body" id="gear-expand">
           <div class="oil-detail-grid" id="gear-entries" style="margin-bottom:12px;"></div>
           <div class="divider"></div>
-          <button class="btn-primary" onclick="toggleNewGearForm()" style="background:transparent;color:var(--gold);border:1.5px solid var(--border);box-shadow:none">➕ <span id="new-gear-txt">تسجيل تغيير جديد</span></button>
+          <button class="btn-primary" onclick="toggleNewGearForm()"
+            style="background:transparent;color:var(--gold);border:1.5px solid var(--border);box-shadow:none">➕ <span
+              id="new-gear-txt">تسجيل تغيير جديد</span></button>
+
           <div id="new-gear-form" style="display:none;margin-top:18px">
             <div class="divider"></div>
             <div style="font-size:15px;font-weight:800;margin-bottom:14px" id="new-gear-title">تبديل زيت كير جديد</div>
@@ -637,7 +2176,9 @@
               <label class="form-label" id="lbl-gear-notes">ملاحظات</label>
               <textarea class="form-control" id="gear-notes" rows="2" placeholder="..."></textarea>
             </div>
-            <button class="btn-primary" onclick="saveGear()" style="background:linear-gradient(135deg, #f5a623, #c07b10);">💾 <span id="save-gear-btn-txt">حفظ تبديل زيت الكير</span></button>
+            <button class="btn-primary" onclick="saveGear()"
+              style="background:linear-gradient(135deg, #f5a623, #c07b10);">💾 <span id="save-gear-btn-txt">حفظ تبديل زيت
+                الكير</span></button>
           </div>
         </div>
       </div>
@@ -645,6 +2186,7 @@
       <button class="btn-del" onclick="deleteCar()">🗑 <span id="del-btn-txt">حذف السيارة</span></button>
     </div>
   </div>
+
 
   <!-- ══ MODAL: CRANE ══ -->
   <div class="modal-overlay" id="modal-crane">
@@ -673,7 +2215,9 @@
 
   <div id="toast"></div>
 
-  <!-- ══ FINES MODULES ══ -->
+  <!-- ══════════════════════════════════════
+     FINES MODULES (محافظات)
+══════════════════════════════════════ -->
   <script src="fines-erbil.js"></script>
 
   <script>
@@ -840,18 +2384,12 @@
        INIT
     ═══════════════════════════════════════ */
     document.addEventListener('DOMContentLoaded', () => {
-        Object.keys(finesCache).forEach(k => {
-    if (['cors', '?', '!'].includes(finesCache[k]?.count)) delete finesCache[k];
-  });
-  saveFinesCache();
-
-  initTheme(); initPWA();
       initTheme(); initPWA();
       if (!lang) { show('screen-lang'); return; }
       applyLang(lang);
       if (!user) { show('screen-register'); return; }
       show('screen-main'); renderMain(); applyCompany(); initADV();
-      setTimeout(startBackgroundFinesCheck, 1200);
+      setTimeout(startBackgroundFinesCheck, 1500);
       fetchUserDataFromSheets();
     });
 
@@ -909,11 +2447,11 @@
       if (user && body) {
         const genderMap = { male: t.male, female: t.female };
         body.innerHTML = `
-          <div class="sb-info-row"><span class="sb-info-icon">👤</span><span class="sb-info-val">${user.name || '—'}</span></div>
-          <div class="sb-info-row"><span class="sb-info-icon">📱</span><span class="sb-info-val" style="direction:ltr">${user.phone || '—'}</span></div>
-          <div class="sb-info-row"><span class="sb-info-icon">🏙️</span><span class="sb-info-val">${user.city || '—'}</span></div>
-          <div class="sb-info-row"><span class="sb-info-icon">🎂</span><span class="sb-info-val" style="direction:ltr">${user.dob || '—'}</span></div>
-          <div class="sb-info-row"><span class="sb-info-icon">⚧</span><span class="sb-info-val">${genderMap[user.gender] || user.gender || '—'}</span></div>`;
+      <div class="sb-info-row"><span class="sb-info-icon">👤</span><span class="sb-info-val">${user.name || '—'}</span></div>
+      <div class="sb-info-row"><span class="sb-info-icon">📱</span><span class="sb-info-val" style="direction:ltr">${user.phone || '—'}</span></div>
+      <div class="sb-info-row"><span class="sb-info-icon">🏙️</span><span class="sb-info-val">${user.city || '—'}</span></div>
+      <div class="sb-info-row"><span class="sb-info-icon">🎂</span><span class="sb-info-val" style="direction:ltr">${user.dob || '—'}</span></div>
+      <div class="sb-info-row"><span class="sb-info-icon">⚧</span><span class="sb-info-val">${genderMap[user.gender] || user.gender || '—'}</span></div>`;
       }
     }
     let qrRendered = false, lastQrPhone = '';
@@ -955,64 +2493,25 @@
       if (validFiles.length > 1) startAdvTimer(validFiles);
       playCurrentVideo();
     }
-    function playCurrentVideo() { const s = document.querySelector('.ad-slide.active'); if (s) { const v = s.querySelector('video'); if (v) v.play().catch(() => {}); } }
+    function playCurrentVideo() { const s = document.querySelector('.ad-slide.active'); if (s) { const v = s.querySelector('video'); if (v) v.play().catch(() => { }); } }
     function startAdvTimer(f) { clearInterval(advTimer); advTimer = setInterval(() => { advIndex = (advIndex + 1) % f.length; goToSlide(advIndex); }, 5000); }
     function goToSlide(idx) {
       document.querySelectorAll('.ad-slide').forEach((s, i) => { s.classList.remove('active'); const v = s.querySelector('video'); if (v && i !== idx) v.pause(); });
       document.querySelectorAll('.ad-dot').forEach(d => d.classList.remove('active'));
       advIndex = idx;
       const t = document.getElementById('adv-slide-' + idx);
-      if (t) { t.classList.add('active'); const v = t.querySelector('video'); if (v) { v.currentTime = 0; v.play().catch(() => {}); } }
+      if (t) { t.classList.add('active'); const v = t.querySelector('video'); if (v) { v.currentTime = 0; v.play().catch(() => { }); } }
       const d = document.getElementById('adv-dot-' + idx); if (d) d.classList.add('active');
     }
 
     /* ─── PWA ─── */
     let deferredPrompt = null;
     const IS_STANDALONE = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-function initPWA() {
-  if (IS_STANDALONE) return;
-  
-  window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    deferredPrompt = e;
-    // أظهر البانر فقط بعد ما يتوفر الـ event
-    showPWABanner();
-  });
-}
-
-// استبدل showPWABanner
-function showPWABanner() {
-  if (IS_STANDALONE || !deferredPrompt) return;
-  updatePWAText();
-  document.getElementById('pwa-banner').classList.add('show');
-}
-
-// استبدل installPWA
-async function installPWA() {
-  if (deferredPrompt) {
-    try {
-      await deferredPrompt.prompt();
-      const choice = await deferredPrompt.userChoice;
-      if (choice.outcome === 'accepted') {
-        document.getElementById('pwa-banner').classList.remove('show');
-      }
-    } catch(e) {
-      console.log('PWA prompt error:', e);
+    function initPWA() {
+      if (IS_STANDALONE) return;
+      window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
+      showPWABanner();
     }
-    deferredPrompt = null;
-    return;
-  }
-  
-  // iOS fallback
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  if (isIOS) {
-    alert(lang === 'en' 
-      ? 'Tap Share ↑ then "Add to Home Screen"' 
-      : lang === 'ku' 
-      ? 'بۆتۆنی هاوبەشکردن ↑ دابگرە' 
-      : 'اضغط زر المشاركة ↑ ثم "إضافة إلى الشاشة الرئيسية"');
-  }
-}
     function showPWABanner() { if (IS_STANDALONE) return; document.getElementById('pwa-banner').classList.add('show'); updatePWAText(); }
     function updatePWAText() { const t = T[lang || 'ar']; if (!t) return; set('pwa-title', t.pwaTitle); set('pwa-sub', t.pwaSub); const btn = document.getElementById('pwa-install-btn'); if (btn) btn.textContent = '📲 ' + t.pwaInstall; }
     async function installPWA() {
@@ -1027,53 +2526,31 @@ async function installPWA() {
       document.documentElement.lang = l === 'en' ? 'en' : 'ar';
       document.documentElement.dir = l === 'en' ? 'ltr' : 'rtl';
       document.body.classList.toggle('ltr', l === 'en');
-
-      // Register screen
       set('reg-title', t.regTitle); set('reg-sub', t.regSub); set('lbl-name', t.name); set('lbl-phone', t.phone);
       set('lbl-city', t.city); set('lbl-dob', t.dob); set('lbl-gender', t.gender); set('reg-submit', t.regBtn);
       set('opt-male', t.male); set('opt-female', t.female);
       const cs = document.getElementById('reg-city');
       cs.innerHTML = '<option value="">--</option>';
       t.cities.forEach((c, i) => { const o = document.createElement('option'); o.value = t.cityVals[i]; o.textContent = c; cs.appendChild(o); });
-
-      // Governorate dropdown placeholder
-      const govOpt = document.getElementById('opt-gov-placeholder');
-      if (govOpt) govOpt.textContent = t.govPlaceholder || t.govPlaceholderFull || '-- اختر --';
-
-      // Main screen
       set('cars-title', t.carsTitle); set('no-cars-text', t.noCars);
+      set('oil-section-title', t.oilTitle); set('oil-section-sub', t.oilSub);
       set('lbl-oil-section-title', t.oilTitle);
-
-      // Add car modal
       set('add-car-title', t.addCarTitle); set('add-car-sub', t.addCarSub);
       set('lbl-gov', t.govLabel || t.gov); set('lbl-car-name', t.carName);
-
-      // Car detail modal
       set('fines-btn-txt', t.checkFines); set('del-btn-txt', t.delBtn);
-      set('fines-summary-label', t.finesSummaryLabel);
-
-      // Oil form
-      set('new-oil-txt', t.newOilBtn); set('new-oil-title', t.newOilTitle);
-      set('lbl-oil-km', t.oilKm); set('lbl-oil-date', t.oilDate);
+      set('new-oil-txt', t.newOilBtn); set('lbl-oil-km', t.oilKm); set('lbl-oil-date', t.oilDate);
       set('lbl-filter', t.filterLbl); set('lbl-oil-notes', t.oilNotes);
       set('lbl-oil-interval', t.oilInterval); set('opt-interval-none', t.oilIntervalNone);
       set('next-oil-box-label', t.nextOilLabel); set('lbl-reminder', t.remLbl); set('reminder-unit', t.remUnit);
-      set('save-oil-btn', t.saveOil);
-
-      // Gear section
-      set('lbl-gear-section', t.gearSection);
-      set('new-gear-txt', t.newGearBtn || t.newOilBtn);
-      set('new-gear-title', t.newGearTitle || t.gearSection);
-      set('lbl-gear-km', t.gearKm); set('lbl-gear-date', t.gearDate);
-      set('lbl-gear-notes', t.gearNotes); set('save-gear-btn-txt', t.saveGear);
-
-      // Alerts & company
-      set('oil-alert-title', t.oilAlertTitle);
+      set('save-oil-btn', t.saveOil); set('new-oil-title', t.newOilTitle);
       set('feedback-title', t.feedbackTitle); set('feedback-btn', t.feedbackBtn);
       set('company-title', t.companyTitle); set('lbl-cwa', t.cWa + ':'); set('lbl-caddr', t.cAddr + ':');
+      set('oil-alert-title', t.oilAlertTitle); set('fines-summary-label', t.finesSummaryLabel);
       set('lbl-contact-us', t.contactUs); set('lbl-nearest-agent', t.nearestAgent);
-      set('lbl-crane-btn', t.craneBtn);
-
+      set('lbl-crane-btn', t.craneBtn || 'طلب كرين');
+      set('lbl-gear-section', t.gearSection || 'تبديل زيت الكير');
+      set('lbl-gear-km', t.gearKm || 'الكيلومتر'); set('lbl-gear-date', t.gearDate || 'التاريخ');
+      set('lbl-gear-notes', t.gearNotes || 'ملاحظات'); set('save-gear-btn-txt', t.saveGear || 'حفظ');
       updatePWAText();
     }
     function set(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
@@ -1090,27 +2567,27 @@ async function installPWA() {
       localStorage.setItem('rc_user', JSON.stringify(user));
       sendSheet({ sheet: 'users', name, phone, city, dob, gender, timestamp: new Date().toISOString() });
       show('screen-main'); renderMain(); checkAlerts(); applyCompany(); initADV(); toast(t.saved, 'success');
-      setTimeout(startBackgroundFinesCheck, 1200);
+      setTimeout(startBackgroundFinesCheck, 1500);
     }
 
     /* ═══════════════════════════════════════
        GOVERNORATE / FINES MODULE SYSTEM
     ═══════════════════════════════════════ */
+
+    /** يرجع وحدة الغرامات للمحافظة المحددة */
     function getFinesModule(govId) {
       return (window.FINES_MODULES && window.FINES_MODULES[govId]) || null;
     }
 
+    /** عند تغيير المحافظة في نموذج إضافة سيارة — يبني الحقول ديناميكياً */
     function onGovernorateChange() {
       const govId = get('add-gov');
       const container = document.getElementById('gov-dynamic-fields');
       container.innerHTML = '';
       if (!govId) return;
       const mod = getFinesModule(govId);
+      if (!mod) { container.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:8px 0">قريباً / Soon</div>`; return; }
       const t = T[lang] || T['ar'];
-      if (!mod) {
-        container.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:8px 0">${t.govSoon || 'قريباً'}</div>`;
-        return;
-      }
       const langKey = lang === 'ku' ? 'labelKu' : lang === 'en' ? 'labelEn' : 'labelAr';
       mod.FINES_FIELDS.forEach(field => {
         const label = field[langKey] || field.labelAr;
@@ -1118,12 +2595,12 @@ async function installPWA() {
         if (field.type === 'select') {
           const optLangKey = lang === 'ku' ? 'labelKu' : lang === 'en' ? 'labelEn' : 'labelAr';
           div.innerHTML = `<label class="form-label">${label}</label>
-            <select class="form-control" id="dyn-${field.key}">
-              ${field.options.map(o => `<option value="${o.value}">${o[optLangKey] || o.labelAr}</option>`).join('')}
-            </select>`;
+        <select class="form-control" id="dyn-${field.key}">
+          ${field.options.map(o => `<option value="${o.value}">${o[optLangKey] || o.labelAr}</option>`).join('')}
+        </select>`;
         } else {
           div.innerHTML = `<label class="form-label">${label}</label>
-            <input class="form-control" id="dyn-${field.key}" type="${field.type}" placeholder="${field.placeholder || ''}">`;
+        <input class="form-control" id="dyn-${field.key}" type="${field.type}" placeholder="${field.placeholder || ''}">`;
         }
         container.appendChild(div);
       });
@@ -1149,6 +2626,7 @@ async function installPWA() {
       const carData = { id: Date.now(), name: carName, governorate: govId };
 
       if (mod) {
+        // جمع الحقول الديناميكية
         for (const field of mod.FINES_FIELDS) {
           const el = document.getElementById('dyn-' + field.key);
           if (!el) { if (field.required) { toast(t.fillAll, 'error'); return; } continue; }
@@ -1156,6 +2634,7 @@ async function installPWA() {
           if (field.required && !val) { toast(t.fillAll, 'error'); return; }
           carData[field.key] = val;
         }
+        // type هو المفتاح المشترك للنوع
         if (!carData.type) carData.type = '1';
       }
 
@@ -1165,6 +2644,7 @@ async function installPWA() {
       renderMain();
       toast(t.saved, 'success');
 
+      // إرسال إلى Google Sheets
       sendSheet({
         sheet: 'cars', action: 'add_car',
         car_id: String(carData.id),
@@ -1189,7 +2669,9 @@ async function installPWA() {
         const res = await fetch(CONFIG.SHEET_URL + '?action=get_user_cars&phone=' + user.phone);
         const data = await res.json();
         if (data && data.cars) {
-          cars = []; oilData = {}; gearData = {};
+          cars = [];
+          oilData = {};
+          gearData = {};
           data.cars.forEach(c => {
             const carData = {
               id: parseInt(c.car_id) || Date.now(),
@@ -1212,10 +2694,13 @@ async function installPWA() {
           saveCars();
           localStorage.setItem('rc_oil', JSON.stringify(oilData));
           localStorage.setItem('rc_gear', JSON.stringify(gearData));
-          renderMain(); checkAlerts();
+          renderMain();
+          checkAlerts();
           setTimeout(startBackgroundFinesCheck, 500);
         }
-      } catch (err) { console.error("Error load from Sheets:", err); }
+      } catch (err) {
+        console.error("Error load from Sheets:", err);
+      }
     }
     function saveFinesCache() { localStorage.setItem('rc_finesCache', JSON.stringify(finesCache)); }
     function renderMain() { renderCars(); }
@@ -1231,142 +2716,110 @@ async function installPWA() {
         if (cached) {
           if (cached.count === '0') { badgeCls += ' no-fines'; badgeTxt = '✓ 0'; }
           else if (cached.count === 'checking') { badgeCls += ' checking'; badgeTxt = '⏳'; }
-          else if (cached.count === '?' || cached.count === 'cors') { badgeTxt = '?'; }
-          else if (cached.count === '!') { badgeTxt = '!'; }
+          else if (cached.count === '?') { badgeTxt = '?'; }
           else { badgeCls += ' has-fines'; badgeTxt = cached.total ? `⚠${cached.count}·${cached.total}` : `⚠ ${cached.count}`; }
         }
         const plate = c.plateNumber ? `${c.plateNumber}${c.plateLetter && c.plateLetter !== '0' ? ' - ' + c.plateLetter : ''}` : '';
         return `<div class="car-card" onclick="openCarDetail(${c.id})">
-          <span class="car-icon">${icon}</span>
-          <div class="car-info">
-            <div class="car-name">${c.name}</div>
-            <div class="car-plate">${plate}</div>
-          </div>
-          <div class="${badgeCls}" id="badge-${c.id}">${badgeTxt}</div>
-        </div>`;
+      <span class="car-icon">${icon}</span>
+      <div class="car-info">
+        <div class="car-name">${c.name}</div>
+        <div class="car-plate">${plate}</div>
+      </div>
+      <div class="${badgeCls}" id="badge-${c.id}">${badgeTxt}</div>
+    </div>`;
       }).join('');
     }
 
     /* ═══════════════════════════════════════
-       FINES — Direct browser check (no GAS)
+       FINES — Background Check (module-based)
     ═══════════════════════════════════════ */
-
-    /**
-     * يحاول فحص الغرامات مباشرة من المتصفح باستخدام localStorage للبيانات.
-     * إذا منع CORS الطلب، يُعاد { count: '?', total: '' } دون خطأ.
-     */
-// ابحث عن هذه الدالة واستبدلها كاملاً
-async function checkFinesDirectly(c) {
-  const mod = getFinesModule(c.governorate);
-  if (!mod) return { count: '?', total: '' };
-
-  try {
-    const params = new URLSearchParams({
-      action    : 'check_fines',
-      type      : c.type      || '1',
-      plate     : c.plateNumber  || '',
-      plateChar : c.plateLetter  || '0',
-      sanNumber : c.salyanaNumber || ''
-    });
-
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 25000);
-
-    const res = await fetch(CONFIG.SHEET_URL + '?' + params.toString(), {
-      signal: ctrl.signal
-    });
-    clearTimeout(timer);
-
-    if (!res.ok) return { count: '!', total: '' };
-
-    const data = await res.json();
-    return { 
-      count: data.count || '!', 
-      total: data.total || '' 
-    };
-
-  } catch (err) {
-    if (err.name === 'AbortError') return { count: '!', total: '' };
-    return { count: '!', total: '' };
-  }
-}
     function startBackgroundFinesCheck() {
       cars.forEach((c, i) => {
         if (!getFinesModule(c.governorate)) return;
         const cache = finesCache[c.id];
         const age = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
         const stuck = cache && cache.count === 'checking' && age > 120000;
-        const isStale = !cache || cache.count === '!' || age > 86400000 || stuck;
-        // إعادة الفحص لحالات: لا cache، خطأ، أو منتهية الصلاحية
-        // لا نُعيد الفحص لـ 'cors' أو '?' لأنها ستفشل مجدداً
-const isError = cache?.count === 'cors' || cache?.count === '?' || cache?.count === '!';
-if (isStale || isError) {
-  setTimeout(() => backgroundCheckFines(c), i * 2200);
+        const isError = cache && (cache.count === '!' || cache.count === '?');
+        const needsCheck = !cache || isError || age > 86400000 || stuck;
+        if (needsCheck) setTimeout(() => backgroundCheckFines(c), i * 2200);
+      });
+    }
+
+/* ── استعلام موحد عبر GAS (يتجاوز CORS بشكل كامل) ── */
+async function queryFinesViaGAS(c) {
+  const url = CONFIG.SHEET_URL
+    + '?action=check_fines'
+    + '&type='      + encodeURIComponent(c.type        || '1')
+    + '&plate='     + encodeURIComponent(c.plateNumber || '')
+    + '&plateChar=' + encodeURIComponent(c.plateLetter || '0')
+    + '&sanNumber=' + encodeURIComponent(c.salyanaNumber || '');
+  try {
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 20000);
+    const res   = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!res.ok) return { count: '!', total: '' };
+    return await res.json();
+  } catch {
+    return { count: '!', total: '' };
+  }
 }
-      });
-    }
 
-    async function backgroundCheckFines(c) {
-      const mod = getFinesModule(c.governorate);
-      if (!mod) return;
+async function backgroundCheckFines(c) {
+  const mod = getFinesModule(c.governorate);
+  if (!mod) return;
 
-      const cache = finesCache[c.id];
-      const age = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
+  const cache = finesCache[c.id];
+  const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
 
-      if (cache && cache.checkedAt && !['?', '!', 'checking', 'cors'].includes(cache.count) && age < 86400000) return;
-      if (cache && cache.count === 'checking' && age < 120000) return;
-      // لا نُعيد المحاولة إذا كان CORS يمنعنا
+  if (cache && cache.checkedAt && !['?','!','checking'].includes(cache.count) && age < 86400000) return;
+  if (cache && cache.count === 'checking' && age < 120000) return;
 
-      finesCache[c.id] = { count: 'checking', total: cache?.total || '', checkedAt: cache?.checkedAt || null };
-      updateBadge(c.id, 'checking', '');
+  finesCache[c.id] = { count: 'checking', total: cache?.total || '', checkedAt: cache?.checkedAt || null };
+  updateBadge(c.id, 'checking', '');
 
-      const result = await checkFinesDirectly(c);
+  const result = await queryFinesViaGAS(c);
 
-      finesCache[c.id] = { count: result.count, total: result.total || '', checkedAt: Date.now() };
-      saveFinesCache();
-      updateBadge(c.id, result.count, result.total || '');
-      if (curCar === c.id) refreshFinesSummaryCard(c.id);
-    }
+  finesCache[c.id] = { count: result.count, total: result.total || '', checkedAt: Date.now() };
+  saveFinesCache();
+  updateBadge(c.id, result.count, result.total || '');
+  if (curCar === c.id) refreshFinesSummaryCard(c.id);
+}
 
-    // زر "عرض تفاصيل الغرامات" — يفتح الصفحة الرسمية في تبويب جديد
-    async function loadFines() {
-      const c = cars.find(x => x.id === curCar); if (!c) return;
-      const mod = getFinesModule(c.governorate);
-      if (!mod) { toast(T[lang].error, 'error'); return; }
+async function loadFines() {
+  const c = cars.find(x => x.id === curCar); if (!c) return;
+  const mod = getFinesModule(c.governorate);
+  if (!mod) { toast(T[lang].error, 'error'); return; }
 
-      const formData = mod.buildFormData(c);
-      const url = mod.getFinesUrl(c);
+  const formData = mod.buildFormData(c);
+  const url = mod.getFinesUrl(c);
 
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = url;
-      form.target = '_blank';
-      form.style.display = 'none';
-      formData.forEach((value, key) => {
-        const input = document.createElement('input');
-        input.type = 'hidden'; input.name = key; input.value = value;
-        form.appendChild(input);
-      });
-      document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);
+  // إنشاء نموذج POST مخفي وفتحه في تبويب جديد
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = url;
+  form.target = '_blank';
+  form.style.display = 'none';
 
-      // بعد فتح الصفحة، أعد المحاولة بعد 5 ثوانٍ لتحديث الكاش
-      setTimeout(() => {
-        if (finesCache[curCar]?.count === 'cors') {
-          delete finesCache[curCar];
-          saveFinesCache();
-          backgroundCheckFines(c);
-        }
-      }, 5000);
-    }
+  formData.forEach((value, key) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = value;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
 
     function updateBadge(id, count, total) {
       const b = document.getElementById('badge-' + id); if (!b) return;
       if (count === 'checking') { b.className = 'car-fines-badge checking'; b.textContent = '⏳'; }
       else if (count === '0') { b.className = 'car-fines-badge no-fines'; b.textContent = '✓ 0'; }
-      else if (count === 'cors' || count === '?') { b.className = 'car-fines-badge'; b.textContent = '?'; }
-      else if (count === '!') { b.className = 'car-fines-badge'; b.textContent = '!'; }
+      else if (count === '?' || !count) { b.className = 'car-fines-badge'; b.textContent = '?'; }
       else { b.className = 'car-fines-badge has-fines'; b.textContent = total ? `⚠${count}·${total}` : `⚠ ${count}`; }
     }
 
@@ -1374,51 +2827,42 @@ if (isStale || isError) {
       const t = T[lang];
       const c = cars.find(x => x.id === carId); if (!c) return;
       curCar = carId;
-
+      // إخفاء نتيجة الغرامات السابقة
+       const prevFines = document.getElementById('fines-inline-result');
+       if (prevFines) { prevFines.style.display = 'none'; prevFines.innerHTML = ''; }
       set('d-car-name', c.name);
       const plate = c.plateNumber ? `${c.plateNumber}${c.plateLetter && c.plateLetter !== '0' ? ' - ' + c.plateLetter : ''}` : '';
       const mod = getFinesModule(c.governorate);
-
-      // اسم نوع السيارة من الموديول بلغة صحيحة
-      let typeName = '';
-      if (mod && c.type) {
-        const typeField = mod.FINES_FIELDS?.find(f => f.key === 'type');
-        const typeOpt = typeField?.options?.find(o => o.value === c.type);
-        if (typeOpt) {
-          const optKey = lang === 'ku' ? 'labelKu' : lang === 'en' ? 'labelEn' : 'labelAr';
-          typeName = typeOpt[optKey] || typeOpt.labelAr || '';
-        }
-      }
-      set('d-car-plate', `${plate}${typeName ? '  |  ' + typeName : ''}`);
-
-      // شبكة التفاصيل
+      const typeNames = { 1: 'خصوصي/تایبەت/Private', 2: 'أجرة/كرئ/Taxi', 3: 'حمل/بارهەڵگر/Cargo', 4: 'زراعي/کشتوکاڵ/Agricultural', 5: 'إنشائي/بیناسازی/Construction', 6: 'دراجة/مۆتۆر/Motorcycle' };
+      const typeName = mod && c.type ? `${typeNames[c.type] || c.type}` : '';
+      set('d-car-plate', `${plate}  ${typeName ? '| ' + typeName : ''}`);
       document.getElementById('d-grid').innerHTML = `
-        ${c.plateNumber ? `<div class="car-detail-item"><div class="car-detail-label">${t.plateLabel}</div><div class="car-detail-value">${c.plateNumber}</div></div>` : ''}
-        ${c.plateLetter && c.plateLetter !== '0' ? `<div class="car-detail-item"><div class="car-detail-label">${t.letterLabel}</div><div class="car-detail-value">${c.plateLetter}</div></div>` : ''}
-        ${c.salyanaNumber ? `<div class="car-detail-item"><div class="car-detail-label">${t.annualLabel}</div><div class="car-detail-value">${c.salyanaNumber}</div></div>` : ''}
-        <div class="car-detail-item"><div class="car-detail-label">${t.govDetailLabel}</div><div class="car-detail-value">${c.governorate || '—'}</div></div>`;
+    ${c.plateNumber ? `<div class="car-detail-item"><div class="car-detail-label">${t.checkFines ? 'لوحة' : 'Plate'}</div><div class="car-detail-value">${c.plateNumber}</div></div>` : ''}
+    ${c.plateLetter && c.plateLetter !== '0' ? `<div class="car-detail-item"><div class="car-detail-label">${lang === 'en' ? 'Letter' : 'الحرف'}</div><div class="car-detail-value">${c.plateLetter}</div></div>` : ''}
+    ${c.salyanaNumber ? `<div class="car-detail-item"><div class="car-detail-label">${lang === 'en' ? 'Annual No.' : 'السنوية'}</div><div class="car-detail-value">${c.salyanaNumber}</div></div>` : ''}
+    <div class="car-detail-item"><div class="car-detail-label">${lang === 'en' ? 'Governorate' : 'المحافظة'}</div><div class="car-detail-value">${c.governorate || '—'}</div></div>`;
 
       // قسم الكير
       const gd = gearData[carId];
       if (document.getElementById('new-gear-form')) document.getElementById('new-gear-form').style.display = 'none';
       const gel = document.getElementById('gear-entries');
       if (!gd || (!gd.km && !gd.date)) {
-        if (gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${t.noGearRecord}</div>`;
+        if (gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${lang === 'en' ? 'No gearbox change recorded' : 'لا يوجد سجل لتغيير الكير'}</div>`;
       } else {
         const niceGearDate = gd.date ? formatNiceDate(gd.date) : '';
-        if (gel) gel.innerHTML = `<div class="oil-detail-card" style="border:1.5px solid rgba(245,166,35,.4);">
-          <div class="oil-detail-header">
-            <div class="oil-detail-km" style="color:var(--gold);">${gd.km}<span style="font-size:14px;font-weight:400;color:var(--text)"> ${t.km}</span></div>
-            <div class="oil-detail-date">${niceGearDate}</div>
-          </div>
-          ${gd.notes ? `<div class="oil-notes">${gd.notes}</div>` : ''}
-        </div>`;
+        if (gel) gel.innerHTML = `<div class="oil-detail-card" style="border:1.5px solid rgba(245,166,35,.4); background:var(--surface);">
+      <div class="oil-detail-header">
+        <div class="oil-detail-km" style="color:var(--gold); font-size:22px; font-weight:900; font-family:var(--font-en);">${gd.km}<span style="font-size:14px;font-weight:400; color:var(--text)"> ${t.km || 'km'}</span></div>
+        <div class="oil-detail-date" style="font-size:12px; color:var(--muted);">${niceGearDate}</div>
+      </div>
+      ${gd.notes ? `<div class="oil-notes" style="font-size:13px; color:var(--muted); margin-top:7px;">${gd.notes}</div>` : ''}
+    </div>`;
       }
       document.getElementById('gear-date').value = today();
       document.getElementById('gear-km').value = '';
       document.getElementById('gear-notes').value = '';
 
-      // قسم الزيت
+      // منطق الزيت
       document.getElementById('new-oil-form').style.display = 'none';
       const entries = oilData[carId] || [];
       const el = document.getElementById('oil-entries');
@@ -1427,17 +2871,17 @@ if (isStale || isError) {
         const last = entries[entries.length - 1];
         const niceOilDate = last.date ? formatNiceDate(last.date) : '';
         el.innerHTML = `<div class="oil-detail-card">
-          <div class="oil-detail-header">
-            <div class="oil-detail-km">${last.km}<span style="font-size:14px;font-weight:400"> ${t.km}</span></div>
-            <div class="oil-detail-date">${niceOilDate}</div>
-          </div>
-          <div class="oil-detail-meta">
-            <span class="oil-tag ${last.filter ? '' : 'no'}">${last.filter ? t.filterYes : t.filterNo}</span>
-            ${last.remind > 0 ? `<span class="oil-tag">🔔 ${last.remind}d</span>` : ''}
-            ${last.nextKm ? `<span class="oil-tag" style="background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.35);color:var(--gold)">→ ${Number(last.nextKm).toLocaleString()} km</span>` : ''}
-          </div>
-          ${last.notes ? `<div class="oil-notes">${last.notes}</div>` : ''}
-        </div>`;
+      <div class="oil-detail-header">
+        <div class="oil-detail-km">${last.km}<span style="font-size:14px;font-weight:400"> ${t.km}</span></div>
+        <div class="oil-detail-date">${niceOilDate}</div>
+      </div>
+      <div class="oil-detail-meta">
+        <span class="oil-tag ${last.filter ? '' : 'no'}">${last.filter ? t.filterYes : t.filterNo}</span>
+        ${last.remind > 0 ? `<span class="oil-tag">🔔 ${last.remind}d</span>` : ''}
+        ${last.nextKm ? `<span class="oil-tag" style="background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.35);color:var(--gold)">→ ${Number(last.nextKm).toLocaleString()} km</span>` : ''}
+      </div>
+      ${last.notes ? `<div class="oil-notes">${last.notes}</div>` : ''}
+    </div>`;
       }
       document.getElementById('oil-date').value = today();
       document.getElementById('oil-km').value = '';
@@ -1447,20 +2891,13 @@ if (isStale || isError) {
       document.getElementById('oil-interval').value = '0';
       document.getElementById('next-oil-box').style.display = 'none';
 
-      // إظهار/إخفاء قسم الغرامات
+      // إخفاء زر الغرامات إن لا يوجد موديول
       document.getElementById('btn-check-fines').style.display = mod ? '' : 'none';
       document.getElementById('fines-summary-card').style.display = mod ? '' : 'none';
 
       if (mod) {
         refreshFinesSummaryCard(carId);
-        // إطلاق الفحص التلقائي إذا لم يكن هناك نتيجة محفوظة أو كانت قديمة
-        const cache = finesCache[carId];
-        const age = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
-        const needsFresh = !cache || (cache.count === '!' && age > 30000) || age > 86400000;
-        if (needsFresh && cache?.count !== 'cors') {
-          backgroundCheckFines(c);
-          pollFinesSummary(carId);
-        }
+        if (!finesCache[carId] || finesCache[carId].count === 'checking') { if (!finesCache[carId]) backgroundCheckFines(c); pollFinesSummary(carId); }
       }
       set('fines-btn-txt', t.checkFines);
       openModal('modal-car-detail');
@@ -1472,28 +2909,10 @@ if (isStale || isError) {
       const dot = document.getElementById('fines-status-dot');
       const countEl = document.getElementById('fines-summary-count');
       set('fines-summary-label', t.finesSummaryLabel);
-      if (!cached || cached.count === 'checking') {
-        dot.className = 'fines-status-dot checking';
-        countEl.className = 'fines-summary-count muted';
-        countEl.textContent = t.finesChecking;
-      } else if (cached.count === '0') {
-        dot.className = 'fines-status-dot done-ok';
-        countEl.className = 'fines-summary-count green';
-        countEl.textContent = t.finesNone;
-      } else if (cached.count === 'cors' || cached.count === '?') {
-        dot.className = 'fines-status-dot';
-        countEl.className = 'fines-summary-count muted';
-        countEl.textContent = t.finesCorsNote || t.finesUnknown;
-      } else if (cached.count === '!') {
-        dot.className = 'fines-status-dot';
-        countEl.className = 'fines-summary-count muted';
-        countEl.textContent = '!';
-      } else {
-        dot.className = 'fines-status-dot done-bad';
-        countEl.className = 'fines-summary-count red';
-        const totalTxt = cached.total ? ` · ${cached.total}` : '';
-        countEl.textContent = t.finesFound(cached.count) + totalTxt;
-      }
+      if (!cached || cached.count === 'checking') { dot.className = 'fines-status-dot checking'; countEl.className = 'fines-summary-count muted'; countEl.textContent = t.finesChecking; }
+      else if (cached.count === '0') { dot.className = 'fines-status-dot done-ok'; countEl.className = 'fines-summary-count green'; countEl.textContent = t.finesNone; }
+      else if (cached.count === '?' || cached.count === '!') { dot.className = 'fines-status-dot'; countEl.className = 'fines-summary-count muted'; countEl.textContent = cached.count === '!' ? '!' : t.finesUnknown; }
+      else { dot.className = 'fines-status-dot done-bad'; countEl.className = 'fines-summary-count red'; const totalTxt = cached.total ? ` · ${cached.total}` : ''; countEl.textContent = t.finesFound(cached.count) + totalTxt; }
     }
 
     function pollFinesSummary(carId) {
@@ -1507,21 +2926,24 @@ if (isStale || isError) {
       }, 500);
     }
 
-    function deleteCar() {
-      if (!confirm(T[lang].delConfirm)) return;
-      sendSheet({ sheet: 'cars', action: 'unlink_car', car_id: String(curCar), user_phone: user?.phone || '' });
-      cars = cars.filter(c => c.id !== curCar);
-      delete oilData[curCar]; delete gearData[curCar]; delete finesCache[curCar];
-      saveCars();
-      localStorage.setItem('rc_oil', JSON.stringify(oilData));
-      localStorage.setItem('rc_gear', JSON.stringify(gearData));
-      saveFinesCache();
-      closeModal('modal-car-detail');
-      renderMain();
-      toast(T[lang].saved, 'success');
-    }
-
-    /* ─── EXPAND SECTIONS ─── */
+function deleteCar() {
+  if (!confirm(T[lang].delConfirm)) return;
+  // ① فك ربط رقم الهاتف بالسيارة في Sheets (تبقى البيانات لكن بدون صاحب)
+  sendSheet({ sheet: 'cars', action: 'unlink_car', car_id: String(curCar), user_phone: user?.phone || '' });
+  // ② حذف محلي
+  cars = cars.filter(c => c.id !== curCar);
+  delete oilData[curCar]; delete gearData[curCar]; delete finesCache[curCar];
+  saveCars();
+  localStorage.setItem('rc_oil', JSON.stringify(oilData));
+  localStorage.setItem('rc_gear', JSON.stringify(gearData));
+  saveFinesCache();
+  closeModal('modal-car-detail');
+  renderMain();
+  toast(T[lang].saved, 'success');
+}
+    /* ═══════════════════════════════════════
+       EXPAND SECTIONS (كير / إلخ)
+    ═══════════════════════════════════════ */
     function toggleExpand(id) {
       const body = document.getElementById(id);
       const chevron = document.getElementById(id + '-chevron');
@@ -1530,8 +2952,11 @@ if (isStale || isError) {
       if (chevron) chevron.classList.toggle('open');
     }
 
-    /* ─── GEAR ─── */
+    /* ═══════════════════════════════════════
+       GEAR (الكير)
+    ═══════════════════════════════════════ */
     function toggleNewGearForm() { const f = document.getElementById('new-gear-form'); if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
+
     function saveGear() {
       const t = T[lang];
       const km = document.getElementById('gear-km').value.trim();
@@ -1540,28 +2965,52 @@ if (isStale || isError) {
       if (!km || !date) { toast(t.fillAll, 'error'); return; }
       gearData[curCar] = { km, date, notes, ts: Date.now() };
       localStorage.setItem('rc_gear', JSON.stringify(gearData));
+      // تحديث Google Sheets
       sendSheet({ sheet: 'cars', action: 'update_gear', car_id: String(curCar), user_phone: user?.phone || '', car_name: cars.find(c => c.id === curCar)?.name || '', gearKm: km, gearDate: date, gearNotes: notes });
+
       openCarDetail(curCar);
       const gearBody = document.getElementById('gear-expand');
+      const gearChevron = document.getElementById('gear-expand-chevron');
       if (gearBody && !gearBody.classList.contains('open')) {
         gearBody.classList.add('open');
-        const ch = document.getElementById('gear-expand-chevron');
-        if (ch) ch.classList.add('open');
+        if (gearChevron) gearChevron.classList.add('open');
       }
       toast(t.gearSaved || t.saved, 'success');
     }
 
-    /* ─── OIL ─── */
-    function toggleNewOilForm() { const f = document.getElementById('new-oil-form'); f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
+    /* ═══════════════════════════════════════
+       OIL
+    ═══════════════════════════════════════ */
+    function toggleOil() { document.getElementById('oil-body').classList.toggle('open'); document.getElementById('oil-chevron').classList.toggle('open'); }
+
+    function renderOilList() {
+      const t = T[lang];
+      const el = document.getElementById('oil-cars-list');
+      if (!cars.length) { el.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:10px 0">${t.noCars}</div>`; return; }
+      el.innerHTML = cars.map(c => {
+        const e = (oilData[c.id] || []), last = e[e.length - 1];
+        return `<div class="oil-car-item" onclick="openOilModal(${c.id})">
+      <div class="oil-car-header">
+        <div class="oil-car-name">${c.name}</div>
+        ${last ? `<div class="oil-km-badge">${last.km} ${t.km}</div>` : `<div class="oil-km-badge" style="color:var(--muted);border-color:var(--border)">${t.noOil}</div>`}
+      </div>
+      <div class="oil-date">${last ? formatNiceDate(last.date) : ''} ${last && last.nextKm ? `<span style="color:var(--gold)">→ ${Number(last.nextKm).toLocaleString()} km</span>` : ''}</div>
+    </div>`;
+      }).join('');
+    }
+
     function openOilModal(carId) {
       openCarDetail(carId);
       const oilBody = document.getElementById('oil-expand');
+      const oilChevron = document.getElementById('oil-expand-chevron');
       if (oilBody && !oilBody.classList.contains('open')) {
         oilBody.classList.add('open');
-        const ch = document.getElementById('oil-expand-chevron');
-        if (ch) ch.classList.add('open');
+        if (oilChevron) oilChevron.classList.add('open');
       }
     }
+
+    function toggleNewOilForm() { const f = document.getElementById('new-oil-form'); f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
+
     function updateNextOilKm() {
       const kmVal = parseInt(document.getElementById('oil-km').value) || 0;
       const interval = parseInt(document.getElementById('oil-interval').value) || 0;
@@ -1573,6 +3022,7 @@ if (isStale || isError) {
         box.style.display = 'block';
       } else box.style.display = 'none';
     }
+
     function saveOil() {
       const t = T[lang];
       const km = document.getElementById('oil-km').value.trim();
@@ -1583,12 +3033,18 @@ if (isStale || isError) {
       const interval = parseInt(document.getElementById('oil-interval').value) || 0;
       const nextKm = (km && interval > 0) ? String(parseInt(km) + interval) : '';
       if (!km || !date) { toast(t.fillAll, 'error'); return; }
+
+      // الاحتفاظ بآخر تغيير فقط (استبدال)
       oilData[curCar] = [{ km, date, filter, notes, remind, nextKm, ts: Date.now() }];
       localStorage.setItem('rc_oil', JSON.stringify(oilData));
+
+      // إرسال إلى Google Sheets (تحديث السطر)
       sendSheet({ sheet: 'cars', action: 'update_oil', car_id: String(curCar), user_phone: user?.phone || '', car_name: cars.find(c => c.id === curCar)?.name || '', oilKm: km, oilDate: date, oilFilter: filter, oilNotes: notes, oilNextKm: nextKm });
+
       document.getElementById('new-oil-form').style.display = 'none';
       openOilModal(curCar); checkAlerts(); toast(t.saved, 'success');
     }
+
     function checkAlerts() {
       const t = T[lang]; if (!t) return;
       const todayMs = new Date().setHours(0, 0, 0, 0);
@@ -1604,50 +3060,78 @@ if (isStale || isError) {
       else el.classList.remove('show');
     }
 
-    /* ─── CRANE ─── */
+    /* ═══════════════════════════════════════
+       CRANE — طلب كرين
+    ═══════════════════════════════════════ */
     function openCraneModal() {
       const t = T[lang];
-      set('crane-modal-title', t.craneTitle);
-      set('crane-modal-sub', t.craneSub);
-      document.getElementById('crane-list-container').innerHTML = `<div class="crane-loading">${t.craneLoading}</div>`;
+      set('crane-modal-title', t.craneTitle || '🚛 طلب كرين');
+      set('crane-modal-sub', t.craneSub || 'أقرب كرين لموقعك');
+      document.getElementById('crane-list-container').innerHTML = `<div class="crane-loading" id="crane-loading">${t.craneLoading || '📡 جارٍ تحديد موقعك...'}</div>`;
       openModal('modal-crane');
       loadCranes();
     }
+
     async function loadCranes() {
       const t = T[lang];
       const listEl = document.getElementById('crane-list-container');
       try {
+        // 1) تحديد موقع المستخدم
         const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 10000 }));
         const userLat = pos.coords.latitude, userLng = pos.coords.longitude;
-        listEl.innerHTML = `<div class="crane-loading">${t.craneFetching}</div>`;
+        listEl.innerHTML = `<div class="crane-loading">${t.craneFetching || 'جارٍ البحث...'}</div>`;
+
+        // 2) جلب بيانات الكرينات من Google Sheets
         const resp = await fetch(CONFIG.SHEET_URL + '?action=cranes');
         const cranes = await resp.json();
-        if (!Array.isArray(cranes) || !cranes.length) { listEl.innerHTML = `<div class="crane-error">${t.craneNone}</div>`; return; }
-        const withDist = cranes.map(cr => ({ ...cr, dist: haversine(userLat, userLng, cr.lat, cr.lng) })).sort((a, b) => a.dist - b.dist);
+        if (!Array.isArray(cranes) || !cranes.length) { listEl.innerHTML = `<div class="crane-error">${t.craneNone || 'لا يوجد كرين'}</div>`; return; }
+
+        // 3) حساب المسافة وترتيب من الأقرب
+        const withDist = cranes.map(cr => {
+          const dist = haversine(userLat, userLng, cr.lat, cr.lng);
+          return { ...cr, dist };
+        }).sort((a, b) => a.dist - b.dist);
+
+        // 4) عرض الكرينات
         listEl.innerHTML = withDist.map(cr => {
           const distTxt = cr.dist < 1 ? Math.round(cr.dist * 1000) + ' m' : Math.round(cr.dist) + ' km';
           const waNum = cr.phone.replace(/\D/g, '');
           return `<div class="crane-card">
-            <div class="crane-card-header"><div class="crane-name">🚛 ${cr.name}</div><div class="crane-dist">${distTxt}</div></div>
-            <div class="crane-phone">📞 ${cr.phone}</div>
-            <button class="crane-wa-btn" onclick="craneContact('${cr.name}','${waNum}')">${t.craneWa}</button>
-          </div>`;
+        <div class="crane-card-header">
+          <div class="crane-name">🚛 ${cr.name}</div>
+          <div class="crane-dist">${distTxt}</div>
+        </div>
+        <div class="crane-phone">📞 ${cr.phone}</div>
+        <button class="crane-wa-btn" onclick="craneContact('${cr.name}','${waNum}')">
+          ${t.craneWa || 'تواصل عبر واتساب'}
+        </button>
+      </div>`;
         }).join('');
+
       } catch (err) {
-        listEl.innerHTML = `<div class="crane-error">${t.craneError}</div>`;
+        listEl.innerHTML = `<div class="crane-error">${t.craneError || 'تعذّر تحديد الموقع'}</div>`;
       }
     }
+
     function craneContact(name, phone) {
+      // تسجيل في Sheets
       sendSheet({ sheet: 'cranedata', timestamp: new Date().toISOString(), craneName: name, userPhone: user?.phone || '' });
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent('مرحباً، أحتاج إلى خدمة كرين')}`, '_blank');
-    }
-    function haversine(lat1, lng1, lat2, lng2) {
-      const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
-      const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      // فتح واتساب
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent('مرحباً، أحتاج إلى خدمة كرين')},'_blank'`);
     }
 
-    /* ─── FEEDBACK ─── */
+    /** حساب المسافة بالكيلومترات (Haversine) */
+    function haversine(lat1, lng1, lat2, lng2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    /* ═══════════════════════════════════════
+       FEEDBACK
+    ═══════════════════════════════════════ */
     async function submitFeedback() {
       const t = T[lang];
       const text = document.getElementById('feedback-text').value.trim();
@@ -1681,10 +3165,14 @@ if (isStale || isError) {
         let dStr = String(val).split(' ')[0];
         if (dStr.includes('T')) dStr = dStr.split('T')[0];
         const parts = dStr.split('-');
-        if (parts.length === 3) return `${parts[2].padStart(2,'0')}/${parts[1].padStart(2,'0')}/${parts[0]}`;
+        if (parts.length === 3) {
+          return `${parts[2].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[0]}`;
+        }
         const d = new Date(dStr);
-        if (!isNaN(d)) return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-      } catch(e) {}
+        if (!isNaN(d)) {
+          return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+        }
+      } catch (e) {}
       return String(val).split('T')[0].split(' ')[0];
     }
     function openModal(id) { document.getElementById(id).classList.add('open'); }
@@ -1695,14 +3183,21 @@ if (isStale || isError) {
     document.querySelectorAll('.modal-overlay').forEach(o => { o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); }); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
 
-    /* ─── TOAST ─── */
-    let toastT;
+let toastT;
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  // حماية إضافية: إذا لم يجد العنصر، يتوقف دون إظهار خطأ أحمر في الكونسول
+  if (!el) {
+      console.warn("Toast element not found! Message was:", msg);
+      return; 
+  }
+  clearTimeout(toastT); 
+  el.textContent = msg; 
+  el.className = `show ${type}`;
+  toastT = setTimeout(() => el.className = '', 2800);
+}
     function toast(msg, type = '') {
-      const el = document.getElementById('toast');
-      if (!el) { console.warn('Toast not found:', msg); return; }
-      clearTimeout(toastT);
-      el.textContent = msg;
-      el.className = `show ${type}`;
+      const el = document.getElementById('toast'); clearTimeout(toastT); el.textContent = msg; el.className = `show ${type}`;
       toastT = setTimeout(() => el.className = '', 2800);
     }
 
@@ -1710,8 +3205,9 @@ if (isStale || isError) {
     if ('serviceWorker' in navigator) {
       const swCode = `self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>clients.claim());self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.open('rc-v2').then(async cache=>{try{const res=await fetch(e.request);cache.put(e.request,res.clone());return res;}catch{return cache.match(e.request);}}));});`;
       const swBlob = new Blob([swCode], { type: 'application/javascript' });
-      navigator.serviceWorker.register(URL.createObjectURL(swBlob), { scope: './' }).catch(() => {});
+      navigator.serviceWorker.register(URL.createObjectURL(swBlob), { scope: './' }).catch(() => { });
     }
   </script>
 </body>
+
 </html>
