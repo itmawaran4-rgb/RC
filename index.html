@@ -2533,7 +2533,6 @@
       cs.innerHTML = '<option value="">--</option>';
       t.cities.forEach((c, i) => { const o = document.createElement('option'); o.value = t.cityVals[i]; o.textContent = c; cs.appendChild(o); });
       set('cars-title', t.carsTitle); set('no-cars-text', t.noCars);
-      set('oil-section-title', t.oilTitle); set('oil-section-sub', t.oilSub);
       set('lbl-oil-section-title', t.oilTitle);
       set('add-car-title', t.addCarTitle); set('add-car-sub', t.addCarSub);
       set('lbl-gov', t.govLabel || t.gov); set('lbl-car-name', t.carName);
@@ -2551,6 +2550,8 @@
       set('lbl-gear-section', t.gearSection || 'تبديل زيت الكير');
       set('lbl-gear-km', t.gearKm || 'الكيلومتر'); set('lbl-gear-date', t.gearDate || 'التاريخ');
       set('lbl-gear-notes', t.gearNotes || 'ملاحظات'); set('save-gear-btn-txt', t.saveGear || 'حفظ');
+      set('new-gear-txt', t.newGearBtn);
+      set('new-gear-title', t.newGearTitle);
       updatePWAText();
     }
     function set(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
@@ -2839,18 +2840,18 @@ async function loadFines() {
       const typeNames = { 1: 'خصوصي/تایبەت/Private', 2: 'أجرة/كرئ/Taxi', 3: 'حمل/بارهەڵگر/Cargo', 4: 'زراعي/کشتوکاڵ/Agricultural', 5: 'إنشائي/بیناسازی/Construction', 6: 'دراجة/مۆتۆر/Motorcycle' };
       const typeName = mod && c.type ? `${typeNames[c.type] || c.type}` : '';
       set('d-car-plate', `${plate}  ${typeName ? '| ' + typeName : ''}`);
-      document.getElementById('d-grid').innerHTML = `
-    ${c.plateNumber ? `<div class="car-detail-item"><div class="car-detail-label">${t.checkFines ? 'لوحة' : 'Plate'}</div><div class="car-detail-value">${c.plateNumber}</div></div>` : ''}
-    ${c.plateLetter && c.plateLetter !== '0' ? `<div class="car-detail-item"><div class="car-detail-label">${lang === 'en' ? 'Letter' : 'الحرف'}</div><div class="car-detail-value">${c.plateLetter}</div></div>` : ''}
-    ${c.salyanaNumber ? `<div class="car-detail-item"><div class="car-detail-label">${lang === 'en' ? 'Annual No.' : 'السنوية'}</div><div class="car-detail-value">${c.salyanaNumber}</div></div>` : ''}
-    <div class="car-detail-item"><div class="car-detail-label">${lang === 'en' ? 'Governorate' : 'المحافظة'}</div><div class="car-detail-value">${c.governorate || '—'}</div></div>`;
+     document.getElementById('d-grid').innerHTML = `
+    ${c.plateNumber ? `<div class="car-detail-item"><div class="car-detail-label">${t.plateLabel}</div><div class="car-detail-value">${c.plateNumber}</div></div>` : ''}
+    ${c.plateLetter && c.plateLetter !== '0' ? `<div class="car-detail-item"><div class="car-detail-label">${t.letterLabel}</div><div class="car-detail-value">${c.plateLetter}</div></div>` : ''}
+    ${c.salyanaNumber ? `<div class="car-detail-item"><div class="car-detail-label">${t.annualLabel}</div><div class="car-detail-value">${c.salyanaNumber}</div></div>` : ''}
+    <div class="car-detail-item"><div class="car-detail-label">${t.govDetailLabel}</div><div class="car-detail-value">${c.governorate || '—'}</div></div>`;
 
       // قسم الكير
       const gd = gearData[carId];
       if (document.getElementById('new-gear-form')) document.getElementById('new-gear-form').style.display = 'none';
       const gel = document.getElementById('gear-entries');
       if (!gd || (!gd.km && !gd.date)) {
-        if (gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${lang === 'en' ? 'No gearbox change recorded' : 'لا يوجد سجل لتغيير الكير'}</div>`;
+if (gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${t.noGearRecord}</div>`;
       } else {
         const niceGearDate = gd.date ? formatNiceDate(gd.date) : '';
         if (gel) gel.innerHTML = `<div class="oil-detail-card" style="border:1.5px solid rgba(245,166,35,.4); background:var(--surface);">
@@ -3120,8 +3121,9 @@ function deleteCar() {
       // تسجيل في Sheets
       sendSheet({ sheet: 'cranedata', timestamp: new Date().toISOString(), craneName: name, userPhone: user?.phone || '' });
       // فتح واتساب
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent('مرحباً، أحتاج إلى خدمة كرين')},'_blank'`);
-    }
+      const craneMsg = lang === 'en' ? 'Hello, I need crane service' : lang === 'ku' ? 'سڵاو، پێویستم بە خزمەتی کرێنە' : 'مرحباً، أحتاج إلى خدمة كرين';
+     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(craneMsg)}`, '_blank');
+     }
 
     /** حساب المسافة بالكيلومترات (Haversine) */
     function haversine(lat1, lng1, lat2, lng2) {
@@ -3199,10 +3201,6 @@ function toast(msg, type = '') {
   el.className = `show ${type}`;
   toastT = setTimeout(() => el.className = '', 2800);
 }
-    function toast(msg, type = '') {
-      const el = document.getElementById('toast'); clearTimeout(toastT); el.textContent = msg; el.className = `show ${type}`;
-      toastT = setTimeout(() => el.className = '', 2800);
-    }
 
     /* ─── SERVICE WORKER ─── */
     if ('serviceWorker' in navigator) {
