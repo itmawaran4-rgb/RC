@@ -3122,7 +3122,7 @@ function deleteCar() {
       // تسجيل في Sheets
       sendSheet({ sheet: 'cranedata', timestamp: new Date().toISOString(), craneName: name, userPhone: user?.phone || '' });
       // فتح واتساب
-      const craneMsg = lang === 'en' ? 'Hello, I need crane service' : lang === 'ku' ? 'سڵاو، پێویستم بە خزمەتی کرێنە' : 'مرحباً، أحتاج إلى خدمة كرين';
+      const craneMsg = lang === 'en' ? 'Hello, I need crane service' : lang === 'ku' ? 'سڵاو، پێویستم بە خزمەتی کرێن' : 'مرحباً، أحتاج إلى خدمة كرين';
      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(craneMsg)}`, '_blank');
      }
 
