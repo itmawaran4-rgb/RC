@@ -2045,7 +2045,7 @@
       <div class="form-group">
         <label class="form-label" id="lbl-gov">المحافظة</label>
         <select class="form-control" id="add-gov" onchange="onGovernorateChange()">
-          <option value="">-- اختر --</option>
+         <option value="" id="add-gov-placeholder">-- اختر --</option>
           <option value="erbil">أربيل / هەولێر / Erbil</option>
           <!-- محافظات أخرى ستُضاف مستقبلاً -->
         </select>
@@ -2552,6 +2552,7 @@
       set('lbl-gear-notes', t.gearNotes || 'ملاحظات'); set('save-gear-btn-txt', t.saveGear || 'حفظ');
       set('new-gear-txt', t.newGearBtn);
       set('new-gear-title', t.newGearTitle);
+      set('add-gov-placeholder', t.govPlaceholder);
       updatePWAText();
     }
     function set(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
