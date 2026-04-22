@@ -2750,23 +2750,23 @@
 
 /* ── استعلام موحد عبر GAS (يتجاوز CORS بشكل كامل) ── */
 async function queryFinesViaGAS(c) {
-  const url = CONFIG.SHEET_URL
-    + '?action=check_fines'
-    + '&type='      + encodeURIComponent(c.type        || '1')
+  // ← غيّر yourdomain.com فقط
+  const url = 'https://api.mawaranco.com/check_fines.php'
+    + '?type='      + encodeURIComponent(c.type        || '1')
     + '&plate='     + encodeURIComponent(c.plateNumber || '')
     + '&plateChar=' + encodeURIComponent(c.plateLetter || '0')
     + '&sanNumber=' + encodeURIComponent(c.salyanaNumber || '');
   try {
-    const ctrl  = new AbortController();               // ← هذا السطر كان ناقصاً
-    const timer = setTimeout(() => ctrl.abort(), 20000);
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 25000);
     const res   = await fetch(url, { signal: ctrl.signal });
     clearTimeout(timer);
     if (!res.ok) return { count: '!', total: '' };
     const json = await res.json();
-    console.log('Fines result:', json);                // ← للتشخيص، احذفه لاحقاً
+    console.log('Fines result:', json);
     return json;
   } catch (e) {
-    console.error('Fines fetch error:', e);
+    console.error('Fines error:', e);
     return { count: '!', total: '' };
   }
 }
