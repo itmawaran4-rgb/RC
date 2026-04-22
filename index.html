@@ -2073,19 +2073,17 @@
       <div class="car-detail-grid" id="d-grid"></div>
 
       <!-- الغرامات -->
-      <div class="fines-summary-card" id="fines-summary-card">
-        <div class="fines-summary-left">
-          <span class="fines-summary-icon">📋</span>
-          <div>
-            <div class="fines-summary-label" id="fines-summary-label">الغرامات</div>
-            <div class="fines-summary-count muted" id="fines-summary-count">—</div>
-          </div>
-        </div>
-        <div class="fines-status-dot checking" id="fines-status-dot"></div>
-      </div>
-      <!-- نتيجة الغرامات الداخلية -->
-      <button class="btn-check" id="btn-check-fines" onclick="loadFines()">🔍 <span id="fines-btn-txt">عرض تفاصيل
-          الغرامات</span></button>
+<!-- الغرامات الجديدة -->
+<div class="fines-summary-card" id="fines-summary-card" style="display:none"></div>
+<button class="btn-check" id="btn-check-fines" style="display:none" onclick="loadFines()"></button>
+
+<!-- زر التحميل الجديد -->
+<button class="btn-check" id="fines-load-btn" onclick="loadFinesInline()" style="display:none">
+  🔍 <span id="fines-load-btn-txt">تحميل الغرامات</span>
+</button>
+
+<!-- صندوق النتيجة -->
+  <div id="fines-result-box" style="display:none;margin-bottom:12px;"></div>
 
       <!-- قسم الزيت (قابل للطي) -->
       <div class="expand-section" id="oil-expand-section">
@@ -2921,11 +2919,7 @@ if (gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-ali
       document.getElementById('btn-check-fines').style.display = mod ? '' : 'none';
       document.getElementById('fines-summary-card').style.display = mod ? '' : 'none';
 
-      if (mod) {
-        refreshFinesSummaryCard(carId);
-        if (!finesCache[carId] || finesCache[carId].count === 'checking') { if (!finesCache[carId]) backgroundCheckFines(c); pollFinesSummary(carId); }
-      }
-      set('fines-btn-txt', t.checkFines);
+      initFinesSection(carId);
       openModal('modal-car-detail');
     }
 
