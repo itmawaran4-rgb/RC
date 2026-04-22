@@ -2072,24 +2072,19 @@
       <div class="modal-sub" id="d-car-plate"></div>
       <div class="car-detail-grid" id="d-grid"></div>
 
-      <!-- الغرامات: زر التحميل (يظهر افتراضياً) -->
-      <button class="btn-check" id="btn-load-fines" onclick="manualLoadFines()" style="display:none;background:linear-gradient(135deg,#1e4a8a,#163770);box-shadow:0 4px 16px rgba(30,74,138,.35)">
-        📡 <span id="load-fines-btn-txt">تحميل الغرامات</span>
-      </button>
-      <!-- بطاقة نتيجة الغرامات (تظهر بعد التحميل) -->
-      <div class="fines-summary-card" id="fines-summary-card" style="display:none">
+      <!-- الغرامات -->
+      <div class="fines-summary-card" id="fines-summary-card">
         <div class="fines-summary-left">
           <span class="fines-summary-icon">📋</span>
           <div>
             <div class="fines-summary-label" id="fines-summary-label">الغرامات</div>
             <div class="fines-summary-count muted" id="fines-summary-count">—</div>
-            <div id="fines-total-line" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
           </div>
         </div>
-        <div class="fines-status-dot" id="fines-status-dot"></div>
+        <div class="fines-status-dot checking" id="fines-status-dot"></div>
       </div>
-      <!-- زر عرض تفاصيل الغرامات (يبقى دائماً) -->
-      <button class="btn-check" id="btn-check-fines" onclick="manualLoadFines()" style="display:none">🔍 <span id="fines-btn-txt">عرض تفاصيل
+      <!-- نتيجة الغرامات الداخلية -->
+      <button class="btn-check" id="btn-check-fines" onclick="loadFines()">🔍 <span id="fines-btn-txt">عرض تفاصيل
           الغرامات</span></button>
 
       <!-- قسم الزيت (قابل للطي) -->
@@ -2230,7 +2225,7 @@
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycbxl5lk7q3AOjoS-GpWxk7CFx9Io4pov-FdIOWrBCZRYf6vr7wqkOJJ7BdlhooeNeiSA/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycbz21HrSRXkshKjF0sOCw6nr0xU5yhRzEeGmE2Vh4f9BKN6F8Zk5OF0Iu8WdfUXDAtVq/exec',
       COMPANY: { whatsapp: '9647505009006', address: 'Erbil, 60st | Baghdad, aldora | Diyala, baquba' },
       ADV_FILES: ['ADV/ad3.mp4'],
     };
@@ -2249,10 +2244,8 @@
         gov: 'المحافظة', carName: 'اسم السيارة',
         govPlaceholder: '-- اختر المحافظة --', govSoon: 'قريباً',
         checkFines: 'عرض تفاصيل الغرامات',
-        loadFinesBtn: 'تحميل الغرامات', finesLoading: 'جارٍ التحميل...',
         finesSummaryLabel: 'الغرامات المسجلة', finesChecking: 'جارٍ الفحص...', finesNone: 'لا غرامات ✓',
         finesFound: n => `${n} غرامة`, finesUnknown: 'اضغط للفحص', finesCorsNote: 'افتح التفاصيل للفحص',
-        finesIqd: 'دينار', finesTotalPrefix: 'المجموع: ',
         feedbackTitle: '💬 أرسل ملاحظاتك', feedbackBtn: 'إرسال', feedbackSending: 'جاري الإرسال...',
         companyTitle: '📍 RC Service', cWa: 'واتساب', cAddr: 'العنوان',
         contactUs: 'تواصل معنا', nearestAgent: 'أقرب وكيل معتمد',
@@ -2295,10 +2288,8 @@
         gov: 'پارێزگا', carName: 'ناوی ئەوتۆمبێل',
         govPlaceholder: '-- پارێزگا هەڵبژێرە --', govSoon: 'بەزووی',
         checkFines: 'وردەکاریی سەرپێچی',
-        loadFinesBtn: 'بارکردنی سزاکان', finesLoading: 'بارکردن...',
         finesSummaryLabel: 'سەرپێچیەکان', finesChecking: 'پشکنین...', finesNone: 'سەرپێچی نییە ✓',
         finesFound: n => `${n} سەرپێچی`, finesUnknown: 'دابگرە بۆ پشکنین', finesCorsNote: 'وردەکاری بکەرەوە بۆ پشکنین',
-        finesIqd: 'دینار', finesTotalPrefix: 'کۆی گشتی: ',
         feedbackTitle: '💬 تێبینی خۆت بنێرە', feedbackBtn: 'ناردن', feedbackSending: 'دەنێردرێت...',
         companyTitle: '📍 RC Service', cWa: 'واتساب', cAddr: 'ناونیشان',
         contactUs: 'پەیوەندیمان پێوەبکە', nearestAgent: 'نزیکترین بریکارى فەرمی',
@@ -2341,10 +2332,8 @@
         gov: 'Governorate', carName: 'Vehicle Name',
         govPlaceholder: '-- Select Governorate --', govSoon: 'Coming Soon',
         checkFines: 'View Fines Details',
-        loadFinesBtn: 'Load Fines', finesLoading: 'Loading...',
         finesSummaryLabel: 'Recorded Fines', finesChecking: 'Checking...', finesNone: 'No fines ✓',
         finesFound: n => `${n} fine(s)`, finesUnknown: 'Tap to check', finesCorsNote: 'Open details to check',
-        finesIqd: 'IQD', finesTotalPrefix: 'Total: ',
         feedbackTitle: '💬 Send Feedback', feedbackBtn: 'Send', feedbackSending: 'Sending...',
         companyTitle: '📍 RC Service', cWa: 'WhatsApp', cAddr: 'Address',
         contactUs: 'Contact Us', nearestAgent: 'Nearest Authorized Agent',
@@ -2400,6 +2389,7 @@
       applyLang(lang);
       if (!user) { show('screen-register'); return; }
       show('screen-main'); renderMain(); applyCompany(); initADV();
+      setTimeout(startBackgroundFinesCheck, 1500);
       fetchUserDataFromSheets();
     });
 
@@ -2546,7 +2536,7 @@
       set('lbl-oil-section-title', t.oilTitle);
       set('add-car-title', t.addCarTitle); set('add-car-sub', t.addCarSub);
       set('lbl-gov', t.govLabel || t.gov); set('lbl-car-name', t.carName);
-      set('fines-btn-txt', t.checkFines); set('load-fines-btn-txt', t.loadFinesBtn); set('del-btn-txt', t.delBtn);
+      set('fines-btn-txt', t.checkFines); set('del-btn-txt', t.delBtn);
       set('new-oil-txt', t.newOilBtn); set('lbl-oil-km', t.oilKm); set('lbl-oil-date', t.oilDate);
       set('lbl-filter', t.filterLbl); set('lbl-oil-notes', t.oilNotes);
       set('lbl-oil-interval', t.oilInterval); set('opt-interval-none', t.oilIntervalNone);
@@ -2579,6 +2569,7 @@
       localStorage.setItem('rc_user', JSON.stringify(user));
       sendSheet({ sheet: 'users', name, phone, city, dob, gender, timestamp: new Date().toISOString() });
       show('screen-main'); renderMain(); checkAlerts(); applyCompany(); initADV(); toast(t.saved, 'success');
+      setTimeout(startBackgroundFinesCheck, 1500);
     }
 
     /* ═══════════════════════════════════════
@@ -2654,6 +2645,8 @@
       closeModal('modal-add-car');
       renderMain();
       toast(t.saved, 'success');
+
+      // إرسال إلى Google Sheets
       sendSheet({
         sheet: 'cars', action: 'add_car',
         car_id: String(carData.id),
@@ -2666,10 +2659,11 @@
         salyanaNumber: carData.salyanaNumber || '',
         timestamp: new Date().toISOString(),
       });
+
+      setTimeout(() => backgroundCheckFines(carData), 800);
     }
 
     function saveCars() { localStorage.setItem('rc_cars', JSON.stringify(cars)); }
-    function saveFinesCache() { localStorage.setItem('rc_finesCache', JSON.stringify(finesCache)); }
 
     async function fetchUserDataFromSheets() {
       if (!user || !user.phone) return;
@@ -2704,11 +2698,13 @@
           localStorage.setItem('rc_gear', JSON.stringify(gearData));
           renderMain();
           checkAlerts();
+          setTimeout(startBackgroundFinesCheck, 500);
         }
       } catch (err) {
         console.error("Error load from Sheets:", err);
       }
     }
+    function saveFinesCache() { localStorage.setItem('rc_finesCache', JSON.stringify(finesCache)); }
     function renderMain() { renderCars(); }
 
     function renderCars() {
@@ -2737,6 +2733,21 @@
       }).join('');
     }
 
+    /* ═══════════════════════════════════════
+       FINES — Background Check (module-based)
+    ═══════════════════════════════════════ */
+    function startBackgroundFinesCheck() {
+      cars.forEach((c, i) => {
+        if (!getFinesModule(c.governorate)) return;
+        const cache = finesCache[c.id];
+        const age = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
+        const stuck = cache && cache.count === 'checking' && age > 120000;
+        const isError = cache && (cache.count === '!' || cache.count === '?');
+        const needsCheck = !cache || isError || age > 86400000 || stuck;
+        if (needsCheck) setTimeout(() => backgroundCheckFines(c), i * 2200);
+      });
+    }
+
 /* ── استعلام موحد عبر GAS (يتجاوز CORS بشكل كامل) ── */
 async function queryFinesViaGAS(c) {
   const url = CONFIG.SHEET_URL
@@ -2760,12 +2771,61 @@ async function queryFinesViaGAS(c) {
   }
 }
 
+async function backgroundCheckFines(c) {
+  const mod = getFinesModule(c.governorate);
+  if (!mod) return;
+
+  const cache = finesCache[c.id];
+  const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
+
+  if (cache && cache.checkedAt && !['?','!','checking'].includes(cache.count) && age < 86400000) return;
+  if (cache && cache.count === 'checking' && age < 120000) return;
+
+  finesCache[c.id] = { count: 'checking', total: cache?.total || '', checkedAt: cache?.checkedAt || null };
+  updateBadge(c.id, 'checking', '');
+
+  const result = await queryFinesViaGAS(c);
+
+  finesCache[c.id] = { count: result.count, total: result.total || '', checkedAt: Date.now() };
+  saveFinesCache();
+  updateBadge(c.id, result.count, result.total || '');
+  if (curCar === c.id) refreshFinesSummaryCard(c.id);
+}
+
+async function loadFines() {
+  const c = cars.find(x => x.id === curCar); if (!c) return;
+  const mod = getFinesModule(c.governorate);
+  if (!mod) { toast(T[lang].error, 'error'); return; }
+
+  const formData = mod.buildFormData(c);
+  const url = mod.getFinesUrl(c);
+
+  // إنشاء نموذج POST مخفي وفتحه في تبويب جديد
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = url;
+  form.target = '_blank';
+  form.style.display = 'none';
+
+  formData.forEach((value, key) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = value;
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
+
     function updateBadge(id, count, total) {
       const b = document.getElementById('badge-' + id); if (!b) return;
       if (count === 'checking') { b.className = 'car-fines-badge checking'; b.textContent = '⏳'; }
       else if (count === '0') { b.className = 'car-fines-badge no-fines'; b.textContent = '✓ 0'; }
       else if (count === '?' || !count) { b.className = 'car-fines-badge'; b.textContent = '?'; }
-      else { b.className = 'car-fines-badge has-fines'; b.textContent = `⚠ ${count}`; }
+      else { b.className = 'car-fines-badge has-fines'; b.textContent = total ? `⚠${count}·${total}` : `⚠ ${count}`; }
     }
 
     function openCarDetail(carId) {
@@ -2836,112 +2896,40 @@ if (gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-ali
       document.getElementById('oil-interval').value = '0';
       document.getElementById('next-oil-box').style.display = 'none';
 
-      // إخفاء/إظهار منطقة الغرامات حسب وجود الموديول
-      document.getElementById('btn-load-fines').style.display = mod ? '' : 'none';
+      // إخفاء زر الغرامات إن لا يوجد موديول
       document.getElementById('btn-check-fines').style.display = mod ? '' : 'none';
-      document.getElementById('fines-summary-card').style.display = 'none';
+      document.getElementById('fines-summary-card').style.display = mod ? '' : 'none';
 
-      if (mod) showFinesArea(carId);
+      if (mod) {
+        refreshFinesSummaryCard(carId);
+        if (!finesCache[carId] || finesCache[carId].count === 'checking') { if (!finesCache[carId]) backgroundCheckFines(c); pollFinesSummary(carId); }
+      }
       set('fines-btn-txt', t.checkFines);
-      set('load-fines-btn-txt', t.loadFinesBtn);
       openModal('modal-car-detail');
     }
 
-    /* ═══════════════════════════════════════
-       FINES — عرض منطقة الغرامات (يدوي فقط)
-    ═══════════════════════════════════════ */
-
-    /** يحدد ما إذا كانت تظهر بطاقة النتيجة أو زر التحميل */
-    function showFinesArea(carId) {
+    function refreshFinesSummaryCard(carId) {
+      const t = T[lang];
       const cached = finesCache[carId];
-      const btn  = document.getElementById('btn-load-fines');
-      const card = document.getElementById('fines-summary-card');
-      if (!btn || !card) return;
-
-      // لا يوجد كاش أو فشل سابق → أظهر الزر
-      if (!cached || cached.count === '!' || cached.count === '?') {
-        btn.style.display  = '';
-        card.style.display = 'none';
-        return;
-      }
-
-      // انتهت صلاحية الكاش (3 أيام) → أظهر الزر
-      const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
-      const age = cached.checkedAt ? Date.now() - cached.checkedAt : Infinity;
-      if (age > THREE_DAYS) {
-        btn.style.display  = '';
-        card.style.display = 'none';
-        return;
-      }
-
-      // كاش صالح → أظهر البطاقة
-      btn.style.display = 'none';
-      renderFinesCard(carId);
-    }
-
-    /** يرسم نتيجة الغرامات في البطاقة */
-    function renderFinesCard(carId) {
-      const t      = T[lang];
-      const cached = finesCache[carId];
-      const card   = document.getElementById('fines-summary-card');
-      const dot    = document.getElementById('fines-status-dot');
-      const countEl= document.getElementById('fines-summary-count');
-      const totalEl= document.getElementById('fines-total-line');
-      if (!card || !cached) return;
-
-      card.style.display = 'flex';
+      const dot = document.getElementById('fines-status-dot');
+      const countEl = document.getElementById('fines-summary-count');
       set('fines-summary-label', t.finesSummaryLabel);
-      if (totalEl) totalEl.textContent = '';
-
-      if (cached.count === '0') {
-        if (dot)     dot.className = 'fines-status-dot done-ok';
-        if (countEl) { countEl.className = 'fines-summary-count green'; countEl.textContent = t.finesNone; }
-      } else {
-        if (dot)     dot.className = 'fines-status-dot done-bad';
-        if (countEl) { countEl.className = 'fines-summary-count red'; countEl.textContent = t.finesFound(cached.count); }
-        // المبلغ الكامل بالدينار العراقي
-        if (cached.total && totalEl) {
-          const raw = parseInt(String(cached.total).replace(/,/g, ''));
-          if (!isNaN(raw) && raw > 0) {
-            const formatted = raw.toLocaleString();
-            totalEl.textContent = `${t.finesTotalPrefix || ''}${formatted} ${t.finesIqd}`;
-          }
-        }
-      }
+      if (!cached || cached.count === 'checking') { dot.className = 'fines-status-dot checking'; countEl.className = 'fines-summary-count muted'; countEl.textContent = t.finesChecking; }
+      else if (cached.count === '0') { dot.className = 'fines-status-dot done-ok'; countEl.className = 'fines-summary-count green'; countEl.textContent = t.finesNone; }
+      else if (cached.count === '?' || cached.count === '!') { dot.className = 'fines-status-dot'; countEl.className = 'fines-summary-count muted'; countEl.textContent = cached.count === '!' ? '!' : t.finesUnknown; }
+      else { dot.className = 'fines-status-dot done-bad'; countEl.className = 'fines-summary-count red'; const totalTxt = cached.total ? ` · ${cached.total}` : ''; countEl.textContent = t.finesFound(cached.count) + totalTxt; }
     }
 
-    /** التحميل اليدوي عند الضغط على الزر */
-    async function manualLoadFines() {
-      const c = cars.find(x => x.id === curCar); if (!c) return;
-      const mod = getFinesModule(c.governorate); if (!mod) return;
-      const t   = T[lang];
-      const btn = document.getElementById('btn-load-fines');
-
-      // حالة التحميل
-      if (btn) { btn.disabled = true; btn.innerHTML = `⏳ ${t.finesLoading}`; }
-
-      const result = await queryFinesViaGAS(c);
-
-      if (!result || result.count === '!' || result.count === '?') {
-        // فشل → أعد الزر كما كان
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = `📡 <span id="load-fines-btn-txt">${t.loadFinesBtn}</span>`;
-        }
-        toast(t.error, 'error');
-        return;
-      }
-
-      // نجاح → حفظ الكاش وعرض البطاقة
-      finesCache[c.id] = { count: result.count, total: result.total || '', checkedAt: Date.now() };
-      saveFinesCache();
-      updateBadge(c.id, result.count, result.total || '');
-      document.getElementById('btn-load-fines').style.display = 'none';
-      renderFinesCard(c.id);
+    function pollFinesSummary(carId) {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        const cached = finesCache[carId];
+        if (!cached || cached.count === 'checking') { if (attempts > 40) clearInterval(interval); return; }
+        clearInterval(interval);
+        if (curCar === carId) { refreshFinesSummaryCard(carId); updateBadge(carId, cached.count, cached.total || ''); }
+      }, 500);
     }
-
-    /** دالة loadFines القديمة → تستدعي manualLoadFines (بدون فتح موقع المرور) */
-    async function loadFines() { await manualLoadFines(); }
 
 function deleteCar() {
   if (!confirm(T[lang].delConfirm)) return;
