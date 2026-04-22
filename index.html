@@ -2572,6 +2572,7 @@
       set('new-gear-txt', t.newGearBtn);
       set('new-gear-title', t.newGearTitle);
       set('add-gov-placeholder', t.govPlaceholder);
+      set('fines-load-btn-txt', t.loadFinesBtn);
       updatePWAText();
     }
     function set(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
@@ -2917,8 +2918,9 @@ if (gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-ali
 
       // إخفاء زر الغرامات إن لا يوجد موديول
       document.getElementById('btn-check-fines').style.display = mod ? '' : 'none';
-      document.getElementById('fines-summary-card').style.display = mod ? '' : 'none';
+      document.getElementById('fines-summary-card').style.display = 'none'; // مخفي دائماً
 
+      // تهيئة قسم الغرامات الجديد
       initFinesSection(carId);
       openModal('modal-car-detail');
     }
@@ -3216,6 +3218,123 @@ function toast(msg, type = '') {
   el.textContent = msg; 
   el.className = `show ${type}`;
   toastT = setTimeout(() => el.className = '', 2800);
+}
+    /* ═══════════════════════════════════════
+   FINES — الثوابت والدوال الجديدة
+═══════════════════════════════════════ */
+const FINES_CACHE_MS = 3 * 24 * 60 * 60 * 1000; // 3 أيام
+
+async function queryFinesViaGAS(c) {
+  const url = CONFIG.SHEET_URL
+    + '?action=check_fines'
+    + '&type='      + encodeURIComponent(c.type        || '1')
+    + '&plate='     + encodeURIComponent(c.plateNumber || '')
+    + '&plateChar=' + encodeURIComponent(c.plateLetter || '0')
+    + '&sanNumber=' + encodeURIComponent(c.salyanaNumber || '');
+  try {
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 25000);
+    const res   = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!res.ok) return { count: '!', total: '' };
+    return await res.json();
+  } catch (e) {
+    return { count: '!', total: '' };
+  }
+}
+
+function initFinesSection(carId) {
+  const t   = T[lang];
+  const car = cars.find(x => x.id === carId);
+  const mod = getFinesModule(car?.governorate);
+
+  const loadBtn = document.getElementById('fines-load-btn');
+  const box     = document.getElementById('fines-result-box');
+
+  if (!mod) {
+    if (loadBtn) loadBtn.style.display = 'none';
+    if (box)     box.style.display     = 'none';
+    return;
+  }
+
+  const cached = finesCache[carId];
+  const age    = cached?.checkedAt ? Date.now() - cached.checkedAt : Infinity;
+  const valid  = cached && cached.count !== '!' && cached.count !== '?' && age < FINES_CACHE_MS;
+
+  if (valid) {
+    if (loadBtn) loadBtn.style.display = 'none';
+    renderFinesResultBox(cached);
+    updateBadge(carId, cached.count, cached.total || '');
+  } else {
+    if (loadBtn) {
+      loadBtn.style.display = '';
+      loadBtn.disabled      = false;
+      loadBtn.textContent   = t.loadFinesBtn;
+    }
+    if (box) box.style.display = 'none';
+  }
+}
+
+async function loadFinesInline() {
+  const t   = T[lang];
+  const car = cars.find(x => x.id === curCar);
+  if (!car) return;
+
+  const loadBtn = document.getElementById('fines-load-btn');
+  const box     = document.getElementById('fines-result-box');
+
+  // حالة التحميل
+  if (loadBtn) { loadBtn.disabled = true; loadBtn.textContent = t.finesLoading; }
+  if (box)     box.style.display = 'none';
+
+  const result = await queryFinesViaGAS(car);
+
+  // فشل
+  if (!result || result.count === '!' || result.blocked) {
+    if (loadBtn) { loadBtn.disabled = false; loadBtn.textContent = t.finesLoadFailed; }
+    return;
+  }
+
+  // نجح — احفظ في الكاش
+  finesCache[curCar] = { count: result.count, total: result.total || '', checkedAt: Date.now() };
+  saveFinesCache();
+  updateBadge(curCar, result.count, result.total || '');
+
+  // أخفِ زر التحميل واعرض النتيجة
+  if (loadBtn) loadBtn.style.display = 'none';
+  renderFinesResultBox(finesCache[curCar]);
+}
+
+function renderFinesResultBox(cached) {
+  const t   = T[lang];
+  const box = document.getElementById('fines-result-box');
+  if (!box) return;
+
+  const date = cached.checkedAt
+    ? formatNiceDate(new Date(cached.checkedAt).toISOString().split('T')[0])
+    : '';
+
+  if (cached.count === '0') {
+    box.innerHTML = `
+      <div style="background:rgba(15,212,176,.1);border:1.5px solid rgba(15,212,176,.35);
+                  border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;">
+        <div style="font-size:17px;font-weight:900;color:var(--teal)">${t.finesNoneDetail}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:5px">${t.finesCachedAt(date)}</div>
+      </div>`;
+  } else {
+    const totalLine = cached.total
+      ? `<div style="font-size:14px;color:var(--red);margin-top:6px;font-weight:700">
+           ${t.finesTotal(cached.total)}</div>`
+      : '';
+    box.innerHTML = `
+      <div style="background:rgba(255,77,109,.1);border:1.5px solid rgba(255,77,109,.35);
+                  border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;">
+        <div style="font-size:22px;font-weight:900;color:var(--red)">⚠ ${t.finesCount(cached.count)}</div>
+        ${totalLine}
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">${t.finesCachedAt(date)}</div>
+      </div>`;
+  }
+  box.style.display = 'block';
 }
 
     /* ─── SERVICE WORKER ─── */
