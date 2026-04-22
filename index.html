@@ -2277,6 +2277,13 @@
         govLabel: 'المحافظة', govPlaceholderFull: '-- اختر المحافظة --',
         // Detail labels
         plateLabel: 'لوحة', letterLabel: 'الحرف', annualLabel: 'السنوية', govDetailLabel: 'المحافظة',
+        loadFinesBtn: '🔍 تحميل الغرامات',
+        finesLoading: 'جارٍ تحميل الغرامات...',
+        finesLoadFailed: '⚠ فشل التحميل — اضغط للمحاولة مجدداً',
+        finesCount: n => `${n} مخالفة`,
+        finesTotal: t => `المبلغ الكلي: ${Number(t).toLocaleString('ar-IQ')} د.ع`,
+        finesNoneDetail: '✓ لا توجد مخالفات مسجلة',
+        finesCachedAt: d => `آخر تحديث: ${d}`,
       },
       ku: {
         regTitle: 'زانیاریەکانی شوفێر', regSub: 'تەنها جارێک پاشەکەوت دەکرێت',
@@ -2321,6 +2328,13 @@
         govLabel: 'پارێزگا', govPlaceholderFull: '-- پارێزگا هەڵبژێرە --',
         // Detail labels
         plateLabel: 'لۆحە', letterLabel: 'پیت', annualLabel: 'سالیانە', govDetailLabel: 'پارێزگا',
+        loadFinesBtn: '🔍 بارکردنی سەرپێچیەکان',
+        finesLoading: 'سەرپێچیەکان دەبارکرێن...',
+        finesLoadFailed: '⚠ شکستی هێنا — دابگرە بۆ هەوڵدانەوە',
+        finesCount: n => `${n} سەرپێچی`,
+        finesTotal: t => `کۆی گشتی: ${Number(t).toLocaleString()} د.ع`,
+        finesNoneDetail: '✓ هیچ سەرپێچییەک نییە',
+        finesCachedAt: d => `دوایین نوێکردنەوە: ${d}`,
       },
       en: {
         regTitle: 'Driver Information', regSub: 'Saved once, never asked again',
@@ -2365,6 +2379,13 @@
         govLabel: 'Governorate', govPlaceholderFull: '-- Select Governorate --',
         // Detail labels
         plateLabel: 'Plate', letterLabel: 'Letter', annualLabel: 'Annual No.', govDetailLabel: 'Governorate',
+        loadFinesBtn: '🔍 Load Fines',
+        finesLoading: 'Loading fines...',
+        finesLoadFailed: '⚠ Failed to load — Tap to retry',
+        finesCount: n => `${n} violation(s)`,
+        finesTotal: t => `Total: IQD ${Number(t).toLocaleString()}`,
+        finesNoneDetail: '✓ No violations recorded',
+        finesCachedAt: d => `Last updated: ${d}`,
       },
     };
 
