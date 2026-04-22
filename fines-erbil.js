@@ -1,124 +1,171 @@
-const FINES_ERBIL = (function () {
+/* ═══════════════════════════════════════
+   FINES — الثوابت
+═══════════════════════════════════════ */
+const FINES_CACHE_MS = 3 * 24 * 60 * 60 * 1000; // 3 أيام
 
-  const GOVERNORATE_INFO = {
-    id       : 'erbil',
-    sequence : 22,
-    nameAr   : 'أربيل',
-    nameKu   : 'هەولێر',
-    nameEn   : 'Erbil',
-    baseUrl  : 'https://htp.moi.gov.krd',
-    formPath : '/fines_form_data_{type}.php',
-  };
+/* ═══════════════════════════════════════
+   FINES — Background (معطّل، الفحص يدوي فقط)
+═══════════════════════════════════════ */
+function startBackgroundFinesCheck() { return; }
+async function backgroundCheckFines(c) { return; }
 
-  const FINES_FIELDS = [
-    {
-      key: 'type', type: 'select', required: true,
-      labelAr: 'نوع السيارة', labelKu: 'جۆری ئەوتۆمبێل', labelEn: 'Vehicle Type',
-      options: [
-        { value: '1', labelAr: 'خصوصي',      labelKu: 'تایبه‌ت',    labelEn: 'Private'      },
-        { value: '2', labelAr: 'أجرة',        labelKu: 'كرئ',        labelEn: 'Taxi'         },
-        { value: '3', labelAr: 'حمل',         labelKu: 'بارهه‌ڵگر',  labelEn: 'Cargo'        },
-        { value: '4', labelAr: 'زراعي',       labelKu: 'كشتوكاڵ',    labelEn: 'Agricultural' },
-        { value: '5', labelAr: 'إنشائي',      labelKu: 'بیناسازى',   labelEn: 'Construction' },
-        { value: '6', labelAr: 'دراجة نارية', labelKu: 'ماتۆرسكیل', labelEn: 'Motorcycle'   },
-      ],
-    },
-    {
-      key: 'plateNumber', type: 'number', required: true,
-      labelAr: 'رقم اللوحة', labelKu: 'ژمارەی لۆحە', labelEn: 'Plate Number',
-      placeholder: '12345',
-    },
-    {
-      key: 'plateLetter', type: 'select', required: false,
-      labelAr: 'الحرف', labelKu: 'پیت', labelEn: 'Letter',
-      options: [
-        { value: '0', labelAr: '-- بلا --', labelKu: '-- بەبێ --', labelEn: '-- None --' },
-        ...['A','B','C','D','E','F','G','H','I','J','K','L','M',
-            'N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
-          .map(l => ({ value: l, labelAr: l, labelKu: l, labelEn: l })),
-      ],
-    },
-    {
-      key: 'salyanaNumber', type: 'number', required: true,
-      labelAr: 'رقم السنوية', labelKu: 'ژمارەی سالیانە', labelEn: 'Annual License No.',
-      placeholder: '',
-    },
-  ];
-
-function buildFormData(car) {
-  return new URLSearchParams({
-    'Sinif'    : car.type        || '1',
-    'plate'    : car.plateNumber || '',
-    'PlateChar': car.plateLetter || '0',   // الموقع يتوقع '0' وليس ''
-    'SanNumber': car.salyanaNumber || '',
-  });
+/* ═══════════════════════════════════════
+   FINES — جلب عبر GAS
+═══════════════════════════════════════ */
+async function queryFinesViaGAS(c) {
+  const url = CONFIG.SHEET_URL
+    + '?action=check_fines'
+    + '&type='      + encodeURIComponent(c.type        || '1')
+    + '&plate='     + encodeURIComponent(c.plateNumber || '')
+    + '&plateChar=' + encodeURIComponent(c.plateLetter || '0')
+    + '&sanNumber=' + encodeURIComponent(c.salyanaNumber || '');
+  try {
+    const ctrl  = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 25000);
+    const res   = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (!res.ok) return { count: '!', total: '' };
+    return await res.json();
+  } catch (e) {
+    console.error('Fines error:', e);
+    return { count: '!', total: '' };
+  }
 }
 
-  function getFinesUrl(car) {
-    return `${GOVERNORATE_INFO.baseUrl}${GOVERNORATE_INFO.formPath.replace('{type}', car.type)}`;
+/* ═══════════════════════════════════════
+   FINES — عرض داخلي (inline)
+═══════════════════════════════════════ */
+async function loadFinesInline() {
+  const t = T[lang];
+  const c = cars.find(x => x.id === curCar);
+  if (!c) return;
+  const mod = getFinesModule(c.governorate);
+  if (!mod) return;
+
+  const btn = document.getElementById('fines-load-btn');
+  const box = document.getElementById('fines-result-box');
+  if (!btn || !box) return;
+
+  // حالة التحميل
+  btn.disabled = true;
+  btn.textContent = t.finesLoading;
+  box.style.display = 'none';
+
+  const result = await queryFinesViaGAS(c);
+
+  // فشل التحميل أو محجوب
+  if (!result || result.count === '!' || result.blocked) {
+    btn.disabled = false;
+    btn.textContent = t.finesLoadFailed;
+    return;
   }
 
-  function parseHtmlResponse(html) {
-    // ① فارغ أو قصير جداً
-    if (!html || html.trim().length < 300) return { count: '!', total: '' };
+  // نجح — احفظ في الكاش
+  finesCache[curCar] = {
+    count     : result.count,
+    total     : result.total || '',
+    checkedAt : Date.now(),
+  };
+  saveFinesCache();
 
-    // ② لا يحتوي على محتوى يخص الغرامات
-    const hasFinesContent =
-      html.includes('سه‌رپێچى') || html.includes('سەرپێچی') ||
-      html.includes('مخالف')    || html.includes('plate')   ||
-      html.includes('<table')   || html.includes('<tr')     ||
-      html.includes('Sinif')    || html.includes('SanNumber');
+  // حدّث الباج
+  updateBadge(curCar, result.count, result.total || '');
 
-    if (!hasFinesContent) return { count: '!', total: '' };
+  // اعرض النتيجة وأخفِ الزر
+  btn.style.display = 'none';
+  renderFinesResultBox(result);
+}
 
-    // ③ مؤشرات "لا توجد مخالفات"
-    const lowerHtml = html.toLowerCase();
-    const noFinesHints = [
-      'no record', 'not found', 'result is empty',
-      'لا توجد', 'نەدۆزرایەوە', '0 record', 'لايوجد',
-    ];
-    const hasNoFinesHint = noFinesHints.some(h => lowerHtml.includes(h));
+function renderFinesResultBox(cached) {
+  const t   = T[lang];
+  const box = document.getElementById('fines-result-box');
+  if (!box) return;
 
-    let count = '0';
-    let total = '';
+  const isNone = cached.count === '0';
+  const date   = cached.checkedAt
+    ? formatNiceDate(new Date(cached.checkedAt).toISOString().split('T')[0])
+    : '';
 
-    // ④ استخراج العدد
-    const countMatch =
-      html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/) ||
-      html.match(/عدد المخالفات[^\d]*(\d+)/i)          ||
-      html.match(/Total[^:]*:\s*(\d+)/i);
+  if (isNone) {
+    box.innerHTML = `
+      <div style="background:rgba(15,212,176,.1);border:1.5px solid rgba(15,212,176,.35);
+                  border-radius:var(--radius);padding:14px 16px;">
+        <div style="font-size:18px;font-weight:900;color:var(--teal)">${t.finesNoneDetail}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">${t.finesCachedAt(date)}</div>
+      </div>`;
+  } else {
+    const totalLine = cached.total
+      ? `<div style="font-size:14px;color:var(--red);margin-top:6px;font-weight:700">
+           ${t.finesTotal(cached.total)}
+         </div>`
+      : '';
+    box.innerHTML = `
+      <div style="background:rgba(255,77,109,.1);border:1.5px solid rgba(255,77,109,.35);
+                  border-radius:var(--radius);padding:14px 16px;">
+        <div style="font-size:22px;font-weight:900;color:var(--red)">
+          ⚠ ${t.finesCount(cached.count)}
+        </div>
+        ${totalLine}
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">
+          ${t.finesCachedAt(date)}
+        </div>
+      </div>`;
+  }
+  box.style.display = 'block';
+}
 
-    if (countMatch) {
-      count = countMatch[1].trim();
-    } else {
-      const rows = (html.match(/<tr[\s>]/gi) || []).length;
-      if (rows > 1) {
-        count = String(rows - 1);
-      } else if (hasNoFinesHint) {
-        count = '0';
-      } else if (rows === 0) {
-        return { count: '!', total: '' };
-      }
-    }
+/* ═══════════════════════════════════════
+   FINES — تهيئة قسم الغرامات في المودال
+═══════════════════════════════════════ */
+function initFinesSection(carId) {
+  const t   = T[lang];
+  const mod = getFinesModule(cars.find(x => x.id === carId)?.governorate);
 
-    // ⑤ استخراج المجموع المالي
-    const totalMatch =
-      html.match(/بڕى\s+گشتى[^\d]*([\d,]+)/)        ||
-      html.match(/المجموع الكلي[^\d]*([\d,]+)/i)       ||
-      html.match(/Total Amount[^\d]*([\d,]+)/i);
-
-    if (totalMatch) {
-      const raw = parseInt(totalMatch[1].replace(/,/g, ''));
-      total = raw >= 1000 ? Math.round(raw / 1000) + 'K' : String(raw);
-    }
-
-    return { count, total };
+  const card = document.getElementById('fines-summary-card');
+  const btn  = document.getElementById('btn-check-fines');
+  if (!mod) {
+    if (card) card.style.display = 'none';
+    if (btn)  btn.style.display  = 'none';
+    return;
   }
 
-  return { GOVERNORATE_INFO, FINES_FIELDS, buildFormData, getFinesUrl, parseHtmlResponse };
-})();
+  if (card) card.style.display = 'none'; // مخفي دائماً الآن
+  if (btn)  btn.style.display  = 'none'; // الزر القديم مخفي
 
-if (typeof window !== 'undefined') {
-  window.FINES_MODULES = window.FINES_MODULES || {};
-  window.FINES_MODULES['erbil'] = FINES_ERBIL;
+  const cached  = finesCache[carId];
+  const age     = cached?.checkedAt ? Date.now() - cached.checkedAt : Infinity;
+  const valid   = cached && cached.count !== '!' && age < FINES_CACHE_MS;
+  const loadBtn = document.getElementById('fines-load-btn');
+  const box     = document.getElementById('fines-result-box');
+
+  if (valid) {
+    // كاش صالح — اعرض النتيجة مباشرة، أخفِ الزر
+    if (loadBtn) loadBtn.style.display = 'none';
+    renderFinesResultBox(cached);
+    updateBadge(carId, cached.count, cached.total || '');
+  } else {
+    // لا كاش أو منتهي — اعرض الزر
+    if (loadBtn) {
+      loadBtn.style.display = '';
+      loadBtn.disabled      = false;
+      loadBtn.textContent   = t.loadFinesBtn;
+    }
+    if (box) box.style.display = 'none';
+  }
+}
+
+/* ═══════════════════════════════════════
+   BADGE
+═══════════════════════════════════════ */
+function updateBadge(id, count, total) {
+  const b = document.getElementById('badge-' + id);
+  if (!b) return;
+  if (count === 'checking') { b.className = 'car-fines-badge checking'; b.textContent = '⏳'; }
+  else if (count === '0')   { b.className = 'car-fines-badge no-fines'; b.textContent = '✓ 0'; }
+  else if (!count || count === '?' || count === '!') {
+    b.className = 'car-fines-badge'; b.textContent = '🔍';
+  } else {
+    b.className = 'car-fines-badge has-fines';
+    b.textContent = total ? `⚠ ${count}` : `⚠ ${count}`;
+  }
 }
