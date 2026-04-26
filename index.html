@@ -2857,29 +2857,30 @@ async function openEinIraqFines(car) {
   }
 
   const isAndroid = /android/i.test(navigator.userAgent);
+  const isIOS     = /iphone|ipad|ipod/i.test(navigator.userAgent);
 
   if (isAndroid) {
-    // Android — intent يفتح التطبيق أو المتجر تلقائياً بدون أي منطق إضافي
+    // Android: LAUNCHER intent — يفتح التطبيق مباشرة أو يذهب للمتجر
     window.location.href = mod.getAndroidIntentUrl(car);
 
-  } else {
-    // iOS — جرّب الـ scheme، بعد 2 ثانية اذهب للمتجر إذا لم يفتح
+  } else if (isIOS) {
+    // iOS: جرّب الـ scheme — إذا لم يستجب خلال ثانيتين اذهب للمتجر
     let appOpened = false;
 
     document.addEventListener('visibilitychange', function handler() {
-      if (document.hidden) {
-        appOpened = true;
-      }
+      if (document.hidden) appOpened = true;
       document.removeEventListener('visibilitychange', handler);
     }, { once: true });
 
     window.location.href = mod.getDirectUrl(car);
 
     setTimeout(() => {
-      if (!appOpened) {
-        window.open(mod.getStoreUrl(), '_blank');
-      }
-    }, 2000);
+      if (!appOpened) window.open(mod.getStoreUrl(), '_blank');
+    }, 2500);
+
+  } else {
+    // Desktop أو غير معروف — اذهب للمتجر مباشرة
+    window.open(mod.getStoreUrl(), '_blank');
   }
 }
 
