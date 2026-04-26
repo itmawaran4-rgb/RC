@@ -2843,72 +2843,27 @@ async function openEinIraqFines(car) {
 
   const san = (car.salyanaNumber || '').trim();
 
-  /* ① نسخ رقم السنوية إلى الحافظة ليلصقها المستخدم */
+  // نسخ السنوية للحافظة ليلصقها المستخدم يدوياً داخل التطبيق
   if (san) {
     try { await navigator.clipboard.writeText(san); } catch (_) {}
+    toast(
+      (lang === 'ku' ? '📋 ژمارەی ساڵانە کۆپی کرا: ' :
+       lang === 'en' ? '📋 Annual No. copied: ' :
+                       '📋 تم نسخ السنوية: ') + san,
+      'success'
+    );
   }
 
   const isAndroid = /android/i.test(navigator.userAgent);
-  const isIOS     = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const storeUrl  = mod.getStoreUrl();
 
-  /* ② محاولة الـ Deep Link */
-  const deepLink = isAndroid
-    ? mod.getAndroidIntentUrl(car)   // intent:// للأندرويد
-    : mod.getDirectUrl(car);          // einiraq:// للـ iOS
-
-  let appOpened = false;
-
-  /* حيلة الـ iframe لمعرفة هل التطبيق مثبّت (أندرويد فقط) */
   if (isAndroid) {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = mod.getDirectUrl(car);
-    document.body.appendChild(iframe);
-    setTimeout(() => document.body.removeChild(iframe), 2000);
-  }
-
-  /* فتح الرابط */
-  const a = document.createElement('a');
-  a.href = deepLink;
-  a.rel = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-
-  /* ③ بعد 1.8 ثانية — إذا لم يفتح التطبيق → متجر التطبيقات */
-  const fallbackTimer = setTimeout(() => {
-    if (!appOpened) {
-      const t = T[lang];
-      const msg = lang === 'ku'
-        ? 'ئەپی عین عێراق دامەزراو نییە. بۆ دانانی دەچیتە مەرجەکە؟'
-        : lang === 'en'
-        ? 'Ein Iraq app not found. Go to the store to install it?'
-        : 'تطبيق عين العراق غير مثبّت. هل تريد الذهاب للمتجر لتثبيته؟';
-
-      if (san) {
-        toast(
-          (lang === 'ku' ? '✅ ژمارەی ساڵانە کۆپی کرا: ' : lang === 'en' ? '✅ Annual No. copied: ' : '✅ تم نسخ السنوية: ') + san,
-          'success'
-        );
-      }
-      if (confirm(msg)) window.open(mod.getStoreUrl(), '_blank');
-    }
-  }, 1800);
-
-  /* إلغاء العداد إذا عاد المستخدم (= التطبيق فُتح) */
-  document.addEventListener('visibilitychange', function handler() {
-    if (document.hidden) { appOpened = true; clearTimeout(fallbackTimer); }
-    document.removeEventListener('visibilitychange', handler);
-  }, { once: true });
-
-  /* رسالة النسخ */
-  if (san) {
-    setTimeout(() => {
-      toast(
-        (lang === 'ku' ? '📋 ژمارەی ساڵانە کۆپی کرا: ' : lang === 'en' ? '📋 Annual No. copied: ' : '📋 تم نسخ السنوية: ') + san,
-        'success'
-      );
-    }, 300);
+    // Android Intent — يفتح التطبيق مباشرة أو يذهب للمتجر تلقائياً
+    window.location.href = mod.getAndroidIntentUrl(car);
+  } else {
+    // iOS / غيره — جرّب الـ scheme، وبعد ثانيتين إذا لم يفتح اذهب للمتجر
+    window.location.href = mod.getDirectUrl(car);
+    setTimeout(() => { window.open(storeUrl, '_blank'); }, 2000);
   }
 }
 
