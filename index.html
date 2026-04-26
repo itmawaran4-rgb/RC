@@ -2773,55 +2773,34 @@ function renderCars() {
   el.innerHTML = cars.map(c => {
     const icon = c.type == '6' ? '🏍️' : c.type == '3' ? '🚛' : '🚗';
     const cached = finesCache[c.id];
+    const mod = getFinesModule(c.governorate);
     let badgeCls = 'car-fines-badge', badgeHTML = '🔍';
-if (mod && mod.usesEinIraq) {
-  /* عين العراق */
-  document.getElementById('btn-check-fines').style.display = '';
-  document.getElementById('fines-summary-card').style.display = '';
 
-  const dot     = document.getElementById('fines-status-dot');
-  const countEl = document.getElementById('fines-summary-count');
-  dot.className = 'fines-status-dot';
-  dot.style.background = 'var(--teal)';
-  countEl.className    = 'fines-summary-count';
-  countEl.style.color  = 'var(--teal)';
-  countEl.style.fontSize = '13px';
-  countEl.textContent  = lang === 'ku' ? 'عین عێراق' : lang === 'en' ? 'Via Ein Iraq' : 'عبر عين العراق';
-  set('fines-summary-label', lang === 'ku' ? 'ئەپی خزمەتگوزاری' : lang === 'en' ? 'Service App' : 'تطبيق الخدمة');
-  set('fines-btn-txt',
-    lang === 'ku' ? '📲 کردنەوەی عین عێراق' :
-    lang === 'en' ? '📲 Open Ein Iraq App'   :
-                    '📲 فتح تطبيق عين العراق'
-  );
-
-} else if (mod) {
-  /* أربيل / دهوك / السليمانية — الكود الحالي */
-  refreshFinesSummaryCard(carId);
-  if (!finesCache[carId] || finesCache[carId].count === 'checking') {
-    if (!finesCache[carId]) backgroundCheckFines(c);
-    pollFinesSummary(carId);
-  }
-  set('fines-btn-txt', t.checkFines);
-} else {
-  document.getElementById('btn-check-fines').style.display = 'none';
-  document.getElementById('fines-summary-card').style.display = 'none';
-}} else {
-
-    if (cached) {
-      if (cached.count === '0') {
-        badgeCls += ' no-fines'; badgeHTML = '✓ 0';
-      } else if (cached.count === 'checking') {
-        badgeCls += ' checking'; badgeHTML = '⏳';
-      } else if (cached.count === 'retry') {
-        badgeCls += ' retry-fines';
-        badgeHTML = `<span onclick="retryFines(event,${c.id})">${t.finesRetry || '🔄 إعادة تحميل'}</span>`;
-      } else if (cached.count === '?') {
-        badgeHTML = '?';
-      } else {
-        badgeCls += ' has-fines';
-        badgeHTML = cached.total ? `⚠${cached.count}·${cached.total}` : `⚠ ${cached.count}`;
+    if (mod && mod.usesEinIraq) {
+      // محافظات عين العراق
+      badgeCls += ' einiraq';
+      badgeHTML = lang === 'ku' ? 'عین عێراق' : lang === 'en' ? 'Ein Iraq' : 'عين العراق';
+    } else if (mod) {
+      // محافظات لها فحص مباشر (أربيل / دهوك / السليمانية)
+      if (cached) {
+        if (cached.count === '0') {
+          badgeCls += ' no-fines'; badgeHTML = '✓ 0';
+        } else if (cached.count === 'checking') {
+          badgeCls += ' checking'; badgeHTML = '⏳';
+        } else if (cached.count === 'retry') {
+          badgeCls += ' retry-fines';
+          badgeHTML = `<span onclick="retryFines(event,${c.id})">${t.finesRetry || '🔄 إعادة تحميل'}</span>`;
+        } else if (cached.count === '?') {
+          badgeHTML = '?';
+        } else {
+          badgeCls += ' has-fines';
+          badgeHTML = cached.total ? `⚠${cached.count}·${cached.total}` : `⚠ ${cached.count}`;
+        }
       }
-    } }
+    } else {
+      // لا يوجد موديول — لا تُظهر badge
+      badgeCls = ''; badgeHTML = '';
+    }
 
     const plate = c.carNo ||
       (c.plateNumber ? `${c.plateNumber}${c.plateLetter && c.plateLetter !== '0' ? ' - ' + c.plateLetter : ''}` : '');
@@ -2832,7 +2811,7 @@ if (mod && mod.usesEinIraq) {
         <div class="car-name">${c.name}</div>
         <div class="car-plate">${plate}</div>
       </div>
-      <div class="${badgeCls}" id="badge-${c.id}">${badgeHTML}</div>
+      ${badgeCls ? `<div class="${badgeCls}" id="badge-${c.id}">${badgeHTML}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -3133,14 +3112,32 @@ if (gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-ali
       document.getElementById('next-oil-box').style.display = 'none';
 
       // إخفاء زر الغرامات إن لا يوجد موديول
-      document.getElementById('btn-check-fines').style.display = mod ? '' : 'none';
-      document.getElementById('fines-summary-card').style.display = mod ? '' : 'none';
+document.getElementById('btn-check-fines').style.display = mod ? '' : 'none';
+document.getElementById('fines-summary-card').style.display = mod ? '' : 'none';
 
-      if (mod) {
-        refreshFinesSummaryCard(carId);
-        if (!finesCache[carId] || finesCache[carId].count === 'checking') { if (!finesCache[carId]) backgroundCheckFines(c); pollFinesSummary(carId); }
-      }
-      set('fines-btn-txt', t.checkFines);
+if (mod && mod.usesEinIraq) {
+  // عين العراق — لا فحص تلقائي، فقط عرض زر الفتح
+  const dot = document.getElementById('fines-status-dot');
+  const countEl = document.getElementById('fines-summary-count');
+  dot.className = 'fines-status-dot done-ok';
+  countEl.className = 'fines-summary-count';
+  countEl.style.color = 'var(--teal)';
+  countEl.style.fontSize = '13px';
+  countEl.textContent = lang === 'ku' ? 'عین عێراق' : lang === 'en' ? 'Via Ein Iraq' : 'عبر عين العراق';
+  set('fines-summary-label', lang === 'ku' ? 'ئەپی خزمەتگوزاری' : lang === 'en' ? 'Service App' : 'تطبيق الخدمة');
+  set('fines-btn-txt',
+    lang === 'ku' ? '📲 کردنەوەی عین عێراق' :
+    lang === 'en' ? '📲 Open Ein Iraq App' :
+                    '📲 فتح تطبيق عين العراق'
+  );
+} else if (mod) {
+  refreshFinesSummaryCard(carId);
+  if (!finesCache[carId] || finesCache[carId].count === 'checking') {
+    if (!finesCache[carId]) backgroundCheckFines(c);
+    pollFinesSummary(carId);
+  }
+  set('fines-btn-txt', t.checkFines);
+}
       openModal('modal-car-detail');
     }
 
