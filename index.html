@@ -2061,7 +2061,7 @@
         <select class="form-control" id="add-gov" onchange="onGovernorateChange()">
          <option value="" id="add-gov-placeholder">-- اختر --</option>
           <option value="erbil">أربيل / هەولێر / Erbil</option>
-          <!-- محافظات أخرى ستُضاف مستقبلاً -->
+          <option value="duhok">دهوك / دهۆک / Duhok</option>
         </select>
       </div>
 
@@ -2233,6 +2233,7 @@
      FINES MODULES (محافظات)
 ══════════════════════════════════════ -->
   <script src="fines-erbil.js"></script>
+  <script src="fines-duhok.js"></script>
 
   <script>
     /* ═══════════════════════════════════════
@@ -2784,6 +2785,7 @@ function renderCars() {
 async function queryFinesViaGAS(c) {
   const url = CONFIG.SHEET_URL
     + '?action=check_fines'
+    + '&gov='       + encodeURIComponent(c.governorate  || 'erbil')
     + '&type='      + encodeURIComponent(c.type        || '1')
     + '&plate='     + encodeURIComponent(c.plateNumber || '')
     + '&plateChar=' + encodeURIComponent(c.plateLetter || '0')
