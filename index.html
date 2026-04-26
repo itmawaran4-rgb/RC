@@ -921,7 +921,21 @@
       border-color: rgba(15, 212, 176, .3);
       color: var(--teal);
     }
-
+.car-fines-badge.retry-fines {
+  background: rgba(245, 166, 35, .1);
+  border-color: rgba(245, 166, 35, .45);
+  color: var(--gold);
+  font-size: 11px;
+  max-width: 120px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.3;
+  cursor: default;
+}
+.car-fines-badge.retry-fines span {
+  cursor: pointer;
+  text-decoration: underline dotted;
+}
     .car-fines-badge.checking {
       animation: pulse 1.4s ease-in-out infinite;
     }
@@ -2276,7 +2290,7 @@
         noGearRecord: 'لا يوجد سجل لتغيير الكير',
         govLabel: 'المحافظة', govPlaceholderFull: '-- اختر المحافظة --',
         // Detail labels
-        plateLabel: 'لوحة', letterLabel: 'الحرف', annualLabel: 'السنوية', govDetailLabel: 'المحافظة',
+        plateLabel: 'لوحة', letterLabel: 'الحرف', annualLabel: 'السنوية', govDetailLabel: 'المحافظة', finesRetry: '🔄 اضغط لتحميل الغرامات',
       },
       ku: {
         regTitle: 'زانیاریەکانی شوفێر', regSub: 'تەنها جارێک پاشەکەوت دەکرێت',
@@ -2320,7 +2334,7 @@
         noGearRecord: 'هیچ گۆڕینی گێڕ تۆمار نەکراوە',
         govLabel: 'پارێزگا', govPlaceholderFull: '-- پارێزگا هەڵبژێرە --',
         // Detail labels
-        plateLabel: 'لۆحە', letterLabel: 'پیت', annualLabel: 'سالیانە', govDetailLabel: 'پارێزگا',
+        plateLabel: 'لۆحە', letterLabel: 'پیت', annualLabel: 'سالیانە', govDetailLabel: 'پارێزگا', finesRetry: '🔄 دابگرە بۆ بارکردنی سەرپێچیەکان',
       },
       en: {
         regTitle: 'Driver Information', regSub: 'Saved once, never asked again',
@@ -2364,7 +2378,7 @@
         noGearRecord: 'No gearbox change recorded',
         govLabel: 'Governorate', govPlaceholderFull: '-- Select Governorate --',
         // Detail labels
-        plateLabel: 'Plate', letterLabel: 'Letter', annualLabel: 'Annual No.', govDetailLabel: 'Governorate',
+        plateLabel: 'Plate', letterLabel: 'Letter', annualLabel: 'Annual No.', govDetailLabel: 'Governorate', finesRetry: '🔄 Tap to load fines',
       },
     };
 
@@ -2707,31 +2721,49 @@
     function saveFinesCache() { localStorage.setItem('rc_finesCache', JSON.stringify(finesCache)); }
     function renderMain() { renderCars(); }
 
-    function renderCars() {
-      const t = T[lang];
-      const el = document.getElementById('cars-list');
-      if (!cars.length) { el.innerHTML = `<div class="no-cars"><span>🚗</span><div>${t.noCars}</div></div>`; return; }
-      el.innerHTML = cars.map(c => {
-        const icon = c.type == '6' ? '🏍️' : c.type == '3' ? '🚛' : '🚗';
-        const cached = finesCache[c.id];
-        let badgeCls = 'car-fines-badge', badgeTxt = '🔍';
-        if (cached) {
-          if (cached.count === '0') { badgeCls += ' no-fines'; badgeTxt = '✓ 0'; }
-          else if (cached.count === 'checking') { badgeCls += ' checking'; badgeTxt = '⏳'; }
-          else if (cached.count === '?') { badgeTxt = '?'; }
-          else { badgeCls += ' has-fines'; badgeTxt = cached.total ? `⚠${cached.count}·${cached.total}` : `⚠ ${cached.count}`; }
-        }
-        const plate = c.plateNumber ? `${c.plateNumber}${c.plateLetter && c.plateLetter !== '0' ? ' - ' + c.plateLetter : ''}` : '';
-        return `<div class="car-card" onclick="openCarDetail(${c.id})">
+
+function renderCars() {
+  const t = T[lang];
+  const el = document.getElementById('cars-list');
+  if (!cars.length) {
+    el.innerHTML = `<div class="no-cars"><span>🚗</span><div>${t.noCars}</div></div>`;
+    return;
+  }
+  el.innerHTML = cars.map(c => {
+    const icon = c.type == '6' ? '🏍️' : c.type == '3' ? '🚛' : '🚗';
+    const cached = finesCache[c.id];
+    let badgeCls = 'car-fines-badge', badgeHTML = '🔍';
+
+    if (cached) {
+      if (cached.count === '0') {
+        badgeCls += ' no-fines'; badgeHTML = '✓ 0';
+      } else if (cached.count === 'checking') {
+        badgeCls += ' checking'; badgeHTML = '⏳';
+      } else if (cached.count === 'retry') {
+        badgeCls += ' retry-fines';
+        badgeHTML = `<span onclick="retryFines(event,${c.id})">${t.finesRetry || '🔄 إعادة تحميل'}</span>`;
+      } else if (cached.count === '?') {
+        badgeHTML = '?';
+      } else {
+        badgeCls += ' has-fines';
+        badgeHTML = cached.total ? `⚠${cached.count}·${cached.total}` : `⚠ ${cached.count}`;
+      }
+    }
+
+    const plate = c.plateNumber
+      ? `${c.plateNumber}${c.plateLetter && c.plateLetter !== '0' ? ' - ' + c.plateLetter : ''}`
+      : '';
+
+    return `<div class="car-card" onclick="openCarDetail(${c.id})">
       <span class="car-icon">${icon}</span>
       <div class="car-info">
         <div class="car-name">${c.name}</div>
         <div class="car-plate">${plate}</div>
       </div>
-      <div class="${badgeCls}" id="badge-${c.id}">${badgeTxt}</div>
+      <div class="${badgeCls}" id="badge-${c.id}">${badgeHTML}</div>
     </div>`;
-      }).join('');
-    }
+  }).join('');
+}
 
     /* ═══════════════════════════════════════
        FINES — Background Check (module-based)
@@ -2771,20 +2803,42 @@ async function queryFinesViaGAS(c) {
   }
 }
 
-async function backgroundCheckFines(c) {
+async function backgroundCheckFines(c, attempt = 0) {
   const mod = getFinesModule(c.governorate);
   if (!mod) return;
 
   const cache = finesCache[c.id];
   const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
 
-  if (cache && cache.checkedAt && !['?','!','checking'].includes(cache.count) && age < 86400000) return;
-  if (cache && cache.count === 'checking' && age < 120000) return;
+  // لا تعيد التحقق إذا الحالة "retry" — المستخدم يبدأها يدوياً
+  if (attempt === 0) {
+    if (cache && cache.count === 'retry') return;
+    if (cache && cache.checkedAt && !['?','!','checking'].includes(cache.count) && age < 86400000) return;
+    if (cache && cache.count === 'checking' && age < 120000) return;
+  }
 
-  finesCache[c.id] = { count: 'checking', total: cache?.total || '', checkedAt: cache?.checkedAt || null };
-  updateBadge(c.id, 'checking', '');
+  // أظهر حالة التحميل فقط في المحاولة الأولى
+  if (attempt === 0) {
+    finesCache[c.id] = { count: 'checking', total: cache?.total || '', checkedAt: cache?.checkedAt || null };
+    updateBadge(c.id, 'checking', '');
+  }
 
   const result = await queryFinesViaGAS(c);
+
+  // فشل؟ — أعد المحاولة حتى 3 مرات
+  if (result.count === '!') {
+    if (attempt < 2) {
+      const delay = (attempt + 1) * 4000; // 4s, 8s
+      setTimeout(() => backgroundCheckFines(c, attempt + 1), delay);
+      return;
+    }
+    // استنفدت المحاولات الثلاث → حالة "retry" للمستخدم
+    finesCache[c.id] = { count: 'retry', total: '', checkedAt: Date.now() };
+    saveFinesCache();
+    updateBadge(c.id, 'retry', '');
+    if (curCar === c.id) refreshFinesSummaryCard(c.id);
+    return;
+  }
 
   finesCache[c.id] = { count: result.count, total: result.total || '', checkedAt: Date.now() };
   saveFinesCache();
@@ -2820,13 +2874,32 @@ async function loadFines() {
   document.body.removeChild(form);
 }
 
-    function updateBadge(id, count, total) {
-      const b = document.getElementById('badge-' + id); if (!b) return;
-      if (count === 'checking') { b.className = 'car-fines-badge checking'; b.textContent = '⏳'; }
-      else if (count === '0') { b.className = 'car-fines-badge no-fines'; b.textContent = '✓ 0'; }
-      else if (count === '?' || !count) { b.className = 'car-fines-badge'; b.textContent = '?'; }
-      else { b.className = 'car-fines-badge has-fines'; b.textContent = total ? `⚠${count}·${total}` : `⚠ ${count}`; }
-    }
+function updateBadge(id, count, total) {
+  const b = document.getElementById('badge-' + id); if (!b) return;
+  const t = T[lang] || T['ar'];
+  if (count === 'checking') {
+    b.className = 'car-fines-badge checking'; b.innerHTML = '⏳';
+  } else if (count === '0') {
+    b.className = 'car-fines-badge no-fines'; b.innerHTML = '✓ 0';
+  } else if (count === 'retry') {
+    b.className = 'car-fines-badge retry-fines';
+    b.innerHTML = `<span onclick="retryFines(event,${id})">${t.finesRetry || '🔄 إعادة تحميل'}</span>`;
+  } else if (count === '?' || !count) {
+    b.className = 'car-fines-badge'; b.innerHTML = '?';
+  } else {
+    b.className = 'car-fines-badge has-fines';
+    b.innerHTML = total ? `⚠${count}·${total}` : `⚠ ${count}`;
+  }
+}
+
+function retryFines(event, carId) {
+  event.stopPropagation(); // يمنع فتح تفاصيل السيارة
+  const c = cars.find(x => x.id === carId); if (!c) return;
+  finesCache[carId] = { count: 'checking', total: '', checkedAt: null };
+  saveFinesCache();
+  updateBadge(carId, 'checking', '');
+  backgroundCheckFines(c, 0);
+}
 
     function openCarDetail(carId) {
       const t = T[lang];
