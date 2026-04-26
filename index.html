@@ -2062,6 +2062,7 @@
          <option value="" id="add-gov-placeholder">-- اختر --</option>
           <option value="erbil">أربيل / هەولێر / Erbil</option>
           <option value="duhok">دهوك / دهۆک / Duhok</option>
+          <option value="sulaymaniyah">السليمانية / سلێمانی / Sulaymaniyah</option>
         </select>
       </div>
 
@@ -2234,6 +2235,7 @@
 ══════════════════════════════════════ -->
   <script src="fines-erbil.js"></script>
   <script src="fines-duhok.js"></script>
+  <script src="fines-sulaymaniyah.js"></script>
 
   <script>
     /* ═══════════════════════════════════════
@@ -2619,6 +2621,10 @@
           div.innerHTML = `<label class="form-label">${label}</label>
         <input class="form-control" id="dyn-${field.key}" type="${field.type}" placeholder="${field.placeholder || ''}">`;
         }
+          const hintKey = lang === 'ku' ? 'hintKu' : lang === 'en' ? 'hintEn' : 'hintAr';
+  if (field[hintKey]) {
+    div.innerHTML += `<div style="font-size:11px;color:var(--gold);margin-top:4px;">⚠️ ${field[hintKey]}</div>`;
+  }
         container.appendChild(div);
       });
     }
@@ -2669,7 +2675,7 @@
         carName: carData.name,
         carType: carData.type || '',
         governorate: carData.governorate || '',
-        plateNumber: carData.plateNumber || '',
+        plateNumber: carData.plateNumber || carData.carNo || '',
         plateLetter: carData.plateLetter || '',
         salyanaNumber: carData.salyanaNumber || '',
         timestamp: new Date().toISOString(),
@@ -2695,6 +2701,10 @@
               name: c.carName, type: c.carType || '1', governorate: c.governorate,
               plateNumber: c.plateNumber || '', plateLetter: c.plateLetter || '', salyanaNumber: c.salyanaNumber || ''
             };
+            if (carData.governorate === 'sulaymaniyah' && carData.plateNumber) {
+  carData.carNo = carData.plateNumber;
+  carData.plateNumber = '';
+}
             cars.push(carData);
             if (c.oilKm || c.oilDate) {
               oilData[carData.id] = [{
@@ -2789,6 +2799,7 @@ async function queryFinesViaGAS(c) {
     + '&type='      + encodeURIComponent(c.type        || '1')
     + '&plate='     + encodeURIComponent(c.plateNumber || '')
     + '&plateChar=' + encodeURIComponent(c.plateLetter || '0')
+    + '&carNo='     + encodeURIComponent(c.carNo        || '')
     + '&sanNumber=' + encodeURIComponent(c.salyanaNumber || '');
   try {
     const ctrl  = new AbortController();               // ← هذا السطر كان ناقصاً
@@ -2852,6 +2863,10 @@ async function loadFines() {
   const c = cars.find(x => x.id === curCar); if (!c) return;
   const mod = getFinesModule(c.governorate);
   if (!mod) { toast(T[lang].error, 'error'); return; }
+    if (mod.getDirectUrl) {
+    window.open(mod.getDirectUrl(c), '_blank');
+    return;
+  }
 
   const formData = mod.buildFormData(c);
   const url = mod.getFinesUrl(c);
@@ -2911,17 +2926,20 @@ function retryFines(event, carId) {
        const prevFines = document.getElementById('fines-inline-result');
        if (prevFines) { prevFines.style.display = 'none'; prevFines.innerHTML = ''; }
       set('d-car-name', c.name);
-      const plate = c.plateNumber ? `${c.plateNumber}${c.plateLetter && c.plateLetter !== '0' ? ' - ' + c.plateLetter : ''}` : '';
+const plate = c.carNo ||
+  (c.plateNumber
+    ? `${c.plateNumber}${c.plateLetter && c.plateLetter !== '0' ? ' - ' + c.plateLetter : ''}`
+    : '');
       const mod = getFinesModule(c.governorate);
       const typeNames = { 1: 'خصوصي/تایبەت/Private', 2: 'أجرة/كرئ/Taxi', 3: 'حمل/بارهەڵگر/Cargo', 4: 'زراعي/کشتوکاڵ/Agricultural', 5: 'إنشائي/بیناسازی/Construction', 6: 'دراجة/مۆتۆر/Motorcycle' };
       const typeName = mod && c.type ? `${typeNames[c.type] || c.type}` : '';
       set('d-car-plate', `${plate}  ${typeName ? '| ' + typeName : ''}`);
      document.getElementById('d-grid').innerHTML = `
-    ${c.plateNumber ? `<div class="car-detail-item"><div class="car-detail-label">${t.plateLabel}</div><div class="car-detail-value">${c.plateNumber}</div></div>` : ''}
-    ${c.plateLetter && c.plateLetter !== '0' ? `<div class="car-detail-item"><div class="car-detail-label">${t.letterLabel}</div><div class="car-detail-value">${c.plateLetter}</div></div>` : ''}
-    ${c.salyanaNumber ? `<div class="car-detail-item"><div class="car-detail-label">${t.annualLabel}</div><div class="car-detail-value">${c.salyanaNumber}</div></div>` : ''}
-    <div class="car-detail-item"><div class="car-detail-label">${t.govDetailLabel}</div><div class="car-detail-value">${c.governorate || '—'}</div></div>`;
-
+  ${c.carNo ? `<div class="car-detail-item"><div class="car-detail-label">${t.plateLabel}</div><div class="car-detail-value">${c.carNo}</div></div>` : ''}
+  ${c.plateNumber ? `<div class="car-detail-item"><div class="car-detail-label">${t.plateLabel}</div><div class="car-detail-value">${c.plateNumber}</div></div>` : ''}
+  ${c.plateLetter && c.plateLetter !== '0' ? `<div class="car-detail-item"><div class="car-detail-label">${t.letterLabel}</div><div class="car-detail-value">${c.plateLetter}</div></div>` : ''}
+  ${c.salyanaNumber ? `<div class="car-detail-item"><div class="car-detail-label">${t.annualLabel}</div><div class="car-detail-value">${c.salyanaNumber}</div></div>` : ''}
+  <div class="car-detail-item"><div class="car-detail-label">${t.govDetailLabel}</div><div class="car-detail-value">${c.governorate || '—'}</div></div>`;
       // قسم الكير
       const gd = gearData[carId];
       if (document.getElementById('new-gear-form')) document.getElementById('new-gear-form').style.display = 'none';
