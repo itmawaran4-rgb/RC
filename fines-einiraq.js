@@ -18,13 +18,13 @@
 
 const FINES_EINIRAQ = (function () {
 
-  /* ──────── إعدادات التطبيق (عدّلها بعد التأكد) ──────── */
+/* ──────── إعدادات التطبيق (المستخرجة من المانفيست) ──────── */
   const APP_CONFIG = {
-    DEEP_LINK_SCHEME  : 'einiraq',                                              // ← عدّله عند التأكد
-    ANDROID_PACKAGE   : 'iq.gov.moi.einiraq',                                   // ← عدّله عند التأكد
-    IOS_APP_ID        : '',                                                       // ← أضف الـ ID عند التأكد
-    PLAY_STORE_URL    : 'https://play.google.com/store/apps/details?id=iq.gov.moi.einiraq',
-    APP_STORE_URL     : 'https://apps.apple.com/iq/app/ein-iraq/id',            // ← أضف الـ ID
+    DEEP_LINK_SCHEME  : 'ayniq', // غالباً ما يكون مشتقاً من الاسم، سأعلمك كيف تتأكد
+    ANDROID_PACKAGE   : 'com.moi.ayniq', // تم التصحيح من المانفيست
+    IOS_APP_ID        : '', 
+    PLAY_STORE_URL    : 'https://play.google.com/store/apps/details?id=com.moi.ayniq',
+    APP_STORE_URL     : 'https://apps.apple.com/iq/app/ayniq/id', 
   };
 
   /* ──────── المحافظات المدعومة ──────── */
