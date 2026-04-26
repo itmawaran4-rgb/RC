@@ -12,14 +12,12 @@ const APP_CONFIG = {
 };
 
 function getAndroidIntentUrl(car) {
-  // LAUNCHER intent — يفتح التطبيق من خلال الباكيج مباشرة بدون scheme
-  // إذا التطبيق مثبت يفتح فوراً، إذا لا يذهب للمتجر تلقائياً
-  return `intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=${APP_CONFIG.ANDROID_PACKAGE};end`;
+  // نستخدم اسم الـ Activity الكامل من المانفيست
+  return `intent://#Intent;package=com.moi.ayniq;component=com.moi.ayniq/com.example.ayn_iq.MainActivity;end`;
 }
 
 function getDirectUrl(car) {
-  // iOS — جرّب الـ scheme
-  return `${APP_CONFIG.DEEP_LINK_SCHEME}://`;
+  return `intent://#Intent;package=com.moi.ayniq;component=com.moi.ayniq/com.example.ayn_iq.MainActivity;end`;
 }
 
 function getStoreUrl() {
