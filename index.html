@@ -2843,27 +2843,43 @@ async function openEinIraqFines(car) {
 
   const san = (car.salyanaNumber || '').trim();
 
-  // نسخ السنوية للحافظة ليلصقها المستخدم يدوياً داخل التطبيق
+  // نسخ السنوية للحافظة
   if (san) {
     try { await navigator.clipboard.writeText(san); } catch (_) {}
-    toast(
-      (lang === 'ku' ? '📋 ژمارەی ساڵانە کۆپی کرا: ' :
-       lang === 'en' ? '📋 Annual No. copied: ' :
-                       '📋 تم نسخ السنوية: ') + san,
-      'success'
-    );
+    setTimeout(() => {
+      toast(
+        (lang === 'ku' ? '📋 ژمارەی ساڵانە کۆپی کرا: ' :
+         lang === 'en' ? '📋 Annual No. copied: ' :
+                         '📋 تم نسخ السنوية: ') + san,
+        'success'
+      );
+    }, 300);
   }
 
   const isAndroid = /android/i.test(navigator.userAgent);
-  const storeUrl  = mod.getStoreUrl();
 
   if (isAndroid) {
-    // Android Intent — يفتح التطبيق مباشرة أو يذهب للمتجر تلقائياً
+    // Android — intent يفتح التطبيق أو المتجر تلقائياً بدون أي منطق إضافي
     window.location.href = mod.getAndroidIntentUrl(car);
+
   } else {
-    // iOS / غيره — جرّب الـ scheme، وبعد ثانيتين إذا لم يفتح اذهب للمتجر
+    // iOS — جرّب الـ scheme، بعد 2 ثانية اذهب للمتجر إذا لم يفتح
+    let appOpened = false;
+
+    document.addEventListener('visibilitychange', function handler() {
+      if (document.hidden) {
+        appOpened = true;
+      }
+      document.removeEventListener('visibilitychange', handler);
+    }, { once: true });
+
     window.location.href = mod.getDirectUrl(car);
-    setTimeout(() => { window.open(storeUrl, '_blank'); }, 2000);
+
+    setTimeout(() => {
+      if (!appOpened) {
+        window.open(mod.getStoreUrl(), '_blank');
+      }
+    }, 2000);
   }
 }
 
