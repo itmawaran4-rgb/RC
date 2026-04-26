@@ -93,32 +93,20 @@ const FINES_FIELDS = [
   const usesEinIraq = true;
 
   /* ──────── بناء روابط عين العراق ──────── */
-  function getDirectUrl(car) {
-    const san = encodeURIComponent((car && car.salyanaNumber) || '');
+function getDirectUrl(car) {
+  // فتح التطبيق فقط بدون مسار محدد
+  return `${APP_CONFIG.DEEP_LINK_SCHEME}://`;
+}
 
-    /*
-     *  مسار التنقل الكامل داخل التطبيق:
-     *   الرئيسية → الغرامات → استعلام غرامات مركبة أخرى → (ادخال السنوية) → استمرار
-     *
-     *  صيغ الـ Deep Link المرشحة للاختبار (جرّبها واحدة واحدة):
-     *   1) einiraq://violations/other?sanNumber=<san>
-     *   2) einiraq://fines?type=other&san=<san>
-     *   3) einiraq://vehicle/fines?annual=<san>
-     *
-     *  الصيغة المُفعَّلة حالياً (الأكثر احتمالاً — عدّلها بعد الاختبار):
-     */
-    return `${APP_CONFIG.DEEP_LINK_SCHEME}://violations/other?sanNumber=${san}`;
-  }
-
-  function getAndroidIntentUrl(car) {
-    const san = encodeURIComponent((car && car.salyanaNumber) || '');
-    return [
-      `intent://violations/other?sanNumber=${san}`,
-      `#Intent;scheme=${APP_CONFIG.DEEP_LINK_SCHEME}`,
-      `package=${APP_CONFIG.ANDROID_PACKAGE}`,
-      `end`,
-    ].join(';');
-  }
+function getAndroidIntentUrl(car) {
+  return [
+    `intent://`,
+    `#Intent`,
+    `scheme=${APP_CONFIG.DEEP_LINK_SCHEME}`,
+    `package=${APP_CONFIG.ANDROID_PACKAGE}`,
+    `end`,
+  ].join(';');
+}
 
   function getStoreUrl() {
     return /iphone|ipad|ipod/i.test(navigator.userAgent)
