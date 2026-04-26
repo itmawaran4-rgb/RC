@@ -19,13 +19,29 @@
 const FINES_EINIRAQ = (function () {
 
 /* ──────── إعدادات التطبيق (المستخرجة من المانفيست) ──────── */
-  const APP_CONFIG = {
-    DEEP_LINK_SCHEME  : 'ayniq', // غالباً ما يكون مشتقاً من الاسم، سأعلمك كيف تتأكد
-    ANDROID_PACKAGE   : 'com.moi.ayniq', // تم التصحيح من المانفيست
-    IOS_APP_ID        : '', 
-    PLAY_STORE_URL    : 'https://play.google.com/store/apps/details?id=com.moi.ayniq',
-    APP_STORE_URL     : 'https://apps.apple.com/iq/app/ayniq/id', 
-  };
+const APP_CONFIG = {
+  DEEP_LINK_SCHEME : 'ayniq',
+  ANDROID_PACKAGE  : 'com.moi.ayniq',
+  IOS_APP_ID       : '6740897723',
+  PLAY_STORE_URL   : 'https://play.google.com/store/apps/details?id=com.moi.ayniq',
+  APP_STORE_URL    : 'https://apps.apple.com/us/app/id6740897723',
+};
+
+function getDirectUrl(car) {
+  // iOS: فتح التطبيق فقط
+  return `${APP_CONFIG.DEEP_LINK_SCHEME}://`;
+}
+
+function getAndroidIntentUrl(car) {
+  // Android: package فقط — يفتح التطبيق أو يذهب للمتجر تلقائياً
+  return `intent://#Intent;package=${APP_CONFIG.ANDROID_PACKAGE};end`;
+}
+
+function getStoreUrl() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent)
+    ? APP_CONFIG.APP_STORE_URL
+    : APP_CONFIG.PLAY_STORE_URL;
+}
 
   /* ──────── المحافظات المدعومة ──────── */
   const SUPPORTED_GOVERNORATES = [
