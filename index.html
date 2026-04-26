@@ -2075,7 +2075,6 @@
           <option value="duhok">دهوك / دهۆک / Duhok</option>
           <option value="sulaymaniyah">السليمانية / سلێمانی / Sulaymaniyah</option>
           <option value="halabja">حلبجة / هەڵەبجە / Halabja</option>
-            <optgroup label="── عين العراق ──">
     <option value="baghdad">بغداد / Baghdad</option>
     <option value="basra">البصرة / Basra</option>
     <option value="nineveh">نينوى / Nineveh</option>
@@ -2091,7 +2090,6 @@
     <option value="maysan">ميسان / Maysan</option>
     <option value="qadisiyah">القادسية / Al-Qadisiyah</option>
     <option value="muthanna">المثنى / Al-Muthanna</option>
-  </optgroup>
         </select>
       </div>
 
@@ -2783,7 +2781,7 @@ function renderCars() {
     if (mod && mod.usesEinIraq) {
       // محافظات عين العراق
       badgeCls += ' einiraq';
-      badgeHTML = lang === 'ku' ? 'عین عێراق' : lang === 'en' ? 'Ein Iraq' : 'عين العراق';
+      badgeHTML = lang === 'ku' ? 'عین عێراق' : lang === 'en' ? 'Ein Iraq' : 'تعرض الغرامات فقط عن طريق تطبيق عين العراق';
     } else if (mod) {
       // محافظات لها فحص مباشر (أربيل / دهوك / السليمانية)
       if (cached) {
