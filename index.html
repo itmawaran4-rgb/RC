@@ -2648,8 +2648,11 @@
           ${field.options.map(o => `<option value="${o.value}">${o[optLangKey] || o.labelAr}</option>`).join('')}
         </select>`;
         } else {
-          div.innerHTML = `<label class="form-label">${label}</label>
-        <input class="form-control" id="dyn-${field.key}" type="${field.type}" placeholder="${field.placeholder || ''}">`;
+div.innerHTML = `<label class="form-label">${label}</label>
+  <input class="form-control" id="dyn-${field.key}" 
+    type="${field.type === 'number' ? 'text' : field.type}"
+    inputmode="${field.type === 'number' ? 'numeric' : 'text'}"
+    placeholder="${field.placeholder || ''}">`;
         }
           const hintKey = lang === 'ku' ? 'hintKu' : lang === 'en' ? 'hintEn' : 'hintAr';
   if (field[hintKey]) {
