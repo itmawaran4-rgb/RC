@@ -909,6 +909,17 @@
       transition: var(--tr);
       font-family: var(--font-en);
     }
+    .car-fines-badge.einiraq {
+  background: linear-gradient(135deg, rgba(15,212,176,.15), rgba(15,212,176,.05));
+  border-color: rgba(15, 212, 176, .45);
+  color: var(--teal);
+  font-size: 10px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.3;
+  max-width: 88px;
+  cursor: pointer;
+}
 
     .car-fines-badge.has-fines {
       background: rgba(255, 77, 109, .15);
@@ -2063,6 +2074,24 @@
           <option value="erbil">أربيل / هەولێر / Erbil</option>
           <option value="duhok">دهوك / دهۆک / Duhok</option>
           <option value="sulaymaniyah">السليمانية / سلێمانی / Sulaymaniyah</option>
+          <option value="halabja">حلبجة / هەڵەبجە / Halabja</option>
+            <optgroup label="── عين العراق ──">
+    <option value="baghdad">بغداد / Baghdad</option>
+    <option value="basra">البصرة / Basra</option>
+    <option value="nineveh">نينوى / Nineveh</option>
+    <option value="kirkuk">كركوك / Kirkuk</option>
+    <option value="diyala">ديالى / Diyala</option>
+    <option value="najaf">النجف / Najaf</option>
+    <option value="karbala">كربلاء / Karbala</option>
+    <option value="anbar">الأنبار / Al-Anbar</option>
+    <option value="babylon">بابل / Babylon</option>
+    <option value="salahuddin">صلاح الدين / Salah Al-Din</option>
+    <option value="wasit">واسط / Wasit</option>
+    <option value="dhiqar">ذي قار / Dhi Qar</option>
+    <option value="maysan">ميسان / Maysan</option>
+    <option value="qadisiyah">القادسية / Al-Qadisiyah</option>
+    <option value="muthanna">المثنى / Al-Muthanna</option>
+  </optgroup>
         </select>
       </div>
 
@@ -2236,6 +2265,7 @@
   <script src="fines-erbil.js"></script>
   <script src="fines-duhok.js"></script>
   <script src="fines-sulaymaniyah.js"></script>
+  <script src="fines-einiraq.js"></script>
 
   <script>
     /* ═══════════════════════════════════════
@@ -2744,6 +2774,38 @@ function renderCars() {
     const icon = c.type == '6' ? '🏍️' : c.type == '3' ? '🚛' : '🚗';
     const cached = finesCache[c.id];
     let badgeCls = 'car-fines-badge', badgeHTML = '🔍';
+if (mod && mod.usesEinIraq) {
+  /* عين العراق */
+  document.getElementById('btn-check-fines').style.display = '';
+  document.getElementById('fines-summary-card').style.display = '';
+
+  const dot     = document.getElementById('fines-status-dot');
+  const countEl = document.getElementById('fines-summary-count');
+  dot.className = 'fines-status-dot';
+  dot.style.background = 'var(--teal)';
+  countEl.className    = 'fines-summary-count';
+  countEl.style.color  = 'var(--teal)';
+  countEl.style.fontSize = '13px';
+  countEl.textContent  = lang === 'ku' ? 'عین عێراق' : lang === 'en' ? 'Via Ein Iraq' : 'عبر عين العراق';
+  set('fines-summary-label', lang === 'ku' ? 'ئەپی خزمەتگوزاری' : lang === 'en' ? 'Service App' : 'تطبيق الخدمة');
+  set('fines-btn-txt',
+    lang === 'ku' ? '📲 کردنەوەی عین عێراق' :
+    lang === 'en' ? '📲 Open Ein Iraq App'   :
+                    '📲 فتح تطبيق عين العراق'
+  );
+
+} else if (mod) {
+  /* أربيل / دهوك / السليمانية — الكود الحالي */
+  refreshFinesSummaryCard(carId);
+  if (!finesCache[carId] || finesCache[carId].count === 'checking') {
+    if (!finesCache[carId]) backgroundCheckFines(c);
+    pollFinesSummary(carId);
+  }
+  set('fines-btn-txt', t.checkFines);
+} else {
+  document.getElementById('btn-check-fines').style.display = 'none';
+  document.getElementById('fines-summary-card').style.display = 'none';
+}} else {
 
     if (cached) {
       if (cached.count === '0') {
@@ -2759,11 +2821,10 @@ function renderCars() {
         badgeCls += ' has-fines';
         badgeHTML = cached.total ? `⚠${cached.count}·${cached.total}` : `⚠ ${cached.count}`;
       }
-    }
+    } }
 
-    const plate = c.plateNumber
-      ? `${c.plateNumber}${c.plateLetter && c.plateLetter !== '0' ? ' - ' + c.plateLetter : ''}`
-      : '';
+    const plate = c.carNo ||
+      (c.plateNumber ? `${c.plateNumber}${c.plateLetter && c.plateLetter !== '0' ? ' - ' + c.plateLetter : ''}` : '');
 
     return `<div class="car-card" onclick="openCarDetail(${c.id})">
       <span class="car-icon">${icon}</span>
@@ -2783,6 +2844,8 @@ function renderCars() {
       cars.forEach((c, i) => {
         if (!getFinesModule(c.governorate)) return;
         const cache = finesCache[c.id];
+           const mod = getFinesModule(c.governorate);
+         if (!mod || mod.usesEinIraq) return;   // ← تخطّي عين العراق
         const age = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
         const stuck = cache && cache.count === 'checking' && age > 120000;
         const isError = cache && (cache.count === '!' || cache.count === '?');
@@ -2790,6 +2853,81 @@ function renderCars() {
         if (needsCheck) setTimeout(() => backgroundCheckFines(c), i * 2200);
       });
     }
+    /* ══ فتح عين العراق مع نسخ السنوية ══ */
+async function openEinIraqFines(car) {
+  const mod = getFinesModule(car.governorate);
+  if (!mod) return;
+
+  const san = (car.salyanaNumber || '').trim();
+
+  /* ① نسخ رقم السنوية إلى الحافظة ليلصقها المستخدم */
+  if (san) {
+    try { await navigator.clipboard.writeText(san); } catch (_) {}
+  }
+
+  const isAndroid = /android/i.test(navigator.userAgent);
+  const isIOS     = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+  /* ② محاولة الـ Deep Link */
+  const deepLink = isAndroid
+    ? mod.getAndroidIntentUrl(car)   // intent:// للأندرويد
+    : mod.getDirectUrl(car);          // einiraq:// للـ iOS
+
+  let appOpened = false;
+
+  /* حيلة الـ iframe لمعرفة هل التطبيق مثبّت (أندرويد فقط) */
+  if (isAndroid) {
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = mod.getDirectUrl(car);
+    document.body.appendChild(iframe);
+    setTimeout(() => document.body.removeChild(iframe), 2000);
+  }
+
+  /* فتح الرابط */
+  const a = document.createElement('a');
+  a.href = deepLink;
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  /* ③ بعد 1.8 ثانية — إذا لم يفتح التطبيق → متجر التطبيقات */
+  const fallbackTimer = setTimeout(() => {
+    if (!appOpened) {
+      const t = T[lang];
+      const msg = lang === 'ku'
+        ? 'ئەپی عین عێراق دامەزراو نییە. بۆ دانانی دەچیتە مەرجەکە؟'
+        : lang === 'en'
+        ? 'Ein Iraq app not found. Go to the store to install it?'
+        : 'تطبيق عين العراق غير مثبّت. هل تريد الذهاب للمتجر لتثبيته؟';
+
+      if (san) {
+        toast(
+          (lang === 'ku' ? '✅ ژمارەی ساڵانە کۆپی کرا: ' : lang === 'en' ? '✅ Annual No. copied: ' : '✅ تم نسخ السنوية: ') + san,
+          'success'
+        );
+      }
+      if (confirm(msg)) window.open(mod.getStoreUrl(), '_blank');
+    }
+  }, 1800);
+
+  /* إلغاء العداد إذا عاد المستخدم (= التطبيق فُتح) */
+  document.addEventListener('visibilitychange', function handler() {
+    if (document.hidden) { appOpened = true; clearTimeout(fallbackTimer); }
+    document.removeEventListener('visibilitychange', handler);
+  }, { once: true });
+
+  /* رسالة النسخ */
+  if (san) {
+    setTimeout(() => {
+      toast(
+        (lang === 'ku' ? '📋 ژمارەی ساڵانە کۆپی کرا: ' : lang === 'en' ? '📋 Annual No. copied: ' : '📋 تم نسخ السنوية: ') + san,
+        'success'
+      );
+    }, 300);
+  }
+}
 
 /* ── استعلام موحد عبر GAS (يتجاوز CORS بشكل كامل) ── */
 async function queryFinesViaGAS(c) {
@@ -2863,6 +3001,11 @@ async function loadFines() {
   const c = cars.find(x => x.id === curCar); if (!c) return;
   const mod = getFinesModule(c.governorate);
   if (!mod) { toast(T[lang].error, 'error'); return; }
+    // ← عين العراق
+  if (mod.usesEinIraq) {
+    openEinIraqFines(c);
+    return;
+  }
     if (mod.getDirectUrl) {
     window.open(mod.getDirectUrl(c), '_blank');
     return;
