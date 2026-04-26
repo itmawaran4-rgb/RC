@@ -77,7 +77,8 @@ const FINES_FIELDS = [
     ],
   },
   {
-    key: 'salyanaNumber', type: 'number', required: true,
+    key: 'salyanaNumber', type: 'text', required: true,
+    inputMode: 'numeric',
     labelAr: 'رقم السنوية',
     labelKu: 'ژمارەی ساڵانە',
     labelEn: 'Annual License No.',
