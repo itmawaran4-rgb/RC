@@ -11,14 +11,15 @@ const APP_CONFIG = {
   APP_STORE_URL    : 'https://apps.apple.com/us/app/id6740897723',
 };
 
-function getDirectUrl(car) {
-  // iOS: فتح التطبيق فقط
-  return `${APP_CONFIG.DEEP_LINK_SCHEME}://`;
+function getAndroidIntentUrl(car) {
+  // LAUNCHER intent — يفتح التطبيق من خلال الباكيج مباشرة بدون scheme
+  // إذا التطبيق مثبت يفتح فوراً، إذا لا يذهب للمتجر تلقائياً
+  return `intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=${APP_CONFIG.ANDROID_PACKAGE};end`;
 }
 
-function getAndroidIntentUrl(car) {
-  // Android: package فقط — يفتح التطبيق أو يذهب للمتجر تلقائياً
-  return `intent://#Intent;package=${APP_CONFIG.ANDROID_PACKAGE};end`;
+function getDirectUrl(car) {
+  // iOS — جرّب الـ scheme
+  return `${APP_CONFIG.DEEP_LINK_SCHEME}://`;
 }
 
 function getStoreUrl() {
