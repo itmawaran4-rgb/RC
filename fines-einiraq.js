@@ -47,16 +47,46 @@ const FINES_EINIRAQ = (function () {
     { id: 'halabja',    nameAr: 'حلبجة',       nameKu: 'هەڵەبجە',    nameEn: 'Halabja'       },
   ];
 
-  /* ──────── حقول الإدخال (السنوية فقط) ──────── */
-  const FINES_FIELDS = [
-    {
-      key         : 'salyanaNumber', type: 'number', required: true,
-      labelAr     : 'رقم السنوية',
-      labelKu     : 'ژمارەی ساڵانە',
-      labelEn     : 'Annual License No.',
-      placeholder : '',
-    },
-  ];
+/* ──────── حقول الإدخال ──────── */
+const FINES_FIELDS = [
+  {
+    key: 'type', type: 'select', required: true,
+    labelAr: 'نوع السيارة', labelKu: 'جۆری ئەوتۆمبێل', labelEn: 'Vehicle Type',
+    options: [
+      { value: '1', labelAr: 'خصوصي',      labelKu: 'تایبه‌ت',    labelEn: 'Private'      },
+      { value: '2', labelAr: 'أجرة',        labelKu: 'كرئ',        labelEn: 'Taxi'         },
+      { value: '3', labelAr: 'حمل',         labelKu: 'بارهه‌ڵگر',  labelEn: 'Cargo'        },
+      { value: '4', labelAr: 'زراعي',       labelKu: 'كشتوكاڵ',    labelEn: 'Agricultural' },
+      { value: '5', labelAr: 'إنشائي',      labelKu: 'بیناسازى',   labelEn: 'Construction' },
+      { value: '6', labelAr: 'دراجة نارية', labelKu: 'ماتۆرسكیل', labelEn: 'Motorcycle'   },
+    ],
+  },
+  {
+    key: 'plateNumber', type: 'number', required: true,
+    labelAr: 'رقم اللوحة', labelKu: 'ژمارەی لۆحە', labelEn: 'Plate Number',
+    placeholder: '12345',
+  },
+  {
+    key: 'plateLetter', type: 'select', required: false,
+    labelAr: 'الحرف', labelKu: 'پیت', labelEn: 'Letter',
+    options: [
+      { value: '0', labelAr: '-- بلا --', labelKu: '-- بەبێ --', labelEn: '-- None --' },
+      ...['A','B','C','D','E','F','G','H','I','J','K','L','M',
+          'N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+        .map(l => ({ value: l, labelAr: l, labelKu: l, labelEn: l })),
+    ],
+  },
+  {
+    key: 'salyanaNumber', type: 'number', required: true,
+    labelAr: 'رقم السنوية',
+    labelKu: 'ژمارەی ساڵانە',
+    labelEn: 'Annual License No.',
+    placeholder: '',
+    hintAr: 'سيُنسخ تلقائياً عند فتح تطبيق عين العراق',
+    hintKu: 'بە کردنەوەی ئەپ ئۆتۆماتیکی کۆپی دەکرێت',
+    hintEn: 'Will be copied automatically when opening Ein Iraq app',
+  },
+];
 
   /* علامة تُعرّف هذه المحافظات كـ "عين العراق" */
   const usesEinIraq = true;
