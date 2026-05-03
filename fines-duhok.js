@@ -61,7 +61,9 @@ const FINES_DUHOK = (function () {
 
 function normalize(text) {
   return (text || '')
-    .replace(/\u200c/g, '')   // zero-width
+    // remove ALL zero-width + invisible chars
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    // normalize spaces
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();
@@ -76,21 +78,19 @@ function parseHtmlResponse(html) {
   const cleanText = normalize(html);
 
   // ✅ 1. تحقق من "لا يوجد مخالفات"
-  const noFinesPhrases = [
-    'no record',
-    'not found',
-    'result is empty',
-    'لا توجد',
-    'لايوجد',
-    'نەدۆزرایەوە',
-    'هیچ سزایه‌كى له‌سه‌ر نیه‌',
-    'هیچ سزایەکی لەسەر نیە',
-    'چ سزا سەر نینە'
-  ];
+const text = normalize(html);
 
-  if (noFinesPhrases.some(p => cleanText.includes(normalize(p)))) {
-    return { count: '0', total: '' };
-  }
+const noFines = (
+  text.includes('لا توجد') ||
+  text.includes('لايوجد') ||
+  text.includes('نەدۆزرایەوە') ||
+  text.includes('هیچ سزایه') ||
+  text.includes('چ سزا سەر نینە')
+);
+
+if (noFines) {
+  return { count: '0', total: '' };
+}
 
   // ✅ 2. استخراج العدد إن وجد
   let count = '0';
