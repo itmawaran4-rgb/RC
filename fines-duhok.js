@@ -59,58 +59,60 @@ const FINES_DUHOK = (function () {
     return `${GOVERNORATE_INFO.baseUrl}${GOVERNORATE_INFO.formPath.replace('{type}', car.type)}`;
   }
 
-  function parseHtmlResponse(html) {
-    if (!html || html.trim().length < 300) return { count: '!', total: '' };
+function normalizeText(text) {
+  return (text || '')
+    .replace(/\u200c/g, '') // zero-width
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
 
-    const hasFinesContent =
-      html.includes('سه‌رپێچى') || html.includes('سەرپێچی') ||
-      html.includes('مخالف')    || html.includes('plate')   ||
-      html.includes('<table')   || html.includes('<tr')     ||
-      html.includes('Sinif')    || html.includes('SanNumber');
+function parseHtmlResponse(html) {
 
-    if (!hasFinesContent) return { count: '!', total: '' };
-
-    const lowerHtml = html.toLowerCase();
-    const noFinesHints = [
-      'no record', 'not found', 'result is empty',
-      'لا توجد' ,'نەدۆزرایەوە' , '0 record','لايوجد',
-     'هیچ سزایه‌كى له‌سه‌ر نیه‌' ,'هیچ سزایەکی لەسەر نیە' ,'چ سزا سەر نینە‌‌',
-    ];
-    const hasNoFinesHint = noFinesHints.some(h => lowerHtml.includes(h));
-
-    let count = '0';
-    let total = '';
-
-    const countMatch =
-      html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/) ||
-      html.match(/عدد المخالفات[^\d]*(\d+)/i)          ||
-      html.match(/Total[^:]*:\s*(\d+)/i);
-
-    if (countMatch) {
-      count = countMatch[1].trim();
-    } else {
-      const rows = (html.match(/<tr[\s>]/gi) || []).length;
-      if (rows > 1) {
-        count = String(rows - 1);
-      } else if (hasNoFinesHint) {
-        count = '0';
-      } else if (rows === 0) {
-        return { count: '!', total: '' };
-      }
-    }
-
-    const totalMatch =
-      html.match(/بڕى\s+گشتى[^\d]*([\d,]+)/)        ||
-      html.match(/المجموع الكلي[^\d]*([\d,]+)/i)       ||
-      html.match(/Total Amount[^\d]*([\d,]+)/i);
-
-    if (totalMatch) {
-      const raw = parseInt(totalMatch[1].replace(/,/g, ''));
-      total = raw >= 1000 ? Math.round(raw / 1000) + 'K' : String(raw);
-    }
-
-    return { count, total };
+  if (!html || html.trim().length < 50) {
+    return { count: '!', total: '' };
   }
+
+  const text = normalizeText(html);
+
+  const noFinesHints = [
+    'no record', 'not found', 'result is empty',
+    'لا توجد', 'نەدۆزرایەوە', 'لايوجد',
+    'هیچ سزایه‌كى له‌سه‌ر نیه‌',
+    'هیچ سزایەکی لەسەر نیە',
+    'چ سزا سەر نینە'
+  ];
+
+  const isNoFines = noFinesHints.some(h =>
+    text.includes(normalizeText(h))
+  );
+
+  if (isNoFines) {
+    return { count: '0', total: '' };
+  }
+
+  let count = '0';
+  let total = '';
+
+  const countMatch =
+    html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/) ||
+    html.match(/عدد المخالفات[^\d]*(\d+)/i);
+
+  if (countMatch) {
+    count = countMatch[1];
+  }
+
+  const totalMatch =
+    html.match(/بڕى\s+گشتى[^\d]*([\d,]+)/) ||
+    html.match(/المجموع الكلي[^\d]*([\d,]+)/i);
+
+  if (totalMatch) {
+    const raw = parseInt(totalMatch[1].replace(/,/g, ''));
+    total = raw >= 1000 ? Math.round(raw / 1000) + 'K' : String(raw);
+  }
+
+  return { count, total };
+}
 
   return { GOVERNORATE_INFO, FINES_FIELDS, buildFormData, getFinesUrl, parseHtmlResponse };
 })();
