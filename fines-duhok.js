@@ -75,33 +75,24 @@ function normalize(text) {
 function parseHtmlResponse(html) {
     if (!html) return { count: '!', total: '' };
 
-    // 1. تنظيف النص من الحروف المخفية والرموز الغريبة وتوحيد المسافات
-    const cleanText = html
-        .replace(/[\u200B-\u200D\uFEFF]/g, '') // حذف الحروف المخفية تماماً
-        .replace(/\s+/g, ' ')                  // تحويل أي مسافة غريبة لمسافة عادية
-        .trim();
+    // تحويل النص إلى نص بسيط وتنظيفه
+    const text = html.replace(/<[^>]*>/g, ' ');
 
-    // 2. الكلمات المفتاحية الذكية
-    // سنبحث عن أجزاء ثابتة لا تتغير بتغير الخط أو اللغة
-    const isClean = 
-        cleanText.includes("چ سزا سەر نینە") || 
-        cleanText.includes("سزا سەر نینە") || 
-        cleanText.includes("لا توجد مخالفات") ||
-        cleanText.includes("لا يوجد");
+    // استخدام Regex للبحث عن (سزا + نینە) أو (لا + توجد) 
+    // الـ Regex هنا يتجاهل أي حروف مخفية أو مسافات بين الكلمات
+    const noFinesRegex = /(سزا.*نینە|لا.*توجد|لا.*يوجد|هیچ.*سزایەک)/i;
 
-    if (isClean) {
+    if (noFinesRegex.test(text)) {
         return { count: '0', total: '' };
     }
 
-    // 3. البحث عن عدد المخالفات (مع تجنب رقم السيارة)
-    // نبحث عن الرقم الذي يأتي بعد كلمة "سەرپێچی" أو "مخالفة"
-    const countMatch = cleanText.match(/(?:سەرپێچی|مخالفة)\s*(\d+)/);
+    // إذا لم يجد "لا توجد"، يبحث عن أول رقم يظهر بعد كلمة "سەرپێچی" أو "مخالفة"
+    const countMatch = text.match(/(?:سەرپێچی|مخالفة|غرامات)\D*(\d+)/);
     
     if (countMatch) {
         return { count: countMatch[1], total: '' };
     }
 
-    // إذا لم يجد شيئاً وفشل كل ما سبق
     return { count: '!', total: '' };
 }
   return { GOVERNORATE_INFO, FINES_FIELDS, buildFormData, getFinesUrl, parseHtmlResponse };
