@@ -73,38 +73,30 @@ function normalize(text) {
 }
 
 function parseHtmlResponse(html) {
+  // 1. فحص إذا كان الرد فارغاً
   if (!html) return { count: '!', total: '' };
 
-  // 1. تنظيف النص من الوسوم والحروف المخفية والمسافات الزائدة
-  const cleanText = html
-    .replace(/<[^>]*>/g, ' ') // إزالة الـ HTML tags
-    .replace(/[\u200B-\u200D\uFEFF]/g, '') // إزالة الحروف غير المرئية (الموجودة في سجلك)
-    .replace(/\s+/g, ' ') // توحيد المسافات
-    .trim();
-
-  // 2. الكلمات الدالة على عدم وجود غرامات (بالعربي والكردي)
-  const noFinesPatterns = [
-    "لا توجد مخالفات",
-    "لا يوجد",
-    "چ سزا سەر نینە", // النص الكردي الظاهر في صورتك
-    "هیچ سزایەک",
-    "نەدۆزرایەوە"
-  ];
-
-  // فحص ما إذا كان النص يحتوي على أي من جمل "لا توجد غرامات"
-  const isClean = noFinesPatterns.some(pattern => cleanText.includes(pattern));
-
-  if (isClean) {
-    return { count: '0', total: '' };
+  // 2. البحث عن الكلمات المفتاحية (بدون الأجزاء التي تحتوي على مشاكل ترميز)
+  // استخدام "چ سزا سەر" يكفي جداً لمعرفة أنه لا توجد غرامات
+  if (
+    html.includes('چ سزا سەر') || 
+    html.includes('لا توجد') || 
+    html.includes('لا يوجد') || 
+    html.includes('هیچ سزایەک') ||
+    html.includes('نەدۆزرایەوە')
+  ) {
+    return { count: '0', total: '' }; // لا توجد غرامات
   }
 
-  // 3. محاولة استخراج الرقم في حال وجود مخالفات
-  const match = cleanText.match(/(\d+)/); 
-  if (match) {
-    return { count: match[1], total: '' };
+  // 3. استخراج عدد المخالفات إذا وجدت (احذر من استخراج رقم اللوحة!)
+  // يجب أن تبحث عن الرقم الذي يأتي بعد كلمة "مخالفة" أو "سەرپێچى"
+  const countMatch = html.match(/سەرپێچى[^\d]*(\d+)/) || html.match(/عدد المخالفات[^\d]*(\d+)/);
+  
+  if (countMatch && countMatch[1]) {
+    return { count: countMatch[1], total: '' };
   }
 
-  // إذا وصلنا هنا ولم نجد نص "لا توجد" ولا "رقم"، نرجع !
+  // إذا لم يتحقق أي شرط، أرجع ! للمراجعة
   return { count: '!', total: '' };
 }
   return { GOVERNORATE_INFO, FINES_FIELDS, buildFormData, getFinesUrl, parseHtmlResponse };
