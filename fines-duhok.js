@@ -73,31 +73,36 @@ function normalize(text) {
 }
 
 function parseHtmlResponse(html) {
-  // 1. فحص إذا كان الرد فارغاً
-  if (!html) return { count: '!', total: '' };
+    if (!html) return { count: '!', total: '' };
 
-  // 2. البحث عن الكلمات المفتاحية (بدون الأجزاء التي تحتوي على مشاكل ترميز)
-  // استخدام "چ سزا سەر" يكفي جداً لمعرفة أنه لا توجد غرامات
-  if (
-    html.includes('چ سزا سەر') || 
-    html.includes('لا توجد') || 
-    html.includes('لا يوجد') || 
-    html.includes('هیچ سزایەک') ||
-    html.includes('نەدۆزرایەوە')
-  ) {
-    return { count: '0', total: '' }; // لا توجد غرامات
-  }
+    // 1. تنظيف النص من الحروف المخفية والرموز الغريبة وتوحيد المسافات
+    const cleanText = html
+        .replace(/[\u200B-\u200D\uFEFF]/g, '') // حذف الحروف المخفية تماماً
+        .replace(/\s+/g, ' ')                  // تحويل أي مسافة غريبة لمسافة عادية
+        .trim();
 
-  // 3. استخراج عدد المخالفات إذا وجدت (احذر من استخراج رقم اللوحة!)
-  // يجب أن تبحث عن الرقم الذي يأتي بعد كلمة "مخالفة" أو "سەرپێچى"
-  const countMatch = html.match(/سەرپێچى[^\d]*(\d+)/) || html.match(/عدد المخالفات[^\d]*(\d+)/);
-  
-  if (countMatch && countMatch[1]) {
-    return { count: countMatch[1], total: '' };
-  }
+    // 2. الكلمات المفتاحية الذكية
+    // سنبحث عن أجزاء ثابتة لا تتغير بتغير الخط أو اللغة
+    const isClean = 
+        cleanText.includes("چ سزا سەر نینە") || 
+        cleanText.includes("سزا سەر نینە") || 
+        cleanText.includes("لا توجد مخالفات") ||
+        cleanText.includes("لا يوجد");
 
-  // إذا لم يتحقق أي شرط، أرجع ! للمراجعة
-  return { count: '!', total: '' };
+    if (isClean) {
+        return { count: '0', total: '' };
+    }
+
+    // 3. البحث عن عدد المخالفات (مع تجنب رقم السيارة)
+    // نبحث عن الرقم الذي يأتي بعد كلمة "سەرپێچی" أو "مخالفة"
+    const countMatch = cleanText.match(/(?:سەرپێچی|مخالفة)\s*(\d+)/);
+    
+    if (countMatch) {
+        return { count: countMatch[1], total: '' };
+    }
+
+    // إذا لم يجد شيئاً وفشل كل ما سبق
+    return { count: '!', total: '' };
 }
   return { GOVERNORATE_INFO, FINES_FIELDS, buildFormData, getFinesUrl, parseHtmlResponse };
 })();
