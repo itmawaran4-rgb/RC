@@ -60,54 +60,57 @@ const FINES_DUHOK = (function () {
   }
 
 function normalize(text) {
-  return (text || '')
-    // remove ALL zero-width + invisible chars
-    .replace(/[\u200B-\u200D\uFEFF]/g, '')
-    // normalize spaces
-    .replace(/\s+/g, ' ')
+  if (!text) return '';
+  return text
+    .replace(/[\u200B-\u200D\uFEFF]/g, '') // إزالة الحروف المخفية و ZWJ
+    .replace(/\s+/g, ' ')                  // توحيد المسافات
     .trim()
+    // توحيد الحروف الكردية/العربية المتشابهة
+    .replace(/ە/g, 'ه')                    // الكردية Ae -> هاء
+    .replace(/[ىيىێئ]/g, 'ي')                // توحيد الياءات (ێ، ي، ى)
+    .replace(/[کك]/g, 'ك')                  // توحيد الكاف
     .toLowerCase();
 }
 
 function parseHtmlResponse(html) {
-
-  if (!html) {
+  // إذا كان فارغاً أو ليس نصاً، نرجع رمز الانتظار/الخطأ
+  if (!html || typeof html !== 'string' || html.length < 10) {
     return { count: '!', total: '' };
   }
 
   const cleanText = normalize(html);
 
-  // ✅ 1. تحقق من "لا يوجد مخالفات"
-const text = normalize(html);
+  // الكلمات المفتاحية بعد التوحيد (لاحظ استخدام "ه" بدلاً من "ە")
+  const noFinesKeywords = [
+    'لا توجد', 
+    'لايوجد', 
+    'نهدوزرايهوه', 
+    'هيج سزايه', 
+    'چ سزا سهر نينه' // النص الكردي بعد الـ normalize
+  ];
 
-const noFines = (
-  text.includes('لا توجد') ||
-  text.includes('لايوجد') ||
-  text.includes('نەدۆزرایەوە') ||
-  text.includes('هیچ سزایه') ||
-  text.includes('چ سزا سەر نینە')
-);
+  const hasNoFines = noFinesKeywords.some(key => cleanText.includes(normalize(key)));
 
-if (noFines) {
-  return { count: '0', total: '' };
-}
+  if (hasNoFines) {
+    return { count: '0', total: '' };
+  }
 
-  // ✅ 2. استخراج العدد إن وجد
+  // استخراج العدد إذا وجد
   let count = '0';
-  let total = '';
-
-  const countMatch =
-    html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/) ||
+  const countMatch = 
+    html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/) || 
     html.match(/عدد المخالفات[^\d]*(\d+)/i);
 
   if (countMatch) {
     count = countMatch[1];
+  } else {
+    // إذا لم يجد نص "لا توجد" ولم يجد رقم، ربما هناك خطأ في الصفحة
+    // سنعيد 0 كافتراضي أو ! إذا أردت التدقيق
+    count = '0'; 
   }
 
-  // ✅ 3. لا تعتمد على <tr> نهائياً
-  return { count, total };
+  return { count, total: '' };
 }
-
   return { GOVERNORATE_INFO, FINES_FIELDS, buildFormData, getFinesUrl, parseHtmlResponse };
 })();
 
