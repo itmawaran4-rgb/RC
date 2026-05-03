@@ -69,11 +69,15 @@ function normalizeText(text) {
 
 function parseHtmlResponse(html) {
 
-  if (!html || html.trim().length < 50) {
+  if (!html) {
     return { count: '!', total: '' };
   }
 
-  const text = normalizeText(html);
+  const text = html
+    .replace(/\u200c/g, '') // تنظيف zero-width
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
 
   const noFinesHints = [
     'no record', 'not found', 'result is empty',
@@ -84,7 +88,7 @@ function parseHtmlResponse(html) {
   ];
 
   const isNoFines = noFinesHints.some(h =>
-    text.includes(normalizeText(h))
+    text.includes(h.toLowerCase())
   );
 
   if (isNoFines) {
@@ -100,15 +104,6 @@ function parseHtmlResponse(html) {
 
   if (countMatch) {
     count = countMatch[1];
-  }
-
-  const totalMatch =
-    html.match(/بڕى\s+گشتى[^\d]*([\d,]+)/) ||
-    html.match(/المجموع الكلي[^\d]*([\d,]+)/i);
-
-  if (totalMatch) {
-    const raw = parseInt(totalMatch[1].replace(/,/g, ''));
-    total = raw >= 1000 ? Math.round(raw / 1000) + 'K' : String(raw);
   }
 
   return { count, total };
