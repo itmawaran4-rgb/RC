@@ -59,9 +59,9 @@ const FINES_DUHOK = (function () {
     return `${GOVERNORATE_INFO.baseUrl}${GOVERNORATE_INFO.formPath.replace('{type}', car.type)}`;
   }
 
-function normalizeText(text) {
+function normalize(text) {
   return (text || '')
-    .replace(/\u200c/g, '') // zero-width
+    .replace(/\u200c/g, '')   // zero-width
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();
@@ -73,28 +73,26 @@ function parseHtmlResponse(html) {
     return { count: '!', total: '' };
   }
 
-  const text = html
-    .replace(/\u200c/g, '') // تنظيف zero-width
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase();
+  const cleanText = normalize(html);
 
-  const noFinesHints = [
-    'no record', 'not found', 'result is empty',
-    'لا توجد', 'نەدۆزرایەوە', 'لايوجد',
+  // ✅ 1. تحقق من "لا يوجد مخالفات"
+  const noFinesPhrases = [
+    'no record',
+    'not found',
+    'result is empty',
+    'لا توجد',
+    'لايوجد',
+    'نەدۆزرایەوە',
     'هیچ سزایه‌كى له‌سه‌ر نیه‌',
     'هیچ سزایەکی لەسەر نیە',
     'چ سزا سەر نینە'
   ];
 
-  const isNoFines = noFinesHints.some(h =>
-    text.includes(h.toLowerCase())
-  );
-
-  if (isNoFines) {
+  if (noFinesPhrases.some(p => cleanText.includes(normalize(p)))) {
     return { count: '0', total: '' };
   }
 
+  // ✅ 2. استخراج العدد إن وجد
   let count = '0';
   let total = '';
 
@@ -106,6 +104,7 @@ function parseHtmlResponse(html) {
     count = countMatch[1];
   }
 
+  // ✅ 3. لا تعتمد على <tr> نهائياً
   return { count, total };
 }
 
