@@ -73,43 +73,39 @@ function normalize(text) {
 }
 
 function parseHtmlResponse(html) {
-  // إذا كان فارغاً أو ليس نصاً، نرجع رمز الانتظار/الخطأ
-  if (!html || typeof html !== 'string' || html.length < 10) {
-    return { count: '!', total: '' };
-  }
+  if (!html) return { count: '!', total: '' };
 
-  const cleanText = normalize(html);
+  // 1. تنظيف النص من الوسوم والحروف المخفية والمسافات الزائدة
+  const cleanText = html
+    .replace(/<[^>]*>/g, ' ') // إزالة الـ HTML tags
+    .replace(/[\u200B-\u200D\uFEFF]/g, '') // إزالة الحروف غير المرئية (الموجودة في سجلك)
+    .replace(/\s+/g, ' ') // توحيد المسافات
+    .trim();
 
-  // الكلمات المفتاحية بعد التوحيد (لاحظ استخدام "ه" بدلاً من "ە")
-  const noFinesKeywords = [
-    'لا توجد', 
-    'لايوجد', 
-    'نهدوزرايهوه', 
-    'هيج سزايه', 
-    'چ سزا سهر نينه' // النص الكردي بعد الـ normalize
+  // 2. الكلمات الدالة على عدم وجود غرامات (بالعربي والكردي)
+  const noFinesPatterns = [
+    "لا توجد مخالفات",
+    "لا يوجد",
+    "چ سزا سەر نینە", // النص الكردي الظاهر في صورتك
+    "هیچ سزایەک",
+    "نەدۆزرایەوە"
   ];
 
-  const hasNoFines = noFinesKeywords.some(key => cleanText.includes(normalize(key)));
+  // فحص ما إذا كان النص يحتوي على أي من جمل "لا توجد غرامات"
+  const isClean = noFinesPatterns.some(pattern => cleanText.includes(pattern));
 
-  if (hasNoFines) {
+  if (isClean) {
     return { count: '0', total: '' };
   }
 
-  // استخراج العدد إذا وجد
-  let count = '0';
-  const countMatch = 
-    html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/) || 
-    html.match(/عدد المخالفات[^\d]*(\d+)/i);
-
-  if (countMatch) {
-    count = countMatch[1];
-  } else {
-    // إذا لم يجد نص "لا توجد" ولم يجد رقم، ربما هناك خطأ في الصفحة
-    // سنعيد 0 كافتراضي أو ! إذا أردت التدقيق
-    count = '0'; 
+  // 3. محاولة استخراج الرقم في حال وجود مخالفات
+  const match = cleanText.match(/(\d+)/); 
+  if (match) {
+    return { count: match[1], total: '' };
   }
 
-  return { count, total: '' };
+  // إذا وصلنا هنا ولم نجد نص "لا توجد" ولا "رقم"، نرجع !
+  return { count: '!', total: '' };
 }
   return { GOVERNORATE_INFO, FINES_FIELDS, buildFormData, getFinesUrl, parseHtmlResponse };
 })();
