@@ -73,8 +73,8 @@ const FINES_DUHOK = (function () {
     const lowerHtml = html.toLowerCase();
     const noFinesHints = [
       'no record', 'not found', 'result is empty',
-      'لا توجد', 'نەدۆزرایەوە', '0 record', 'لايوجد',
-      'هیچ سزایه‌كى له‌سه‌ر نیه‌', 'هیچ سزایەکی لەسەر نیە', 'چ سزا سەر نینە‌‌',
+      'لا توجد' ,'نەدۆزرایەوە' , '0 record','لايوجد',
+     'هیچ سزایه‌كى له‌سه‌ر نیه‌' ,'هیچ سزایەکی لەسەر نیە' ,'چ سزا سەر نینە‌‌',
     ];
     const hasNoFinesHint = noFinesHints.some(h => lowerHtml.includes(h));
 
