@@ -75,20 +75,21 @@ function normalize(text) {
 function parseHtmlResponse(html) {
     if (!html) return { count: '!', total: '' };
 
-    // تحويل النص إلى نص بسيط وتنظيفه
-    const text = html.replace(/<[^>]*>/g, ' ');
+    // تطبيق normalize لإزالة الحروف المخفية وتوحيد الأحرف
+    const raw = html.replace(/<[^>]*>/g, ' ');
+    const text = normalize(raw);
 
-    // استخدام Regex للبحث عن (سزا + نینە) أو (لا + توجد) 
-    // الـ Regex هنا يتجاهل أي حروف مخفية أو مسافات بين الكلمات
-    const noFinesRegex = /(سزا.*نینە|لا.*توجد|لا.*يوجد|هیچ.*سزایەک)/i;
+    // بعد normalize: ە→ه، ێ/ی→ي، وتُزال الحروف المخفية
+    // "چ سزا سەر نینە‌‌" يصبح "چ سزا سهر نينه"
+    const noFinesRegex = /(سزا.*نينه|نينه.*سزا|لا.*توجد|لا.*يوجد|هيچ.*سزايهك|چ.*سزا)/i;
 
     if (noFinesRegex.test(text)) {
         return { count: '0', total: '' };
     }
 
-    // إذا لم يجد "لا توجد"، يبحث عن أول رقم يظهر بعد كلمة "سەرپێچی" أو "مخالفة"
-    const countMatch = text.match(/(?:سەرپێچی|مخالفة|غرامات)\D*(\d+)/);
-    
+    // البحث عن عدد الغرامات — بعد normalize تصبح "سهرپيچي"
+    const countMatch = text.match(/(?:سهرپيچي|سهرپيچ|مخالفة|غرامات)\D*(\d+)/);
+
     if (countMatch) {
         return { count: countMatch[1], total: '' };
     }
