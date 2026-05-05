@@ -73,28 +73,61 @@ function normalize(text) {
 }
 
 function parseHtmlResponse(html) {
-    if (!html) return { count: '!', total: '' };
+  if (!html) return { count: '!', total: '' };
 
-    // تطبيق normalize لإزالة الحروف المخفية وتوحيد الأحرف
-    const raw = html.replace(/<[^>]*>/g, ' ');
-    const text = normalize(raw);
-
-    // بعد normalize: ە→ه، ێ/ی→ي، وتُزال الحروف المخفية
-    // "چ سزا سەر نینە‌‌" يصبح "چ سزا سهر نينه"
-    const noFinesRegex = /(سزا.*نينه|نينه.*سزا|لا.*توجد|لا.*يوجد|هيچ.*سزايهك|چ.*سزا)/i;
-
-    if (noFinesRegex.test(text)) {
-        return { count: '0', total: '' };
+  // ── اكتشاف خطأ رقم السنوية ──
+  const invalidHints = ['سالنامێ یا درست نینە', 'سالنامێ يا درست'];
+  for (const hint of invalidHints) {
+    if (html.includes(hint)) {
+      return { count: 'invalid_salyana', total: '', error: 'invalid_salyana' };
     }
+  }
 
-    // البحث عن عدد الغرامات — بعد normalize تصبح "سهرپيچي"
-    const countMatch = text.match(/(?:سهرپيچي|سهرپيچ|مخالفة|غرامات)\D*(\d+)/);
+  const raw  = html.replace(/<[^>]*>/g, ' ');
+  const text = normalize(raw);
 
-    if (countMatch) {
-        return { count: countMatch[1], total: '' };
+  // ── لا توجد مخالفات ──
+  const noFinesRegex = /(سزا.*نينه|نينه.*سزا|لا.*توجد|لا.*يوجد|هيچ.*سزايهك|چ.*سزا)/i;
+  if (noFinesRegex.test(text)) {
+    return { count: '0', total: '', rows: [] };
+  }
+
+  // ── تحليل صفوف الجدول ──
+  const rows   = [];
+  const trAll  = [...html.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi)];
+  let   dataRows = trAll.filter(m => /<td[\s>]/i.test(m[1])); // تجاهل صف الرأس
+
+  for (const trMatch of dataRows) {
+    const cells = [...trMatch[1].matchAll(/<td[^>]*>([\s\S]*?)<\/td>/gi)]
+      .map(td => td[1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim());
+
+    if (cells.length >= 5) {
+      rows.push({
+        date      : cells[0] || '',
+        fineNo    : cells[1] || '',
+        regPlace  : cells[2] || '',
+        violation : cells[3] || '',
+        amount    : cells[4] || '',
+        place     : cells[5] || '',
+        time      : cells[6] || '',
+      });
     }
+  }
 
-    return { count: '!', total: '' };
+  // ── استخراج العدد والمجموع من سطر الملخص ──
+  let count = rows.length > 0 ? String(rows.length) : '!';
+  let total = '';
+
+  const countM = html.match(/هژمارا\s+سه‌?رپێچییا\s*(\d+)|ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/);
+  if (countM) count = (countM[1] || countM[2]).trim();
+
+  const totalM = html.match(/كوژمێ\s+گشتى[^\d]*([\d,]+)|كوژمێ\s+گشتى\s+یێ[^\d]*([\d,]+)/);
+  if (totalM) {
+    const raw = parseInt((totalM[1] || totalM[2]).replace(/,/g, ''));
+    total = raw >= 1000 ? Math.round(raw / 1000) + 'K' : String(raw);
+  }
+
+  return { count, total, rows };
 }
   return { GOVERNORATE_INFO, FINES_FIELDS, buildFormData, getFinesUrl, parseHtmlResponse };
 })();
