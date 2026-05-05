@@ -2254,6 +2254,24 @@
     </div>
     <button class="btn-install" id="pwa-install-btn" onclick="installPWA()">📲 تثبيت التطبيق</button>
   </div>
+  <!-- ══ MODAL: FINES DETAIL ══ -->
+<div class="modal-overlay" id="modal-fines-detail">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('modal-fines-detail')">✕</button>
+    <div class="modal-title" id="fines-detail-title">تفاصيل الغرامات</div>
+    <div class="modal-sub" id="fines-detail-sub"></div>
+    <div id="fines-detail-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;"></div>
+    <div id="fines-detail-total" style="
+      background:linear-gradient(135deg,rgba(255,77,109,.15),rgba(255,77,109,.06));
+      border:1.5px solid rgba(255,77,109,.4);
+      border-radius:var(--radius);padding:14px 16px;
+      display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:14px;font-weight:700;" id="fines-total-label">الإجمالي</span>
+      <span style="font-size:22px;font-weight:900;color:var(--red);font-family:var(--font-en);" id="fines-total-val"></span>
+    </div>
+  </div>
+</div>
 
   <div id="toast"></div>
 
@@ -2270,7 +2288,7 @@
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycbwZf1RwHa3hqh9zM2e8EbUTBiRj8o0N2MgZf13ovXor_ICI3SFx83QAsR25Pa08G8g/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycbyIAzf9n0Gh0BEoh3wYMcJDfxqyh-4cOv6ADBIxyv4cONenWtETKFqPi4CfE85bHgfF/exec',
       COMPANY: { whatsapp: '9647505009006', address: 'Erbil, 60st | Baghdad, aldora | Diyala, baquba' },
       ADV_FILES: ['ADV/ad3.mp4'],
     };
@@ -2951,7 +2969,12 @@ async function backgroundCheckFines(c, attempt = 0) {
     return;
   }
 
-  finesCache[c.id] = { count: result.count, total: result.total || '', checkedAt: Date.now() };
+  finesCache[c.id] = { 
+  count: result.count, 
+  total: result.total || '', 
+  rows: result.rows || [],      // ← احفظ التفاصيل
+  checkedAt: Date.now() 
+};
   saveFinesCache();
   updateBadge(c.id, result.count, result.total || '');
   if (curCar === c.id) refreshFinesSummaryCard(c.id);
@@ -2961,38 +2984,90 @@ async function loadFines() {
   const c = cars.find(x => x.id === curCar); if (!c) return;
   const mod = getFinesModule(c.governorate);
   if (!mod) { toast(T[lang].error, 'error'); return; }
-    // ← عين العراق
-  if (mod.usesEinIraq) {
-    openEinIraqFines(c);
-    return;
-  }
-    if (mod.getDirectUrl) {
+
+  if (mod.usesEinIraq) { openEinIraqFines(c); return; }
+
+  // ✅ السليمانية: عرض التفاصيل في مودال داخلي
+  if (c.governorate === 'sulaymaniyah') {
+    const cached = finesCache[c.id];
+    if (cached && cached.rows && cached.rows.length > 0) {
+      showSulFinesModal(cached, c.name);
+      return;
+    }
+    // لا كاش أو صفر غرامات → افتح الموقع
     window.open(mod.getDirectUrl(c), '_blank');
     return;
   }
 
+  if (mod.getDirectUrl) { window.open(mod.getDirectUrl(c), '_blank'); return; }
+
+  // أربيل / دهوك — POST form
   const formData = mod.buildFormData(c);
   const url = mod.getFinesUrl(c);
-
-  // إنشاء نموذج POST مخفي وفتحه في تبويب جديد
   const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = url;
-  form.target = '_blank';
+  form.method = 'POST'; form.action = url; form.target = '_blank';
   form.style.display = 'none';
-
   formData.forEach((value, key) => {
     const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = key;
-    input.value = value;
+    input.type = 'hidden'; input.name = key; input.value = value;
     form.appendChild(input);
   });
-
   document.body.appendChild(form);
   form.submit();
   document.body.removeChild(form);
 }
+ function showSulFinesModal(cached, carName) {
+  const t = T[lang];
+  
+  // العنوان
+  set('fines-detail-title', 
+    lang === 'ku' ? `⚠️ سەرپێچیەکانی ${carName}` :
+    lang === 'en' ? `⚠️ Fines for ${carName}` :
+                    `⚠️ غرامات ${carName}`);
+  set('fines-detail-sub',
+    lang === 'ku' ? `${cached.count} سەرپێچی تۆمارکراوە` :
+    lang === 'en' ? `${cached.count} recorded fine(s)` :
+                    `${cached.count} غرامة مسجلة`);
+
+  // التسمية الإجمالية
+  set('fines-total-label',
+    lang === 'ku' ? 'کۆی گشتی' :
+    lang === 'en' ? 'Total Amount' : 'الإجمالي');
+  set('fines-total-val', cached.total || cached.count);
+
+  // قائمة الغرامات
+  const list = document.getElementById('fines-detail-list');
+  list.innerHTML = (cached.rows || []).map((row, i) => `
+    <div style="
+      background:var(--surface);
+      border:1px solid rgba(255,77,109,.25);
+      border-radius:var(--radius);
+      padding:14px;
+      position:relative;
+      overflow:hidden;">
+      <div style="position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:var(--red)"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="
+            background:var(--red);color:#fff;
+            width:26px;height:26px;border-radius:50%;
+            display:flex;align-items:center;justify-content:center;
+            font-size:13px;font-weight:900;font-family:var(--font-en);
+            flex-shrink:0">${i + 1}</span>
+          <span style="font-size:13px;color:var(--muted);font-family:var(--font-en)">
+            ${row.date} ${row.time ? '/ ' + row.time : ''}
+          </span>
+        </div>
+        <span style="font-size:15px;font-weight:800;color:var(--red);font-family:var(--font-en)">
+          ${row.amount}
+        </span>
+      </div>
+      ${row.violation ? `<div style="font-size:13px;margin-bottom:4px">⚡ ${row.violation}</div>` : ''}
+      ${row.location  ? `<div style="font-size:12px;color:var(--muted)">📍 ${row.location}</div>`  : ''}
+    </div>`).join('');
+
+  openModal('modal-fines-detail');
+}   
 
 function updateBadge(id, count, total) {
   const b = document.getElementById('badge-' + id); if (!b) return;
