@@ -896,7 +896,7 @@
       margin-top: 2px;
     }
 
-    .car-fines-badge {
+    .car-maint-badge {
       background: rgba(107, 118, 148, .12);
       border: 1px solid var(--border);
       color: var(--muted);
@@ -909,58 +909,23 @@
       transition: var(--tr);
       font-family: var(--font-en);
     }
-    .car-fines-badge.einiraq {
-  background: linear-gradient(135deg, rgba(15,212,176,.15), rgba(15,212,176,.05));
-  border-color: rgba(15, 212, 176, .45);
-  color: var(--teal);
-  font-size: 10px;
-  white-space: normal;
-  text-align: center;
-  line-height: 1.3;
-  max-width: 88px;
-  cursor: pointer;
-}
 
-    .car-fines-badge.has-fines {
+    .car-maint-badge.ok {
+      background: rgba(15, 212, 176, .1);
+      border-color: rgba(15, 212, 176, .3);
+      color: var(--teal);
+    }
+
+    .car-maint-badge.due {
       background: rgba(255, 77, 109, .15);
       border-color: rgba(255, 77, 109, .35);
       color: var(--red);
     }
 
-    .car-fines-badge.no-fines {
-      background: rgba(15, 212, 176, .1);
-      border-color: rgba(15, 212, 176, .3);
-      color: var(--teal);
-    }
-.car-fines-badge.retry-fines {
-  background: rgba(245, 166, 35, .1);
-  border-color: rgba(245, 166, 35, .45);
-  color: var(--gold);
-  font-size: 11px;
-  max-width: 120px;
-  white-space: normal;
-  text-align: center;
-  line-height: 1.3;
-  cursor: default;
-}
-.car-fines-badge.retry-fines span {
-  cursor: pointer;
-  text-decoration: underline dotted;
-}
-    .car-fines-badge.checking {
-      animation: pulse 1.4s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-
-      0%,
-      100% {
-        opacity: .5
-      }
-
-      50% {
-        opacity: 1
-      }
+    .car-maint-badge.soon {
+      background: rgba(245, 166, 35, .12);
+      border-color: rgba(245, 166, 35, .4);
+      color: var(--gold);
     }
 
     .no-cars {
@@ -1330,73 +1295,6 @@
       font-family: var(--font-en);
     }
 
-    .fines-summary-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .fines-summary-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .fines-summary-icon {
-      font-size: 22px;
-    }
-
-    .fines-summary-label {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .fines-summary-count {
-      font-size: 26px;
-      font-weight: 900;
-      font-family: var(--font-en);
-      color: var(--text);
-    }
-
-    .fines-summary-count.red {
-      color: var(--red);
-    }
-
-    .fines-summary-count.green {
-      color: var(--teal);
-    }
-
-    .fines-summary-count.muted {
-      color: var(--muted);
-      font-size: 16px;
-    }
-
-    .fines-status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--muted);
-      flex-shrink: 0;
-    }
-
-    .fines-status-dot.checking {
-      background: var(--gold);
-      animation: pulse 1s infinite;
-    }
-
-    .fines-status-dot.done-ok {
-      background: var(--teal);
-    }
-
-    .fines-status-dot.done-bad {
-      background: var(--red);
-    }
-
     .btn-check {
       width: 100%;
       padding: 13px;
@@ -1734,6 +1632,151 @@
       padding: 24px;
       color: var(--red);
       font-size: 14px;
+    }
+
+    /* ─── MAINTENANCE LIST ─── */
+    .maint-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .maint-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      cursor: pointer;
+      transition: var(--tr);
+    }
+
+    .maint-item:hover {
+      border-color: var(--gold);
+      background: #1f2840;
+    }
+
+    .maint-item-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      width: 30px;
+      text-align: center;
+    }
+
+    .maint-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .maint-item-name {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .maint-item-meta {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .maint-item-status {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      text-align: center;
+      font-family: var(--font-en);
+    }
+
+    .maint-item-status.unset {
+      background: rgba(107, 118, 148, .12);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .maint-item-status.ok {
+      background: rgba(15, 212, 176, .1);
+      border: 1px solid rgba(15, 212, 176, .3);
+      color: var(--teal);
+    }
+
+    .maint-item-status.soon {
+      background: rgba(245, 166, 35, .12);
+      border: 1px solid rgba(245, 166, 35, .4);
+      color: var(--gold);
+    }
+
+    .maint-item-status.due {
+      background: rgba(255, 77, 109, .15);
+      border: 1px solid rgba(255, 77, 109, .35);
+      color: var(--red);
+    }
+
+    .maint-detail-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .maint-detail-title {
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .maint-detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .maint-detail-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .maint-detail-row span:first-child {
+      color: var(--muted);
+    }
+
+    .maint-detail-row span:last-child {
+      font-weight: 700;
+      font-family: var(--font-en);
+    }
+
+    .maint-progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--card);
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 10px 0 4px;
+    }
+
+    .maint-progress-fill {
+      height: 100%;
+      border-radius: 5px;
+      background: linear-gradient(90deg, var(--teal), var(--gold));
+      transition: width .4s ease;
+    }
+
+    .maint-progress-fill.warn {
+      background: linear-gradient(90deg, var(--gold), var(--red));
+    }
+
+    .maint-progress-fill.danger {
+      background: var(--red);
     }
 
     /* ─── PWA ─── */
@@ -2094,42 +2137,36 @@
       <div class="modal-handle"></div>
       <button class="modal-close" onclick="closeModal('modal-add-car')">✕</button>
       <div class="modal-title" id="add-car-title">إضافة سيارة</div>
-      <div class="modal-sub" id="add-car-sub">أدخل بيانات السيارة والسنوية</div>
-
-      <!-- اختيار المحافظة -->
-      <div class="form-group">
-        <label class="form-label" id="lbl-gov">المحافظة</label>
-        <select class="form-control" id="add-gov" onchange="onGovernorateChange()">
-         <option value="" id="add-gov-placeholder">-- اختر --</option>
-          <option value="erbil">أربيل / هەولێر / Erbil</option>
-          <option value="duhok">دهوك / دهۆک / Duhok</option>
-          <option value="sulaymaniyah">السليمانية / سلێمانی / Sulaymaniyah</option>
-          <option value="halabja">حلبجة / هەڵەبجە / Halabja</option>
-    <option value="baghdad">بغداد / Baghdad</option>
-    <option value="basra">البصرة / Basra</option>
-    <option value="nineveh">نينوى / Nineveh</option>
-    <option value="kirkuk">كركوك / Kirkuk</option>
-    <option value="diyala">ديالى / Diyala</option>
-    <option value="najaf">النجف / Najaf</option>
-    <option value="karbala">كربلاء / Karbala</option>
-    <option value="anbar">الأنبار / Al-Anbar</option>
-    <option value="babylon">بابل / Babylon</option>
-    <option value="salahuddin">صلاح الدين / Salah Al-Din</option>
-    <option value="wasit">واسط / Wasit</option>
-    <option value="dhiqar">ذي قار / Dhi Qar</option>
-    <option value="maysan">ميسان / Maysan</option>
-    <option value="qadisiyah">القادسية / Al-Qadisiyah</option>
-    <option value="muthanna">المثنى / Al-Muthanna</option>
-        </select>
-      </div>
+      <div class="modal-sub" id="add-car-sub">أدخل بيانات السيارة</div>
 
       <div class="form-group">
         <label class="form-label" id="lbl-car-name">اسم السيارة</label>
         <input class="form-control" id="add-car-name" type="text" placeholder="كيا سبورتاج">
       </div>
 
-      <!-- الحقول الديناميكية حسب المحافظة -->
-      <div id="gov-dynamic-fields"></div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-car-type">نوع السيارة</label>
+        <select class="form-control" id="add-car-type">
+          <option value="1" id="opt-type-1">خصوصي / تایبەت / Private</option>
+          <option value="2" id="opt-type-2">أجرة / کرێ / Taxi</option>
+          <option value="3" id="opt-type-3">حمل / بارهەڵگر / Cargo</option>
+          <option value="4" id="opt-type-4">زراعي / کشتوکاڵ / Agricultural</option>
+          <option value="5" id="opt-type-5">إنشائي / بیناسازی / Construction</option>
+          <option value="6" id="opt-type-6">دراجة / مۆتۆر / Motorcycle</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" id="lbl-plate">رقم اللوحة (اختياري)</label>
+        <input class="form-control" id="add-car-plate" type="text" placeholder="12345">
+      </div>
+
+      <div class="form-group">
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="add-car-4x4" onchange="toggleTransferCaseField()">
+          <label for="add-car-4x4" id="lbl-4x4">دفع رباعي (4x4)</label>
+        </div>
+      </div>
 
       <button class="btn-primary" id="add-car-btn" onclick="saveCar()">حفظ السيارة</button>
     </div>
@@ -2144,25 +2181,10 @@
       <div class="modal-sub" id="d-car-plate"></div>
       <div class="car-detail-grid" id="d-grid"></div>
 
-      <!-- الغرامات -->
-      <div class="fines-summary-card" id="fines-summary-card">
-        <div class="fines-summary-left">
-          <span class="fines-summary-icon">📋</span>
-          <div>
-            <div class="fines-summary-label" id="fines-summary-label">الغرامات</div>
-            <div class="fines-summary-count muted" id="fines-summary-count">—</div>
-          </div>
-        </div>
-        <div class="fines-status-dot checking" id="fines-status-dot"></div>
-      </div>
-      <!-- نتيجة الغرامات الداخلية -->
-      <button class="btn-check" id="btn-check-fines" onclick="loadFines()">🔍 <span id="fines-btn-txt">عرض تفاصيل
-          الغرامات</span></button>
-
       <!-- قسم الزيت (قابل للطي) -->
       <div class="expand-section" id="oil-expand-section">
         <div class="expand-header" onclick="toggleExpand('oil-expand')">
-          <div class="expand-header-left">🛢️ <span id="lbl-oil-section-title">تغيير الزيت</span></div>
+          <div class="expand-header-left">🛢️ <span id="lbl-oil-section-title">زيت المحرك والفلتر</span></div>
           <span class="expand-chevron" id="oil-expand-chevron">▼</span>
         </div>
         <div class="expand-body" id="oil-expand">
@@ -2220,42 +2242,54 @@
         </div>
       </div>
 
-      <!-- قسم الكير (قابل للطي) -->
-      <div class="expand-section" id="gear-expand-section">
-        <div class="expand-header" onclick="toggleExpand('gear-expand')">
-          <div class="expand-header-left">⚙️ <span id="lbl-gear-section">تبديل زيت الكير</span></div>
-          <span class="expand-chevron" id="gear-expand-chevron">▼</span>
+      <!-- قسم بنود الصيانة الأخرى -->
+      <div class="expand-section" id="maint-expand-section">
+        <div class="expand-header" onclick="toggleExpand('maint-expand')">
+          <div class="expand-header-left">🛠️ <span id="lbl-maint-section">بنود الصيانة الأخرى</span></div>
+          <span class="expand-chevron" id="maint-expand-chevron">▼</span>
         </div>
-        <div class="expand-body" id="gear-expand">
-          <div class="oil-detail-grid" id="gear-entries" style="margin-bottom:12px;"></div>
-          <div class="divider"></div>
-          <button class="btn-primary" onclick="toggleNewGearForm()"
-            style="background:transparent;color:var(--gold);border:1.5px solid var(--border);box-shadow:none">➕ <span
-              id="new-gear-txt">تسجيل تغيير جديد</span></button>
-
-          <div id="new-gear-form" style="display:none;margin-top:18px">
-            <div class="divider"></div>
-            <div style="font-size:15px;font-weight:800;margin-bottom:14px" id="new-gear-title">تبديل زيت كير جديد</div>
-            <div class="form-group">
-              <label class="form-label" id="lbl-gear-km">الكيلومتر عند التغيير</label>
-              <input class="form-control" id="gear-km" type="number" placeholder="120000">
-            </div>
-            <div class="form-group">
-              <label class="form-label" id="lbl-gear-date">التاريخ</label>
-              <input class="form-control" id="gear-date" type="date">
-            </div>
-            <div class="form-group">
-              <label class="form-label" id="lbl-gear-notes">ملاحظات</label>
-              <textarea class="form-control" id="gear-notes" rows="2" placeholder="..."></textarea>
-            </div>
-            <button class="btn-primary" onclick="saveGear()"
-              style="background:linear-gradient(135deg, #f5a623, #c07b10);">💾 <span id="save-gear-btn-txt">حفظ تبديل زيت
-                الكير</span></button>
-          </div>
+        <div class="expand-body open" id="maint-expand">
+          <div class="maint-list" id="maint-list"></div>
         </div>
       </div>
 
       <button class="btn-del" onclick="deleteCar()">🗑 <span id="del-btn-txt">حذف السيارة</span></button>
+    </div>
+  </div>
+
+  <!-- ══ MODAL: MAINTENANCE ITEM DETAIL ══ -->
+  <div class="modal-overlay" id="modal-maint-detail">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <button class="modal-close" onclick="closeModal('modal-maint-detail')">✕</button>
+      <div class="modal-title" id="md-title"></div>
+      <div class="modal-sub" id="md-sub"></div>
+
+      <div class="maint-detail-box" id="md-status-box"></div>
+
+      <div id="md-form-wrap">
+        <div class="form-group" id="md-km-group">
+          <label class="form-label" id="md-lbl-km">الكيلومتر عند آخر تغيير</label>
+          <input class="form-control" id="md-km" type="number" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="md-lbl-date">تاريخ آخر تغيير</label>
+          <input class="form-control" id="md-date" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="md-lbl-interval">الفترة بين كل تغيير</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input class="form-control" id="md-interval" type="number" style="flex:1" placeholder="0">
+            <span id="md-interval-unit" style="font-size:13px;color:var(--muted);white-space:nowrap;min-width:38px"></span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:5px" id="md-default-hint"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="md-lbl-notes">ملاحظات</label>
+          <textarea class="form-control" id="md-notes" rows="2" placeholder="..."></textarea>
+        </div>
+        <button class="btn-primary" id="md-save-btn" onclick="saveMaintItem()">حفظ</button>
+      </div>
     </div>
   </div>
 
@@ -2284,41 +2318,15 @@
     </div>
     <button class="btn-install" id="pwa-install-btn" onclick="installPWA()">📲 تثبيت التطبيق</button>
   </div>
-  <!-- ══ MODAL: FINES DETAIL ══ -->
-<div class="modal-overlay" id="modal-fines-detail">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('modal-fines-detail')">✕</button>
-    <div class="modal-title" id="fines-detail-title">تفاصيل الغرامات</div>
-    <div class="modal-sub" id="fines-detail-sub"></div>
-    <div id="fines-detail-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;"></div>
-    <div id="fines-detail-total" style="
-      background:linear-gradient(135deg,rgba(255,77,109,.15),rgba(255,77,109,.06));
-      border:1.5px solid rgba(255,77,109,.4);
-      border-radius:var(--radius);padding:14px 16px;
-      display:flex;align-items:center;justify-content:space-between;">
-      <span style="font-size:14px;font-weight:700;" id="fines-total-label">الإجمالي</span>
-      <span style="font-size:22px;font-weight:900;color:var(--red);font-family:var(--font-en);" id="fines-total-val"></span>
-    </div>
-  </div>
-</div>
 
   <div id="toast"></div>
-
-  <!-- ══════════════════════════════════════
-     FINES MODULES (محافظات)
-══════════════════════════════════════ -->
-  <script src="fines-erbil.js"></script>
-  <script src="fines-duhok.js"></script>
-  <script src="fines-sulaymaniyah.js"></script>
-  <script src="fines-einiraq.js"></script>
 
   <script>
     /* ═══════════════════════════════════════
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycbyksFz2DP2zr-N6X6STgjruvNbZHUej2KdltLdhsrR5aZOJzTfBro2GAOKGBtHgiDOn/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycbyohxOkV9rHEb0LdIcL_NHaO-cDlFQuNF_lyoqeZbtZrS2ESF6qzVt4NDAdVrbLxpdZ/exec',
       COMPANY: { 
   whatsapp: '9647505009006',   // ← أربيل (يبقى للمرجع)
   whatsappBaghdad: '9647759911001',   // ← ضع رقم بغداد الحقيقي
@@ -2329,6 +2337,59 @@
     };
 
     /* ═══════════════════════════════════════
+       MAINTENANCE ITEMS DEFINITION
+       type: 'km' (يُتابع بالكيلومتر) أو 'time' (يُتابع بالزمن - أيام)
+       defaultInterval: القيمة الافتراضية (كم أو أيام)
+       rangeAr/Ku/En: نص توضيحي للفترة الموصى بها (يُعرض كـ hint فقط)
+    ═══════════════════════════════════════ */
+    const MAINT_ITEMS = [
+      { key: 'airFilter', icon: '🌬️', type: 'km', defaultInterval: 22500,
+        nameAr: 'فلتر الهواء', nameKu: 'فلتەری هەوا', nameEn: 'Air Filter',
+        rangeAr: '15,000 - 30,000 كم', rangeKu: '15,000 - 30,000 کم', rangeEn: '15,000 - 30,000 km', onlyFor4x4: false },
+      { key: 'acFilter', icon: '❄️', type: 'km', defaultInterval: 17500,
+        nameAr: 'فلتر المكيف', nameKu: 'فلتەری ئەیرکاندیشن', nameEn: 'AC Filter',
+        rangeAr: '15,000 - 20,000 كم', rangeKu: '15,000 - 20,000 کم', rangeEn: '15,000 - 20,000 km', onlyFor4x4: false },
+      { key: 'fuelFilter', icon: '⛽', type: 'km', defaultInterval: 45000,
+        nameAr: 'فلتر الوقود', nameKu: 'فلتەری سوتەمەنی', nameEn: 'Fuel Filter',
+        rangeAr: '30,000 - 60,000 كم', rangeKu: '30,000 - 60,000 کم', rangeEn: '30,000 - 60,000 km', onlyFor4x4: false },
+      { key: 'coolant', icon: '🧊', type: 'time', defaultInterval: 1278,
+        nameAr: 'سائل التبريد (الراديتر)', nameKu: 'شیلەی ساردکەرەوە (ڕادیەتەر)', nameEn: 'Coolant (Radiator)',
+        rangeAr: '2 - 5 سنوات', rangeKu: '2 - 5 ساڵ', rangeEn: '2 - 5 years', onlyFor4x4: false },
+      { key: 'gearOil', icon: '⚙️', type: 'km', defaultInterval: 70000,
+        nameAr: 'زيت ناقل الحركة (الجير)', nameKu: 'ڕۆنی گێڕ', nameEn: 'Transmission (Gear) Oil',
+        rangeAr: '40,000 - 100,000 كم حسب النوع', rangeKu: '40,000 - 100,000 کم بەپێی جۆر', rangeEn: '40,000 - 100,000 km depending on type', onlyFor4x4: false },
+      { key: 'brakeFluid', icon: '🛑', type: 'time', defaultInterval: 730,
+        nameAr: 'زيت الفرامل', nameKu: 'ڕۆنی بریک', nameEn: 'Brake Fluid',
+        rangeAr: 'كل سنتين تقريباً', rangeKu: 'نزیکەی هەر 2 ساڵ', rangeEn: 'Every ~2 years', onlyFor4x4: false },
+      { key: 'sparkPlugs', icon: '🔌', type: 'km', defaultInterval: 65000,
+        nameAr: 'شمعات الاحتراق (البواجي)', nameKu: 'شمەعاتی بوجی', nameEn: 'Spark Plugs',
+        rangeAr: '30,000 - 100,000 كم', rangeKu: '30,000 - 100,000 کم', rangeEn: '30,000 - 100,000 km', onlyFor4x4: false },
+      { key: 'timingBelt', icon: '⏱️', type: 'km', defaultInterval: 80000,
+        nameAr: 'سير التايمن (إن وجد)', nameKu: 'سیری تایمن (ئەگەر هەبووبێت)', nameEn: 'Timing Belt (if applicable)',
+        rangeAr: '60,000 - 100,000 كم', rangeKu: '60,000 - 100,000 کم', rangeEn: '60,000 - 100,000 km', onlyFor4x4: false },
+      { key: 'battery', icon: '🔋', type: 'time', defaultInterval: 1460,
+        nameAr: 'البطارية', nameKu: 'بەتری', nameEn: 'Battery',
+        rangeAr: '3 - 5 سنوات', rangeKu: '3 - 5 ساڵ', rangeEn: '3 - 5 years', onlyFor4x4: false },
+      { key: 'tires', icon: '🛞', type: 'km', defaultInterval: 60000,
+        nameAr: 'الإطارات', nameKu: 'تایەرەکان', nameEn: 'Tires',
+        rangeAr: '40,000 - 80,000 كم أو حسب التآكل', rangeKu: '40,000 - 80,000 کم یان بەپێی کزبوون', rangeEn: '40,000 - 80,000 km or by wear', onlyFor4x4: false },
+      { key: 'wipers', icon: '🌧️', type: 'time', defaultInterval: 547,
+        nameAr: 'مساحات الزجاج', nameKu: 'سڕەکانی شووشە', nameEn: 'Wiper Blades',
+        rangeAr: 'عند ضعف الأداء (سنة إلى سنتين)', rangeKu: 'کاتێک کارایی کزبووە (1-2 ساڵ)', rangeEn: 'When performance weakens (1-2 years)', onlyFor4x4: false },
+      { key: 'diffOil', icon: '🔧', type: 'km', defaultInterval: 60000,
+        nameAr: 'زيت الدفرنس', nameKu: 'ڕۆنی دیفرانس', nameEn: 'Differential Oil',
+        rangeAr: '40,000 - 80,000 كم', rangeKu: '40,000 - 80,000 کم', rangeEn: '40,000 - 80,000 km', onlyFor4x4: false },
+      { key: 'transferCase', icon: '🧰', type: 'km', defaultInterval: 60000,
+        nameAr: 'زيت علبة التحويل (دفع رباعي)', nameKu: 'ڕۆنی گیربکسی یاریدەدەر (4x4)', nameEn: 'Transfer Case Oil (4x4)',
+        rangeAr: '40,000 - 80,000 كم', rangeKu: '40,000 - 80,000 کم', rangeEn: '40,000 - 80,000 km', onlyFor4x4: true },
+    ];
+
+    function getMaintItem(key) { return MAINT_ITEMS.find(m => m.key === key); }
+    function getApplicableMaintItems(car) {
+      return MAINT_ITEMS.filter(m => !m.onlyFor4x4 || car.is4x4);
+    }
+
+    /* ═══════════════════════════════════════
        TRANSLATIONS
     ═══════════════════════════════════════ */
     const T = {
@@ -2337,17 +2398,13 @@
         name: 'الاسم الكامل', phone: 'رقم الهاتف', city: 'المدينة', dob: 'تاريخ الميلاد', gender: 'الجنس',
         male: 'ذكر', female: 'أنثى', regBtn: 'حفظ والمتابعة',
         carsTitle: 'سياراتي', noCars: 'لا توجد سيارات. اضغط + لإضافة.',
-        oilTitle: 'آخر تبديل زيت', oilSub: 'اضغط لعرض التفاصيل',
+        oilTitle: 'زيت المحرك والفلتر',
         addCarTitle: 'إضافة سيارة', addCarSub: 'أدخل بيانات السيارة',
-        gov: 'المحافظة', carName: 'اسم السيارة',
-        govPlaceholder: '-- اختر المحافظة --', govSoon: 'قريباً',
-        checkFines: 'عرض تفاصيل الغرامات',
-        finesSummaryLabel: 'الغرامات المسجلة', finesChecking: 'جارٍ الفحص...', finesNone: 'لا غرامات ✓',
-        finesFound: n => `${n} غرامة`, finesUnknown: 'اضغط للفحص', finesCorsNote: 'افتح التفاصيل للفحص',
+        carName: 'اسم السيارة', carType: 'نوع السيارة', plateOpt: 'رقم اللوحة (اختياري)', is4x4: 'دفع رباعي (4x4)',
         feedbackTitle: '💬 أرسل ملاحظاتك', feedbackBtn: 'إرسال', feedbackSending: 'جاري الإرسال...',
         companyTitle: '📍 RC Service', cWa: 'واتساب', cAddr: 'العنوان',
         contactUs: 'تواصل معنا', nearestAgent: 'أقرب وكيل معتمد',
-        oilModalSub: 'آخر تغيير مسجل', newOilBtn: 'تسجيل تغيير جديد',
+        newOilBtn: 'تسجيل تغيير جديد',
         oilKm: 'الكيلومتر الحالي', oilDate: 'التاريخ', filterLbl: 'تم تغيير الفلتر أيضاً', oilNotes: 'ملاحظات',
         oilInterval: 'المسافة للتغيير القادم', oilIntervalNone: '-- اختر المسافة --',
         nextOilLabel: 'كيلومتر التغيير القادم', nextOilDiff: d => `بعد ${d.toLocaleString('ar-IQ')} كم`,
@@ -2368,31 +2425,33 @@
         craneLoading: '📡 جارٍ تحديد موقعك...', craneFetching: 'جارٍ البحث عن الكرينات...',
         craneNone: 'لا يوجد كرين متاح حالياً', craneError: 'تعذّر الحصول على الموقع',
         craneWa: 'تواصل عبر واتساب', craneKm: d => `${d} كم`,
-        gearSection: 'تبديل زيت الكير', newGearBtn: 'تسجيل تغيير جديد', newGearTitle: 'تبديل زيت كير جديد',
-        gearKm: 'الكيلومتر عند التغيير', gearDate: 'التاريخ', gearNotes: 'ملاحظات',
-        saveGear: 'حفظ تبديل زيت الكير', gearSaved: 'تم حفظ تبديل زيت الكير ✓', gearLast: d => `آخر تغيير: ${d}`,
-        noGearRecord: 'لا يوجد سجل لتغيير الكير',
-        govLabel: 'المحافظة', govPlaceholderFull: '-- اختر المحافظة --',
-        // Detail labels
-        plateLabel: 'لوحة', letterLabel: 'الحرف', annualLabel: 'السنوية', govDetailLabel: 'المحافظة', finesRetry: '🔄 اضغط لتحميل الغرامات',
+        plateLabel: 'لوحة', typeLabel: 'النوع',
         lbl_wa_erbil: 'أربيل', lbl_wa_baghdad: 'بغداد', lbl_wa_diyala: 'ديالى',
+        maintSection: 'بنود الصيانة الأخرى',
+        maintNotSet: 'غير محدد', maintOk: 'سليم', maintSoon: 'قريباً', maintDue: 'مستحق الآن',
+        maintLastChange: 'آخر تغيير', maintInterval: 'الفترة بين التغييرات', maintKmAtChange: 'الكيلومتر عند آخر تغيير',
+        maintDateAtChange: 'تاريخ آخر تغيير', maintNotes: 'ملاحظات', maintSave: 'حفظ',
+        maintRecommended: r => `الموصى به: ${r}`,
+        maintCurrentKm: 'الكيلومتر الحالي للسيارة', maintRemainingKm: r => `متبقي ${r.toLocaleString('ar-IQ')} كم`,
+        maintOverdueKm: r => `تجاوز بـ ${r.toLocaleString('ar-IQ')} كم`,
+        maintRemainingDays: r => `متبقي ${r.toLocaleString('ar-IQ')} يوم`,
+        maintOverdueDays: r => `متأخر ${r.toLocaleString('ar-IQ')} يوم`,
+        maintNoDataYet: 'لم تُسجَّل بيانات بعد — اضغط لإضافة',
+        maintDays: 'يوم', maintKmUnit: 'كم',
+        maintNeedCurrentKm: 'يرجى إدخال الكيلومتر الحالي للسيارة أولاً عبر تسجيل تغيير زيت',
       },
       ku: {
         regTitle: 'زانیاریەکانی شوفێر', regSub: 'تەنها جارێک پاشەکەوت دەکرێت',
         name: 'ناوی تەواو', phone: 'ژمارەی مۆبایل', city: 'شار', dob: 'بەرواری لەدایکبوون', gender: 'رەگەز',
         male: 'نێر', female: 'مێ', regBtn: 'پاشەکەوتکردن',
         carsTitle: 'ئەوتۆمبێلەکانم', noCars: 'هیچ ئەوتۆمبێلێک نییە. + دابگرە.',
-        oilTitle: 'دوایین گۆڕینی رون', oilSub: 'دابگرە بۆ بینینی وردەکاری',
+        oilTitle: 'ڕۆنی مۆتۆر و فلتەر',
         addCarTitle: 'زیادکردنی ئەوتۆمبێل', addCarSub: 'زانیاریەکانی ئەوتۆمبێل بنووسە',
-        gov: 'پارێزگا', carName: 'ناوی ئەوتۆمبێل',
-        govPlaceholder: '-- پارێزگا هەڵبژێرە --', govSoon: 'بەزووی',
-        checkFines: 'وردەکاریی سەرپێچی',
-        finesSummaryLabel: 'سەرپێچیەکان', finesChecking: 'پشکنین...', finesNone: 'سەرپێچی نییە ✓',
-        finesFound: n => `${n} سەرپێچی`, finesUnknown: 'دابگرە بۆ پشکنین', finesCorsNote: 'وردەکاری بکەرەوە بۆ پشکنین',
+        carName: 'ناوی ئەوتۆمبێل', carType: 'جۆری ئەوتۆمبێل', plateOpt: 'ژمارەی لۆحە (ئارەزوومەندانە)', is4x4: 'هاندانی چوار لاتەر (4x4)',
         feedbackTitle: '💬 تێبینی خۆت بنێرە', feedbackBtn: 'ناردن', feedbackSending: 'دەنێردرێت...',
         companyTitle: '📍 RC Service', cWa: 'واتساب', cAddr: 'ناونیشان',
         contactUs: 'پەیوەندیمان پێوەبکە', nearestAgent: 'نزیکترین بریکارى فەرمی',
-        oilModalSub: 'دوایین گۆڕین', newOilBtn: 'تۆمارکردنی گۆڕینی نوێ',
+        newOilBtn: 'تۆمارکردنی گۆڕینی نوێ',
         oilKm: 'کیلۆمەتری ئێستا', oilDate: 'بەروار', filterLbl: 'فیلتەرەکەش گۆڕدرا', oilNotes: 'تێبینی',
         oilInterval: 'دووری بۆ گۆڕینی داهاتوو', oilIntervalNone: '-- دووری هەڵبژێرە --',
         nextOilLabel: 'کیلۆمەتری گۆڕینی داهاتوو', nextOilDiff: d => `دوای ${d.toLocaleString()} کم`,
@@ -2413,31 +2472,33 @@
         craneLoading: '📡 شوێنەکەت دیاریدەکرێت...', craneFetching: 'گەڕان بۆ کرێنەکان...',
         craneNone: 'هیچ کرێنێک بەردەست نییە', craneError: 'شوێن نەدۆزرایەوە',
         craneWa: 'پەیوەندی لە ڕێگەی واتساب', craneKm: d => `${d} کم`,
-        gearSection: 'گۆڕینی رۆنی گێڕ', newGearBtn: 'تۆمارکردنی گۆڕینی نوێ', newGearTitle: 'گۆڕینی رۆنی گێڕی نوێ',
-        gearKm: 'کیلۆمەتر لەکاتی گۆڕین', gearDate: 'بەروار', gearNotes: 'تێبینی',
-        saveGear: 'پاشەکەوتکردنی گۆڕینی رۆنی گێڕ', gearSaved: 'گۆڕینی رۆنی گێڕ پاشەکەوتکرا ✓', gearLast: d => `دوایین گۆڕین: ${d}`,
-        noGearRecord: 'هیچ گۆڕینی گێڕ تۆمار نەکراوە',
-        govLabel: 'پارێزگا', govPlaceholderFull: '-- پارێزگا هەڵبژێرە --',
-        // Detail labels
-        plateLabel: 'لۆحە', letterLabel: 'پیت', annualLabel: 'سالیانە', govDetailLabel: 'پارێزگا', finesRetry: '🔄 دابگرە بۆ بارکردنی سەرپێچیەکان',
+        plateLabel: 'لۆحە', typeLabel: 'جۆر',
         lbl_wa_erbil: 'هەولێر', lbl_wa_baghdad: 'بەغداد', lbl_wa_diyala: 'دیالە',
+        maintSection: 'بەشەکانی تری چاککردن',
+        maintNotSet: 'دیاری نەکراوە', maintOk: 'باشە', maintSoon: 'بەزووی', maintDue: 'ئێستا پێویستە',
+        maintLastChange: 'دوایین گۆڕین', maintInterval: 'ماوەی نێوان هەر گۆڕینێک', maintKmAtChange: 'کیلۆمەتر لەکاتی دوایین گۆڕین',
+        maintDateAtChange: 'بەرواری دوایین گۆڕین', maintNotes: 'تێبینی', maintSave: 'پاشەکەوتکردن',
+        maintRecommended: r => `پێشنیارکراو: ${r}`,
+        maintCurrentKm: 'کیلۆمەتری ئێستای ئەوتۆمبێل', maintRemainingKm: r => `${r.toLocaleString()} کم ماوە`,
+        maintOverdueKm: r => `${r.toLocaleString()} کم تێپەڕیوە`,
+        maintRemainingDays: r => `${r.toLocaleString()} ڕۆژ ماوە`,
+        maintOverdueDays: r => `${r.toLocaleString()} ڕۆژ دواکەوتووە`,
+        maintNoDataYet: 'هیچ زانیاری تۆمار نەکراوە — دابگرە بۆ زیادکردن',
+        maintDays: 'ڕۆژ', maintKmUnit: 'کم',
+        maintNeedCurrentKm: 'تکایە سەرەتا کیلۆمەتری ئێستای ئەوتۆمبێل بنووسە لە ڕێگەی تۆمارکردنی گۆڕینی ڕۆن',
       },
       en: {
         regTitle: 'Driver Information', regSub: 'Saved once, never asked again',
         name: 'Full Name', phone: 'Phone Number', city: 'City', dob: 'Date of Birth', gender: 'Gender',
         male: 'Male', female: 'Female', regBtn: 'Save & Continue',
         carsTitle: 'My Vehicles', noCars: 'No vehicles yet. Press + to add.',
-        oilTitle: 'Last Oil Change', oilSub: 'Tap to view details',
+        oilTitle: 'Engine Oil & Filter',
         addCarTitle: 'Add Vehicle', addCarSub: 'Enter vehicle details',
-        gov: 'Governorate', carName: 'Vehicle Name',
-        govPlaceholder: '-- Select Governorate --', govSoon: 'Coming Soon',
-        checkFines: 'View Fines Details',
-        finesSummaryLabel: 'Recorded Fines', finesChecking: 'Checking...', finesNone: 'No fines ✓',
-        finesFound: n => `${n} fine(s)`, finesUnknown: 'Tap to check', finesCorsNote: 'Open details to check',
+        carName: 'Vehicle Name', carType: 'Vehicle Type', plateOpt: 'Plate Number (optional)', is4x4: 'Four-Wheel Drive (4x4)',
         feedbackTitle: '💬 Send Feedback', feedbackBtn: 'Send', feedbackSending: 'Sending...',
         companyTitle: '📍 RC Service', cWa: 'WhatsApp', cAddr: 'Address',
         contactUs: 'Contact Us', nearestAgent: 'Nearest Authorized Agent',
-        oilModalSub: 'Last recorded change', newOilBtn: 'Log New Oil Change',
+        newOilBtn: 'Log New Oil Change',
         oilKm: 'Current Kilometers', oilDate: 'Date', filterLbl: 'Filter also replaced', oilNotes: 'Notes',
         oilInterval: 'Distance to next change', oilIntervalNone: '-- Select distance --',
         nextOilLabel: 'Next oil change at', nextOilDiff: d => `in ${d.toLocaleString()} km`,
@@ -2458,14 +2519,20 @@
         craneLoading: '📡 Locating you...', craneFetching: 'Searching for cranes...',
         craneNone: 'No crane available currently', craneError: 'Could not get location',
         craneWa: 'Contact via WhatsApp', craneKm: d => `${d} km`,
-        gearSection: 'Gearbox Oil Change', newGearBtn: 'Log New Change', newGearTitle: 'New Gearbox Oil Change',
-        gearKm: 'Kilometer at change', gearDate: 'Date', gearNotes: 'Notes',
-        saveGear: 'Save Gearbox Oil Change', gearSaved: 'Gearbox oil change saved ✓', gearLast: d => `Last change: ${d}`,
-        noGearRecord: 'No gearbox change recorded',
-        govLabel: 'Governorate', govPlaceholderFull: '-- Select Governorate --',
-        // Detail labels
-        plateLabel: 'Plate', letterLabel: 'Letter', annualLabel: 'Annual No.', govDetailLabel: 'Governorate', finesRetry: '🔄 Tap to load fines',
+        plateLabel: 'Plate', typeLabel: 'Type',
         lbl_wa_erbil: 'Erbil', lbl_wa_baghdad: 'Baghdad', lbl_wa_diyala: 'Diyala',
+        maintSection: 'Other Maintenance Items',
+        maintNotSet: 'Not set', maintOk: 'OK', maintSoon: 'Due soon', maintDue: 'Due now',
+        maintLastChange: 'Last change', maintInterval: 'Interval between changes', maintKmAtChange: 'Kilometer at last change',
+        maintDateAtChange: 'Date of last change', maintNotes: 'Notes', maintSave: 'Save',
+        maintRecommended: r => `Recommended: ${r}`,
+        maintCurrentKm: "Vehicle's current kilometer", maintRemainingKm: r => `${r.toLocaleString()} km remaining`,
+        maintOverdueKm: r => `${r.toLocaleString()} km overdue`,
+        maintRemainingDays: r => `${r.toLocaleString()} days remaining`,
+        maintOverdueDays: r => `${r.toLocaleString()} days overdue`,
+        maintNoDataYet: 'No data recorded yet — tap to add',
+        maintDays: 'days', maintKmUnit: 'km',
+        maintNeedCurrentKm: "Please enter the vehicle's current km first by logging an oil change",
       },
     };
 
@@ -2476,9 +2543,9 @@
     let user = JSON.parse(localStorage.getItem('rc_user') || 'null');
     let cars = JSON.parse(localStorage.getItem('rc_cars') || '[]');
     let oilData = JSON.parse(localStorage.getItem('rc_oil') || '{}');
-    let gearData = JSON.parse(localStorage.getItem('rc_gear') || '{}');
-    let finesCache = JSON.parse(localStorage.getItem('rc_finesCache') || '{}');
+    let maintData = JSON.parse(localStorage.getItem('rc_maint') || '{}'); // { carId: { itemKey: {km, date, interval, notes, ts} } }
     let curCar = null;
+    let curMaintKey = null;
     let theme = localStorage.getItem('rc_theme') || 'dark';
 
     /* ═══════════════════════════════════════
@@ -2490,7 +2557,6 @@
       applyLang(lang);
       if (!user) { show('screen-register'); return; }
       show('screen-main'); renderMain(); applyCompany(); initADV();
-      setTimeout(startBackgroundFinesCheck, 1500);
       fetchUserDataFromSheets();
     });
 
@@ -2636,8 +2702,8 @@
       set('cars-title', t.carsTitle); set('no-cars-text', t.noCars);
       set('lbl-oil-section-title', t.oilTitle);
       set('add-car-title', t.addCarTitle); set('add-car-sub', t.addCarSub);
-      set('lbl-gov', t.govLabel || t.gov); set('lbl-car-name', t.carName);
-      set('fines-btn-txt', t.checkFines); set('del-btn-txt', t.delBtn);
+      set('lbl-car-name', t.carName); set('lbl-car-type', t.carType); set('lbl-plate', t.plateOpt); set('lbl-4x4', t.is4x4);
+      set('del-btn-txt', t.delBtn);
       set('new-oil-txt', t.newOilBtn); set('lbl-oil-km', t.oilKm); set('lbl-oil-date', t.oilDate);
       set('lbl-filter', t.filterLbl); set('lbl-oil-notes', t.oilNotes);
       set('lbl-oil-interval', t.oilInterval); set('opt-interval-none', t.oilIntervalNone);
@@ -2645,19 +2711,17 @@
       set('save-oil-btn', t.saveOil); set('new-oil-title', t.newOilTitle);
       set('feedback-title', t.feedbackTitle); set('feedback-btn', t.feedbackBtn);
       set('company-title', t.companyTitle); set('lbl-cwa', t.cWa + ':'); set('lbl-caddr', t.cAddr + ':');
-      set('oil-alert-title', t.oilAlertTitle); set('fines-summary-label', t.finesSummaryLabel);
+      set('oil-alert-title', t.oilAlertTitle);
       set('lbl-contact-us', t.contactUs); set('lbl-nearest-agent', t.nearestAgent);
       set('lbl-crane-btn', t.craneBtn || 'طلب كرين');
-      set('lbl-gear-section', t.gearSection || 'تبديل زيت الكير');
-      set('lbl-gear-km', t.gearKm || 'الكيلومتر'); set('lbl-gear-date', t.gearDate || 'التاريخ');
-      set('lbl-gear-notes', t.gearNotes || 'ملاحظات'); set('save-gear-btn-txt', t.saveGear || 'حفظ');
-      set('new-gear-txt', t.newGearBtn);
-      set('new-gear-title', t.newGearTitle);
-      set('add-gov-placeholder', t.govPlaceholder);
+      set('lbl-maint-section', t.maintSection);
       set('lbl_wa_erbil', t.lbl_wa_erbil);
       set('lbl_wa_baghdad', t.lbl_wa_baghdad);
       set('lbl_wa_diyala', t.lbl_wa_diyala);
       updatePWAText();
+      if (document.getElementById('modal-car-detail').classList.contains('open') && curCar) {
+        renderMaintList(curCar);
+      }
     }
     function set(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
 
@@ -2673,84 +2737,30 @@
       localStorage.setItem('rc_user', JSON.stringify(user));
       sendSheet({ sheet: 'users', name, phone, city, dob, gender, timestamp: new Date().toISOString() });
       show('screen-main'); renderMain(); checkAlerts(); applyCompany(); initADV(); toast(t.saved, 'success');
-      setTimeout(startBackgroundFinesCheck, 1500);
-    }
-
-    /* ═══════════════════════════════════════
-       GOVERNORATE / FINES MODULE SYSTEM
-    ═══════════════════════════════════════ */
-
-    /** يرجع وحدة الغرامات للمحافظة المحددة */
-    function getFinesModule(govId) {
-      return (window.FINES_MODULES && window.FINES_MODULES[govId]) || null;
-    }
-
-    /** عند تغيير المحافظة في نموذج إضافة سيارة — يبني الحقول ديناميكياً */
-    function onGovernorateChange() {
-      const govId = get('add-gov');
-      const container = document.getElementById('gov-dynamic-fields');
-      container.innerHTML = '';
-      if (!govId) return;
-      const mod = getFinesModule(govId);
-      if (!mod) { container.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:8px 0">قريباً / Soon</div>`; return; }
-      const t = T[lang] || T['ar'];
-      const langKey = lang === 'ku' ? 'labelKu' : lang === 'en' ? 'labelEn' : 'labelAr';
-      mod.FINES_FIELDS.forEach(field => {
-        const label = field[langKey] || field.labelAr;
-        const div = document.createElement('div'); div.className = 'form-group';
-        if (field.type === 'select') {
-          const optLangKey = lang === 'ku' ? 'labelKu' : lang === 'en' ? 'labelEn' : 'labelAr';
-          div.innerHTML = `<label class="form-label">${label}</label>
-        <select class="form-control" id="dyn-${field.key}">
-          ${field.options.map(o => `<option value="${o.value}">${o[optLangKey] || o.labelAr}</option>`).join('')}
-        </select>`;
-        } else {
-div.innerHTML = `<label class="form-label">${label}</label>
-  <input class="form-control" id="dyn-${field.key}" 
-    type="${field.type === 'number' ? 'text' : field.type}"
-    inputmode="${field.type === 'number' ? 'numeric' : 'text'}"
-    placeholder="${field.placeholder || ''}">`;
-        }
-          const hintKey = lang === 'ku' ? 'hintKu' : lang === 'en' ? 'hintEn' : 'hintAr';
-  if (field[hintKey]) {
-    div.innerHTML += `<div style="font-size:11px;color:var(--gold);margin-top:4px;">⚠️ ${field[hintKey]}</div>`;
-  }
-        container.appendChild(div);
-      });
     }
 
     /* ═══════════════════════════════════════
        CARS
     ═══════════════════════════════════════ */
+    function toggleTransferCaseField() { /* تُستخدم لاحقاً عند الحاجة لتحديث الواجهة فوراً، الفلترة تتم عند العرض */ }
+
     function openAddCar() {
       document.getElementById('add-car-name').value = '';
-      document.getElementById('add-gov').value = '';
-      document.getElementById('gov-dynamic-fields').innerHTML = '';
+      document.getElementById('add-car-type').value = '1';
+      document.getElementById('add-car-plate').value = '';
+      document.getElementById('add-car-4x4').checked = false;
       openModal('modal-add-car');
     }
 
     function saveCar() {
       const t = T[lang];
-      const govId = get('add-gov');
       const carName = get('add-car-name').trim();
-      if (!govId || !carName) { toast(t.fillAll, 'error'); return; }
+      const carType = get('add-car-type');
+      const plate = get('add-car-plate').trim();
+      const is4x4 = document.getElementById('add-car-4x4').checked;
+      if (!carName) { toast(t.fillAll, 'error'); return; }
 
-      const mod = getFinesModule(govId);
-      const carData = { id: Date.now(), name: carName, governorate: govId };
-
-      if (mod) {
-        // جمع الحقول الديناميكية
-        for (const field of mod.FINES_FIELDS) {
-          const el = document.getElementById('dyn-' + field.key);
-          if (!el) { if (field.required) { toast(t.fillAll, 'error'); return; } continue; }
-          const val = el.value.trim();
-          if (field.required && !val) { toast(t.fillAll, 'error'); return; }
-          carData[field.key] = val;
-        }
-        // type هو المفتاح المشترك للنوع
-        if (!carData.type) carData.type = '1';
-        if (!carData.plateLetter) carData.plateLetter = '0';
-      }
+      const carData = { id: Date.now(), name: carName, type: carType, plateNumber: plate, is4x4 };
 
       cars.push(carData);
       saveCars();
@@ -2758,21 +2768,16 @@ div.innerHTML = `<label class="form-label">${label}</label>
       renderMain();
       toast(t.saved, 'success');
 
-      // إرسال إلى Google Sheets
       sendSheet({
         sheet: 'cars', action: 'add_car',
         car_id: String(carData.id),
         user_phone: user?.phone || '',
         carName: carData.name,
         carType: carData.type || '',
-        governorate: carData.governorate || '',
-        plateNumber: carData.plateNumber || carData.carNo || '',
-        plateLetter: carData.plateLetter || '',
-        salyanaNumber: carData.salyanaNumber || '',
+        plateNumber: carData.plateNumber || '',
+        is4x4: is4x4 ? 'yes' : 'no',
         timestamp: new Date().toISOString(),
       });
-
-      setTimeout(() => backgroundCheckFines(carData), 800);
     }
 
     function saveCars() { localStorage.setItem('rc_cars', JSON.stringify(cars)); }
@@ -2785,17 +2790,14 @@ div.innerHTML = `<label class="form-label">${label}</label>
         if (data && data.cars) {
           cars = [];
           oilData = {};
-          gearData = {};
+          maintData = {};
           data.cars.forEach(c => {
             const carData = {
               id: parseInt(c.car_id) || Date.now(),
-              name: c.carName, type: c.carType || '1', governorate: c.governorate,
-              plateNumber: c.plateNumber || '', plateLetter: c.plateLetter || '', salyanaNumber: c.salyanaNumber || ''
+              name: c.carName, type: c.carType || '1',
+              plateNumber: c.plateNumber || '',
+              is4x4: String(c.is4x4) === 'yes',
             };
-            if (carData.governorate === 'sulaymaniyah' && carData.plateNumber) {
-  carData.carNo = carData.plateNumber;
-  carData.plateNumber = '';
-}
             cars.push(carData);
             if (c.oilKm || c.oilDate) {
               oilData[carData.id] = [{
@@ -2803,381 +2805,121 @@ div.innerHTML = `<label class="form-label">${label}</label>
                 notes: String(c.oilNotes || ''), nextKm: String(c.oilNextKm || ''), remind: 0, ts: Date.now()
               }];
             }
-            if (c.gearKm || c.gearDate) {
-              gearData[carData.id] = {
-                km: String(c.gearKm || ''), date: String(c.gearDate || ''), notes: String(c.gearNotes || ''), ts: Date.now()
-              };
+            if (c.maint) {
+              try { maintData[carData.id] = JSON.parse(c.maint); } catch (e) { maintData[carData.id] = {}; }
             }
           });
           saveCars();
           localStorage.setItem('rc_oil', JSON.stringify(oilData));
-          localStorage.setItem('rc_gear', JSON.stringify(gearData));
+          localStorage.setItem('rc_maint', JSON.stringify(maintData));
           renderMain();
           checkAlerts();
-          setTimeout(startBackgroundFinesCheck, 500);
         }
       } catch (err) {
         console.error("Error load from Sheets:", err);
       }
     }
-    function saveFinesCache() { localStorage.setItem('rc_finesCache', JSON.stringify(finesCache)); }
+    function saveMaintData() { localStorage.setItem('rc_maint', JSON.stringify(maintData)); }
     function renderMain() { renderCars(); }
 
-
-function renderCars() {
-  const t = T[lang];
-  const el = document.getElementById('cars-list');
-  if (!cars.length) {
-    el.innerHTML = `<div class="no-cars"><span>🚗</span><div>${t.noCars}</div></div>`;
-    return;
-  }
-  el.innerHTML = cars.map(c => {
-    const icon = c.type == '6' ? '🏍️' : c.type == '3' ? '🚛' : '🚗';
-    const cached = finesCache[c.id];
-    const mod = getFinesModule(c.governorate);
-    let badgeCls = 'car-fines-badge', badgeHTML = '🔍';
-
-    if (mod && mod.usesEinIraq) {
-      // محافظات عين العراق
-      badgeCls += ' einiraq';
-      badgeHTML = lang === 'ku' ? 'عین عێراق' : lang === 'en' ? 'Ein Iraq' : 'تعرض الغرامات فقط عن طريق تطبيق عين العراق';
-    } else if (mod) {
-      // محافظات لها فحص مباشر (أربيل / دهوك / السليمانية)
-      if (cached) {
-        if (cached.count === '0') {
-          badgeCls += ' no-fines'; badgeHTML = '✓ 0';
-        } else if (cached.count === 'checking') {
-          badgeCls += ' checking'; badgeHTML = '⏳';
-        } else if (cached.count === 'retry') {
-          badgeCls += ' retry-fines';
-          badgeHTML = `<span onclick="retryFines(event,${c.id})">${t.finesRetry || '🔄 إعادة تحميل'}</span>`;
-        } else if (cached.count === '?') {
-          badgeHTML = '?';
-        } else {
-          badgeCls += ' has-fines';
-          badgeHTML = cached.total ? `⚠${cached.count}·${cached.total}` : `⚠ ${cached.count}`;
-        }
+    /* ─── حساب حالة بند صيانة واحد ─── */
+    function computeMaintStatus(item, entry, currentKm) {
+      // يرجع { state: 'unset'|'ok'|'soon'|'due', remaining, percent }
+      if (!entry || (!entry.km && !entry.date)) return { state: 'unset' };
+      const interval = entry.interval || item.defaultInterval;
+      if (item.type === 'km') {
+        if (currentKm === null || currentKm === undefined || isNaN(currentKm)) return { state: 'unset', noCurrentKm: true };
+        const lastKm = parseInt(entry.km) || 0;
+        const nextDue = lastKm + interval;
+        const remaining = nextDue - currentKm;
+        const percent = Math.max(0, Math.min(100, ((currentKm - lastKm) / interval) * 100));
+        let state = 'ok';
+        if (remaining <= 0) state = 'due';
+        else if (remaining <= interval * 0.15) state = 'soon';
+        return { state, remaining, percent, nextDue, lastKm, interval };
+      } else {
+        if (!entry.date) return { state: 'unset' };
+        const lastDate = new Date(entry.date);
+        const nextDue = new Date(lastDate); nextDue.setDate(nextDue.getDate() + interval);
+        const todayMs = Date.now();
+        const remainingDays = Math.round((nextDue.getTime() - todayMs) / 86400000);
+        const elapsedDays = Math.round((todayMs - lastDate.getTime()) / 86400000);
+        const percent = Math.max(0, Math.min(100, (elapsedDays / interval) * 100));
+        let state = 'ok';
+        if (remainingDays <= 0) state = 'due';
+        else if (remainingDays <= interval * 0.15) state = 'soon';
+        return { state, remaining: remainingDays, percent, nextDue, interval };
       }
-    } else {
-      // لا يوجد موديول — لا تُظهر badge
-      badgeCls = ''; badgeHTML = '';
     }
 
-    const plate = c.carNo ||
-      (c.plateNumber ? `${c.plateNumber}${c.plateLetter && c.plateLetter !== '0' ? ' - ' + c.plateLetter : ''}` : '');
+    /* ─── حساب الكيلومتر الحالي المعروف للسيارة (من آخر تسجيل زيت) ─── */
+    function getKnownCurrentKm(carId) {
+      const e = oilData[carId] || [];
+      if (!e.length) return null;
+      const last = e[e.length - 1];
+      const km = parseInt(last.km);
+      return isNaN(km) ? null : km;
+    }
 
-    return `<div class="car-card" onclick="openCarDetail(${c.id})">
+    /* ─── أسوأ حالة صيانة لعرضها كـ badge على بطاقة السيارة ─── */
+    function getWorstMaintState(car) {
+      const currentKm = getKnownCurrentKm(car.id);
+      const items = getApplicableMaintItems(car);
+      const carMaint = maintData[car.id] || {};
+      let worst = null; // null = لا بيانات بعد
+      let dueCount = 0, soonCount = 0;
+      items.forEach(item => {
+        const entry = carMaint[item.key];
+        const status = computeMaintStatus(item, entry, currentKm);
+        if (status.state === 'due') dueCount++;
+        else if (status.state === 'soon') soonCount++;
+      });
+      if (dueCount > 0) return { state: 'due', count: dueCount };
+      if (soonCount > 0) return { state: 'soon', count: soonCount };
+      return { state: 'ok', count: 0 };
+    }
+
+    function renderCars() {
+      const t = T[lang];
+      const el = document.getElementById('cars-list');
+      if (!cars.length) {
+        el.innerHTML = `<div class="no-cars"><span>🚗</span><div>${t.noCars}</div></div>`;
+        return;
+      }
+      el.innerHTML = cars.map(c => {
+        const icon = c.type == '6' ? '🏍️' : c.type == '3' ? '🚛' : '🚗';
+        const worst = getWorstMaintState(c);
+        let badgeCls = 'car-maint-badge', badgeTxt = '🛠️';
+        if (worst.state === 'due') { badgeCls += ' due'; badgeTxt = `⚠ ${worst.count}`; }
+        else if (worst.state === 'soon') { badgeCls += ' soon'; badgeTxt = `⏳ ${worst.count}`; }
+        else { badgeCls += ' ok'; badgeTxt = '✓'; }
+
+        const plate = c.plateNumber || '';
+
+        return `<div class="car-card" onclick="openCarDetail(${c.id})">
       <span class="car-icon">${icon}</span>
       <div class="car-info">
         <div class="car-name">${c.name}</div>
         <div class="car-plate">${plate}</div>
       </div>
-      ${badgeCls ? `<div class="${badgeCls}" id="badge-${c.id}">${badgeHTML}</div>` : ''}
+      <div class="${badgeCls}">${badgeTxt}</div>
     </div>`;
-  }).join('');
-}
-
-    /* ═══════════════════════════════════════
-       FINES — Background Check (module-based)
-    ═══════════════════════════════════════ */
-    function startBackgroundFinesCheck() {
-      cars.forEach((c, i) => {
-        if (!getFinesModule(c.governorate)) return;
-        const cache = finesCache[c.id];
-           const mod = getFinesModule(c.governorate);
-         if (!mod || mod.usesEinIraq) return;   // ← تخطّي عين العراق
-        const age = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
-        const stuck = cache && cache.count === 'checking' && age > 120000;
-        const isError = cache && (cache.count === '!' || cache.count === '?');
-        const needsCheck = !cache || isError || age > 86400000 || stuck;
-        if (needsCheck) setTimeout(() => backgroundCheckFines(c), i * 2200);
-      });
+      }).join('');
     }
-    /* ══ فتح عين العراق مع نسخ السنوية ══ */
-async function openEinIraqFines(car) {
-  const mod = getFinesModule(car.governorate);
-  if (!mod) return;
-
-  const san = (car.salyanaNumber || '').trim();
-
-  // نسخ السنوية للحافظة
-  if (san) {
-    try { await navigator.clipboard.writeText(san); } catch (_) {}
-    setTimeout(() => {
-      toast(
-        (lang === 'ku' ? '📋 ژمارەی ساڵانە کۆپی کرا: ' :
-         lang === 'en' ? '📋 Annual No. copied: ' :
-                         '📋 تم نسخ السنوية: ') + san,
-        'success'
-      );
-    }, 300);
-  }
-
-  const isAndroid = /android/i.test(navigator.userAgent);
-  const isIOS     = /iphone|ipad|ipod/i.test(navigator.userAgent);
-
-  if (isAndroid) {
-    // ← المفتاح: <a> click وليس window.location.href
-    const a = document.createElement('a');
-    a.href = mod.getAndroidIntentUrl(car);
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => document.body.removeChild(a), 500);
-
-  } else if (isIOS) {
-    let appOpened = false;
-    document.addEventListener('visibilitychange', function handler() {
-      if (document.hidden) appOpened = true;
-      document.removeEventListener('visibilitychange', handler);
-    }, { once: true });
-
-    const a = document.createElement('a');
-    a.href = mod.getDirectUrl(car);
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => document.body.removeChild(a), 500);
-
-    setTimeout(() => {
-      if (!appOpened) window.open(mod.getStoreUrl(), '_blank');
-    }, 2500);
-
-  } else {
-    window.open(mod.getStoreUrl(), '_blank');
-  }
-}
-
-/* ── استعلام موحد عبر GAS (يتجاوز CORS بشكل كامل) ── */
-async function queryFinesViaGAS(c) {
-  const url = CONFIG.SHEET_URL
-    + '?action=check_fines'
-    + '&gov='       + encodeURIComponent(c.governorate  || 'erbil')
-    + '&type='      + encodeURIComponent(c.type        || '1')
-    + '&plate='     + encodeURIComponent(c.plateNumber || '')
-    + '&plateChar=' + encodeURIComponent(c.plateLetter || '0')
-    + '&carNo='     + encodeURIComponent(c.carNo        || '')
-    + '&sanNumber=' + encodeURIComponent(c.salyanaNumber || '');
-  try {
-    const ctrl  = new AbortController();               // ← هذا السطر كان ناقصاً
-    const timer = setTimeout(() => ctrl.abort(), 20000);
-    const res   = await fetch(url, { signal: ctrl.signal });
-    clearTimeout(timer);
-    if (!res.ok) return { count: '!', total: '' };
-    const json = await res.json();
-    console.log('Fines result:', json);                // ← للتشخيص، احذفه لاحقاً
-    return json;
-  } catch (e) {
-    console.error('Fines fetch error:', e);
-    return { count: '!', total: '' };
-  }
-}
-
-async function backgroundCheckFines(c, attempt = 0) {
-  const mod = getFinesModule(c.governorate);
-  if (!mod) return;
-
-  const cache = finesCache[c.id];
-  const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
-
-  // لا تعيد التحقق إذا الحالة "retry" — المستخدم يبدأها يدوياً
-  if (attempt === 0) {
-    if (cache && cache.count === 'retry') return;
-    if (cache && cache.checkedAt && !['?','!','checking'].includes(cache.count) && age < 86400000) return;
-    if (cache && cache.count === 'checking' && age < 120000) return;
-  }
-
-  // أظهر حالة التحميل فقط في المحاولة الأولى
-  if (attempt === 0) {
-    finesCache[c.id] = { count: 'checking', total: cache?.total || '', checkedAt: cache?.checkedAt || null };
-    updateBadge(c.id, 'checking', '');
-  }
-
-  const result = await queryFinesViaGAS(c);
-
-  // فشل؟ — أعد المحاولة حتى 3 مرات
-  if (result.count === '!') {
-    if (attempt < 2) {
-      const delay = (attempt + 1) * 4000; // 4s, 8s
-      setTimeout(() => backgroundCheckFines(c, attempt + 1), delay);
-      return;
-    }
-    // استنفدت المحاولات الثلاث → حالة "retry" للمستخدم
-    finesCache[c.id] = { count: 'retry', total: '', checkedAt: Date.now() };
-    saveFinesCache();
-    updateBadge(c.id, 'retry', '');
-    if (curCar === c.id) refreshFinesSummaryCard(c.id);
-    return;
-  }
-
-  finesCache[c.id] = { 
-  count: result.count, 
-  total: result.total || '', 
-  rows: result.rows || [],      // ← احفظ التفاصيل
-  checkedAt: Date.now() 
-};
-  saveFinesCache();
-  updateBadge(c.id, result.count, result.total || '');
-  if (curCar === c.id) refreshFinesSummaryCard(c.id);
-}
-
-async function loadFines() {
-  const c = cars.find(x => x.id === curCar); if (!c) return;
-  const mod = getFinesModule(c.governorate);
-  if (!mod) { toast(T[lang].error, 'error'); return; }
-
-  if (mod.usesEinIraq) { openEinIraqFines(c); return; }
-
-  // ✅ السليمانية: عرض التفاصيل في مودال داخلي
-  if (c.governorate === 'sulaymaniyah') {
-    const cached = finesCache[c.id];
-    if (cached && cached.rows && cached.rows.length > 0) {
-      showSulFinesModal(cached, c.name);
-      return;
-    }
-    // لا كاش أو صفر غرامات → افتح الموقع
-    window.open(mod.getDirectUrl(c), '_blank');
-    return;
-  }
-
-  if (mod.getDirectUrl) { window.open(mod.getDirectUrl(c), '_blank'); return; }
-
-  // أربيل / دهوك — POST form
-  const formData = mod.buildFormData(c);
-  const url = mod.getFinesUrl(c);
-  const form = document.createElement('form');
-  form.method = 'POST'; form.action = url; form.target = '_blank';
-  form.style.display = 'none';
-  formData.forEach((value, key) => {
-    const input = document.createElement('input');
-    input.type = 'hidden'; input.name = key; input.value = value;
-    form.appendChild(input);
-  });
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
-}
- function showSulFinesModal(cached, carName) {
-  const t = T[lang];
-  
-  // العنوان
-  set('fines-detail-title', 
-    lang === 'ku' ? `⚠️ سەرپێچیەکانی ${carName}` :
-    lang === 'en' ? `⚠️ Fines for ${carName}` :
-                    `⚠️ غرامات ${carName}`);
-  set('fines-detail-sub',
-    lang === 'ku' ? `${cached.count} سەرپێچی تۆمارکراوە` :
-    lang === 'en' ? `${cached.count} recorded fine(s)` :
-                    `${cached.count} غرامة مسجلة`);
-
-  // التسمية الإجمالية
-  set('fines-total-label',
-    lang === 'ku' ? 'کۆی گشتی' :
-    lang === 'en' ? 'Total Amount' : 'الإجمالي');
-  set('fines-total-val', cached.total || cached.count);
-
-  // قائمة الغرامات
-  const list = document.getElementById('fines-detail-list');
-  list.innerHTML = (cached.rows || []).map((row, i) => `
-    <div style="
-      background:var(--surface);
-      border:1px solid rgba(255,77,109,.25);
-      border-radius:var(--radius);
-      padding:14px;
-      position:relative;
-      overflow:hidden;">
-      <div style="position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:var(--red)"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="
-            background:var(--red);color:#fff;
-            width:26px;height:26px;border-radius:50%;
-            display:flex;align-items:center;justify-content:center;
-            font-size:13px;font-weight:900;font-family:var(--font-en);
-            flex-shrink:0">${i + 1}</span>
-          <span style="font-size:13px;color:var(--muted);font-family:var(--font-en)">
-            ${row.date} ${row.time ? '/ ' + row.time : ''}
-          </span>
-        </div>
-        <span style="font-size:15px;font-weight:800;color:var(--red);font-family:var(--font-en)">
-          ${row.amount}
-        </span>
-      </div>
-      ${row.violation ? `<div style="font-size:13px;margin-bottom:4px">⚡ ${row.violation}</div>` : ''}
-      ${row.location  ? `<div style="font-size:12px;color:var(--muted)">📍 ${row.location}</div>`  : ''}
-    </div>`).join('');
-
-  openModal('modal-fines-detail');
-}   
-
-function updateBadge(id, count, total) {
-  const b = document.getElementById('badge-' + id); if (!b) return;
-  const t = T[lang] || T['ar'];
-  if (count === 'checking') {
-    b.className = 'car-fines-badge checking'; b.innerHTML = '⏳';
-  } else if (count === '0') {
-    b.className = 'car-fines-badge no-fines'; b.innerHTML = '✓ 0';
-  } else if (count === 'retry') {
-    b.className = 'car-fines-badge retry-fines';
-    b.innerHTML = `<span onclick="retryFines(event,${id})">${t.finesRetry || '🔄 إعادة تحميل'}</span>`;
-  } else if (count === '?' || !count) {
-    b.className = 'car-fines-badge'; b.innerHTML = '?';
-  } else {
-    b.className = 'car-fines-badge has-fines';
-    b.innerHTML = total ? `⚠${count}·${total}` : `⚠ ${count}`;
-  }
-}
-
-function retryFines(event, carId) {
-  event.stopPropagation(); // يمنع فتح تفاصيل السيارة
-  const c = cars.find(x => x.id === carId); if (!c) return;
-  finesCache[carId] = { count: 'checking', total: '', checkedAt: null };
-  saveFinesCache();
-  updateBadge(carId, 'checking', '');
-  backgroundCheckFines(c, 0);
-}
 
     function openCarDetail(carId) {
       const t = T[lang];
       const c = cars.find(x => x.id === carId); if (!c) return;
       curCar = carId;
-      // إخفاء نتيجة الغرامات السابقة
-       const prevFines = document.getElementById('fines-inline-result');
-       if (prevFines) { prevFines.style.display = 'none'; prevFines.innerHTML = ''; }
       set('d-car-name', c.name);
-const plate = c.carNo ||
-  (c.plateNumber
-    ? `${c.plateNumber}${c.plateLetter && c.plateLetter !== '0' ? ' - ' + c.plateLetter : ''}`
-    : '');
-      const mod = getFinesModule(c.governorate);
-      const typeNames = { 1: 'خصوصي/تایبەت/Private', 2: 'أجرة/كرئ/Taxi', 3: 'حمل/بارهەڵگر/Cargo', 4: 'زراعي/کشتوکاڵ/Agricultural', 5: 'إنشائي/بیناسازی/Construction', 6: 'دراجة/مۆتۆر/Motorcycle' };
-      const typeName = mod && c.type ? `${typeNames[c.type] || c.type}` : '';
+      const plate = c.plateNumber || '';
+      const typeNames = { 1: 'خصوصي/تایبەت/Private', 2: 'أجرة/کرێ/Taxi', 3: 'حمل/بارهەڵگر/Cargo', 4: 'زراعي/کشتوکاڵ/Agricultural', 5: 'إنشائي/بیناسازی/Construction', 6: 'دراجة/مۆتۆر/Motorcycle' };
+      const typeName = typeNames[c.type] || '';
       set('d-car-plate', `${plate}  ${typeName ? '| ' + typeName : ''}`);
-     document.getElementById('d-grid').innerHTML = `
-  ${c.carNo ? `<div class="car-detail-item"><div class="car-detail-label">${t.plateLabel}</div><div class="car-detail-value">${c.carNo}</div></div>` : ''}
+      document.getElementById('d-grid').innerHTML = `
   ${c.plateNumber ? `<div class="car-detail-item"><div class="car-detail-label">${t.plateLabel}</div><div class="car-detail-value">${c.plateNumber}</div></div>` : ''}
-  ${c.plateLetter && c.plateLetter !== '0' ? `<div class="car-detail-item"><div class="car-detail-label">${t.letterLabel}</div><div class="car-detail-value">${c.plateLetter}</div></div>` : ''}
-  ${c.salyanaNumber ? `<div class="car-detail-item"><div class="car-detail-label">${t.annualLabel}</div><div class="car-detail-value">${c.salyanaNumber}</div></div>` : ''}
-  <div class="car-detail-item"><div class="car-detail-label">${t.govDetailLabel}</div><div class="car-detail-value">${c.governorate || '—'}</div></div>`;
-      // قسم الكير
-      const gd = gearData[carId];
-      if (document.getElementById('new-gear-form')) document.getElementById('new-gear-form').style.display = 'none';
-      const gel = document.getElementById('gear-entries');
-      if (!gd || (!gd.km && !gd.date)) {
-if (gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${t.noGearRecord}</div>`;
-      } else {
-        const niceGearDate = gd.date ? formatNiceDate(gd.date) : '';
-        if (gel) gel.innerHTML = `<div class="oil-detail-card" style="border:1.5px solid rgba(245,166,35,.4); background:var(--surface);">
-      <div class="oil-detail-header">
-        <div class="oil-detail-km" style="color:var(--gold); font-size:22px; font-weight:900; font-family:var(--font-en);">${gd.km}<span style="font-size:14px;font-weight:400; color:var(--text)"> ${t.km || 'km'}</span></div>
-        <div class="oil-detail-date" style="font-size:12px; color:var(--muted);">${niceGearDate}</div>
-      </div>
-      ${gd.notes ? `<div class="oil-notes" style="font-size:13px; color:var(--muted); margin-top:7px;">${gd.notes}</div>` : ''}
-    </div>`;
-      }
-      document.getElementById('gear-date').value = today();
-      document.getElementById('gear-km').value = '';
-      document.getElementById('gear-notes').value = '';
+  <div class="car-detail-item"><div class="car-detail-label">${t.typeLabel}</div><div class="car-detail-value">${typeName}</div></div>
+  ${c.is4x4 ? `<div class="car-detail-item"><div class="car-detail-label">4x4</div><div class="car-detail-value">✓</div></div>` : ''}`;
 
       // منطق الزيت
       document.getElementById('new-oil-form').style.display = 'none';
@@ -3208,76 +2950,151 @@ if (gel) gel.innerHTML = `<div style="color:var(--muted);font-size:14px;text-ali
       document.getElementById('oil-interval').value = '0';
       document.getElementById('next-oil-box').style.display = 'none';
 
-      // إخفاء زر الغرامات إن لا يوجد موديول
-document.getElementById('btn-check-fines').style.display = mod ? '' : 'none';
-document.getElementById('fines-summary-card').style.display = mod ? '' : 'none';
+      renderMaintList(carId);
 
-if (mod && mod.usesEinIraq) {
-  // عين العراق — لا فحص تلقائي، فقط عرض زر الفتح
-  const dot = document.getElementById('fines-status-dot');
-  const countEl = document.getElementById('fines-summary-count');
-  dot.className = 'fines-status-dot done-ok';
-  countEl.className = 'fines-summary-count';
-  countEl.style.color = 'var(--teal)';
-  countEl.style.fontSize = '13px';
-  countEl.textContent = lang === 'ku' ? ' غەرامە تەنها لە ڕێگەی ئەپڵیکەیشنی عەین عێراقەوە پیشان دەدرێت' : lang === 'en' ? 'Via Ein Iraq' : 'تعرض الغرامات فقط عن طريق تطبيق عين العراق';
-  set('fines-summary-label', lang === 'ku' ? 'ئەپی خزمەتگوزاری' : lang === 'en' ? 'Service App' : 'تطبيق الخدمة');
-  set('fines-btn-txt',
-    lang === 'ku' ? '📲 کردنەوەی بەرنامەی عین عێراق' :
-    lang === 'en' ? '📲 Open Ein Iraq App' :
-                    '📲 فتح تطبيق عين العراق'
-  );
-} else if (mod) {
-  refreshFinesSummaryCard(carId);
-  if (!finesCache[carId] || finesCache[carId].count === 'checking') {
-    if (!finesCache[carId]) backgroundCheckFines(c);
-    pollFinesSummary(carId);
-  }
-  set('fines-btn-txt', t.checkFines);
-}
       openModal('modal-car-detail');
     }
 
-    function refreshFinesSummaryCard(carId) {
+    /* ─── عرض قائمة بنود الصيانة الأخرى ─── */
+    function renderMaintList(carId) {
       const t = T[lang];
-      const cached = finesCache[carId];
-      const dot = document.getElementById('fines-status-dot');
-      const countEl = document.getElementById('fines-summary-count');
-      set('fines-summary-label', t.finesSummaryLabel);
-      if (!cached || cached.count === 'checking') { dot.className = 'fines-status-dot checking'; countEl.className = 'fines-summary-count muted'; countEl.textContent = t.finesChecking; }
-      else if (cached.count === '0') { dot.className = 'fines-status-dot done-ok'; countEl.className = 'fines-summary-count green'; countEl.textContent = t.finesNone; }
-      else if (cached.count === '?' || cached.count === '!') { dot.className = 'fines-status-dot'; countEl.className = 'fines-summary-count muted'; countEl.textContent = cached.count === '!' ? '!' : t.finesUnknown; }
-      else { dot.className = 'fines-status-dot done-bad'; countEl.className = 'fines-summary-count red'; const totalTxt = cached.total ? ` · ${cached.total}` : ''; countEl.textContent = t.finesFound(cached.count) + totalTxt; }
+      const c = cars.find(x => x.id === carId); if (!c) return;
+      const currentKm = getKnownCurrentKm(carId);
+      const items = getApplicableMaintItems(c);
+      const carMaint = maintData[carId] || {};
+      const listEl = document.getElementById('maint-list');
+      const nameKey = lang === 'ku' ? 'nameKu' : lang === 'en' ? 'nameEn' : 'nameAr';
+
+      listEl.innerHTML = items.map(item => {
+        const entry = carMaint[item.key];
+        const status = computeMaintStatus(item, entry, currentKm);
+        let statusCls = 'unset', statusTxt = t.maintNotSet;
+
+        if (status.state === 'unset') {
+          statusCls = 'unset'; statusTxt = t.maintNotSet;
+        } else if (item.type === 'km') {
+          if (status.noCurrentKm) { statusCls = 'unset'; statusTxt = t.maintNotSet; }
+          else if (status.state === 'due') { statusCls = 'due'; statusTxt = t.maintOverdueKm(Math.abs(status.remaining)); }
+          else if (status.state === 'soon') { statusCls = 'soon'; statusTxt = t.maintRemainingKm(status.remaining); }
+          else { statusCls = 'ok'; statusTxt = t.maintRemainingKm(status.remaining); }
+        } else {
+          if (status.state === 'due') { statusCls = 'due'; statusTxt = t.maintOverdueDays(Math.abs(status.remaining)); }
+          else if (status.state === 'soon') { statusCls = 'soon'; statusTxt = t.maintRemainingDays(status.remaining); }
+          else { statusCls = 'ok'; statusTxt = t.maintRemainingDays(status.remaining); }
+        }
+
+        return `<div class="maint-item" onclick="openMaintDetail(${carId},'${item.key}')">
+      <span class="maint-item-icon">${item.icon}</span>
+      <div class="maint-item-info">
+        <div class="maint-item-name">${item[nameKey]}</div>
+        <div class="maint-item-meta">${entry && entry.date ? formatNiceDate(entry.date) : (entry && entry.km ? entry.km + ' ' + t.km : t.maintNoDataYet)}</div>
+      </div>
+      <div class="maint-item-status ${statusCls}">${statusTxt}</div>
+    </div>`;
+      }).join('');
     }
 
-    function pollFinesSummary(carId) {
-      let attempts = 0;
-      const interval = setInterval(() => {
-        attempts++;
-        const cached = finesCache[carId];
-        if (!cached || cached.count === 'checking') { if (attempts > 40) clearInterval(interval); return; }
-        clearInterval(interval);
-        if (curCar === carId) { refreshFinesSummaryCard(carId); updateBadge(carId, cached.count, cached.total || ''); }
-      }, 500);
+    /* ─── فتح تفاصيل/تعديل بند صيانة واحد ─── */
+    function openMaintDetail(carId, key) {
+      const t = T[lang];
+      const c = cars.find(x => x.id === carId); if (!c) return;
+      const item = getMaintItem(key); if (!item) return;
+      curCar = carId; curMaintKey = key;
+      const nameKey = lang === 'ku' ? 'nameKu' : lang === 'en' ? 'nameEn' : 'nameAr';
+      const rangeKey = lang === 'ku' ? 'rangeKu' : lang === 'en' ? 'rangeEn' : 'rangeAr';
+
+      set('md-title', item.icon + ' ' + item[nameKey]);
+      set('md-sub', c.name);
+
+      const entry = (maintData[carId] || {})[key];
+      const currentKm = getKnownCurrentKm(carId);
+      const status = computeMaintStatus(item, entry, currentKm);
+
+      // صندوق الحالة
+      const statusBox = document.getElementById('md-status-box');
+      let statusHTML = '';
+      if (status.state === 'unset') {
+        statusHTML = `<div style="text-align:center;color:var(--muted);font-size:13px;padding:6px 0">${item.type === 'km' && status.noCurrentKm ? t.maintNeedCurrentKm : t.maintNoDataYet}</div>`;
+      } else {
+        const isKm = item.type === 'km';
+        const barCls = status.state === 'due' ? 'danger' : status.state === 'soon' ? 'warn' : '';
+        const pct = status.percent || 0;
+        const remainTxt = isKm
+          ? (status.remaining <= 0 ? t.maintOverdueKm(Math.abs(status.remaining)) : t.maintRemainingKm(status.remaining))
+          : (status.remaining <= 0 ? t.maintOverdueDays(Math.abs(status.remaining)) : t.maintRemainingDays(status.remaining));
+        statusHTML = `
+        <div class="maint-detail-row"><span>${t.maintLastChange}</span><span>${entry.date ? formatNiceDate(entry.date) : '—'}${entry.km ? ' · ' + entry.km + ' ' + t.km : ''}</span></div>
+        <div class="maint-detail-row"><span>${t.maintInterval}</span><span>${(entry.interval || item.defaultInterval).toLocaleString()} ${isKm ? t.maintKmUnit : t.maintDays}</span></div>
+        <div class="maint-progress-track"><div class="maint-progress-fill ${barCls}" style="width:${pct}%"></div></div>
+        <div style="text-align:center;font-size:13px;font-weight:700;margin-top:4px;color:${status.state === 'due' ? 'var(--red)' : status.state === 'soon' ? 'var(--gold)' : 'var(--teal)'}">${remainTxt}</div>`;
+      }
+      statusHTML += `<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">${t.maintRecommended(item[rangeKey])}</div>`;
+      statusBox.innerHTML = statusHTML;
+
+      // الفورم
+      const isKm = item.type === 'km';
+      document.getElementById('md-km-group').style.display = isKm ? '' : 'none';
+      set('md-lbl-km', t.maintKmAtChange);
+      set('md-lbl-date', t.maintDateAtChange);
+      set('md-lbl-interval', t.maintInterval);
+      set('md-lbl-notes', t.maintNotes);
+      set('md-save-btn', t.maintSave);
+      document.getElementById('md-interval-unit').textContent = isKm ? t.maintKmUnit : t.maintDays;
+      set('md-default-hint', t.maintRecommended(item[rangeKey]));
+
+      document.getElementById('md-km').value = entry && entry.km ? entry.km : '';
+      document.getElementById('md-date').value = entry && entry.date ? entry.date : today();
+      document.getElementById('md-interval').value = entry && entry.interval ? entry.interval : item.defaultInterval;
+      document.getElementById('md-notes').value = entry && entry.notes ? entry.notes : '';
+
+      openModal('modal-maint-detail');
     }
 
-function deleteCar() {
-  if (!confirm(T[lang].delConfirm)) return;
-  // ① فك ربط رقم الهاتف بالسيارة في Sheets (تبقى البيانات لكن بدون صاحب)
-  sendSheet({ sheet: 'cars', action: 'unlink_car', car_id: String(curCar), user_phone: user?.phone || '' });
-  // ② حذف محلي
-  cars = cars.filter(c => c.id !== curCar);
-  delete oilData[curCar]; delete gearData[curCar]; delete finesCache[curCar];
-  saveCars();
-  localStorage.setItem('rc_oil', JSON.stringify(oilData));
-  localStorage.setItem('rc_gear', JSON.stringify(gearData));
-  saveFinesCache();
-  closeModal('modal-car-detail');
-  renderMain();
-  toast(T[lang].saved, 'success');
-}
+    function saveMaintItem() {
+      const t = T[lang];
+      if (!curCar || !curMaintKey) return;
+      const item = getMaintItem(curMaintKey); if (!item) return;
+      const isKm = item.type === 'km';
+      const km = isKm ? get('md-km').trim() : '';
+      const date = get('md-date');
+      const interval = parseInt(get('md-interval')) || item.defaultInterval;
+      const notes = get('md-notes').trim();
+
+      if (isKm && !km) { toast(t.fillAll, 'error'); return; }
+      if (!date) { toast(t.fillAll, 'error'); return; }
+
+      if (!maintData[curCar]) maintData[curCar] = {};
+      maintData[curCar][curMaintKey] = { km, date, interval, notes, ts: Date.now() };
+      saveMaintData();
+
+      sendSheet({
+        sheet: 'cars', action: 'update_maint',
+        car_id: String(curCar), user_phone: user?.phone || '',
+        car_name: cars.find(c => c.id === curCar)?.name || '',
+        maint: JSON.stringify(maintData[curCar]),
+      });
+
+      closeModal('modal-maint-detail');
+      renderMaintList(curCar);
+      renderMain();
+      toast(t.saved, 'success');
+    }
+
+    function deleteCar() {
+      if (!confirm(T[lang].delConfirm)) return;
+      sendSheet({ sheet: 'cars', action: 'unlink_car', car_id: String(curCar), user_phone: user?.phone || '' });
+      cars = cars.filter(c => c.id !== curCar);
+      delete oilData[curCar]; delete maintData[curCar];
+      saveCars();
+      localStorage.setItem('rc_oil', JSON.stringify(oilData));
+      saveMaintData();
+      closeModal('modal-car-detail');
+      renderMain();
+      toast(T[lang].saved, 'success');
+    }
+
     /* ═══════════════════════════════════════
-       EXPAND SECTIONS (كير / إلخ)
+       EXPAND SECTIONS
     ═══════════════════════════════════════ */
     function toggleExpand(id) {
       const body = document.getElementById(id);
@@ -3288,62 +3105,8 @@ function deleteCar() {
     }
 
     /* ═══════════════════════════════════════
-       GEAR (الكير)
-    ═══════════════════════════════════════ */
-    function toggleNewGearForm() { const f = document.getElementById('new-gear-form'); if (f) f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
-
-    function saveGear() {
-      const t = T[lang];
-      const km = document.getElementById('gear-km').value.trim();
-      const date = document.getElementById('gear-date').value;
-      const notes = document.getElementById('gear-notes').value.trim();
-      if (!km || !date) { toast(t.fillAll, 'error'); return; }
-      gearData[curCar] = { km, date, notes, ts: Date.now() };
-      localStorage.setItem('rc_gear', JSON.stringify(gearData));
-      // تحديث Google Sheets
-      sendSheet({ sheet: 'cars', action: 'update_gear', car_id: String(curCar), user_phone: user?.phone || '', car_name: cars.find(c => c.id === curCar)?.name || '', gearKm: km, gearDate: date, gearNotes: notes });
-
-      openCarDetail(curCar);
-      const gearBody = document.getElementById('gear-expand');
-      const gearChevron = document.getElementById('gear-expand-chevron');
-      if (gearBody && !gearBody.classList.contains('open')) {
-        gearBody.classList.add('open');
-        if (gearChevron) gearChevron.classList.add('open');
-      }
-      toast(t.gearSaved || t.saved, 'success');
-    }
-
-    /* ═══════════════════════════════════════
        OIL
     ═══════════════════════════════════════ */
-    function toggleOil() { document.getElementById('oil-body').classList.toggle('open'); document.getElementById('oil-chevron').classList.toggle('open'); }
-
-    function renderOilList() {
-      const t = T[lang];
-      const el = document.getElementById('oil-cars-list');
-      if (!cars.length) { el.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:10px 0">${t.noCars}</div>`; return; }
-      el.innerHTML = cars.map(c => {
-        const e = (oilData[c.id] || []), last = e[e.length - 1];
-        return `<div class="oil-car-item" onclick="openOilModal(${c.id})">
-      <div class="oil-car-header">
-        <div class="oil-car-name">${c.name}</div>
-        ${last ? `<div class="oil-km-badge">${last.km} ${t.km}</div>` : `<div class="oil-km-badge" style="color:var(--muted);border-color:var(--border)">${t.noOil}</div>`}
-      </div>
-      <div class="oil-date">${last ? formatNiceDate(last.date) : ''} ${last && last.nextKm ? `<span style="color:var(--gold)">→ ${Number(last.nextKm).toLocaleString()} km</span>` : ''}</div>
-    </div>`;
-      }).join('');
-    }
-
-    function openOilModal(carId) {
-      openCarDetail(carId);
-      const oilBody = document.getElementById('oil-expand');
-      const oilChevron = document.getElementById('oil-expand-chevron');
-      if (oilBody && !oilBody.classList.contains('open')) {
-        oilBody.classList.add('open');
-        if (oilChevron) oilChevron.classList.add('open');
-      }
-    }
-
     function toggleNewOilForm() { const f = document.getElementById('new-oil-form'); f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
 
     function updateNextOilKm() {
@@ -3369,15 +3132,13 @@ function deleteCar() {
       const nextKm = (km && interval > 0) ? String(parseInt(km) + interval) : '';
       if (!km || !date) { toast(t.fillAll, 'error'); return; }
 
-      // الاحتفاظ بآخر تغيير فقط (استبدال)
       oilData[curCar] = [{ km, date, filter, notes, remind, nextKm, ts: Date.now() }];
       localStorage.setItem('rc_oil', JSON.stringify(oilData));
 
-      // إرسال إلى Google Sheets (تحديث السطر)
       sendSheet({ sheet: 'cars', action: 'update_oil', car_id: String(curCar), user_phone: user?.phone || '', car_name: cars.find(c => c.id === curCar)?.name || '', oilKm: km, oilDate: date, oilFilter: filter, oilNotes: notes, oilNextKm: nextKm });
 
       document.getElementById('new-oil-form').style.display = 'none';
-      openOilModal(curCar); checkAlerts(); toast(t.saved, 'success');
+      openCarDetail(curCar); checkAlerts(); toast(t.saved, 'success');
     }
 
     function checkAlerts() {
@@ -3411,23 +3172,19 @@ function deleteCar() {
       const t = T[lang];
       const listEl = document.getElementById('crane-list-container');
       try {
-        // 1) تحديد موقع المستخدم
         const pos = await new Promise((res, rej) => navigator.geolocation.getCurrentPosition(res, rej, { timeout: 10000 }));
         const userLat = pos.coords.latitude, userLng = pos.coords.longitude;
         listEl.innerHTML = `<div class="crane-loading">${t.craneFetching || 'جارٍ البحث...'}</div>`;
 
-        // 2) جلب بيانات الكرينات من Google Sheets
         const resp = await fetch(CONFIG.SHEET_URL + '?action=cranes');
         const cranes = await resp.json();
         if (!Array.isArray(cranes) || !cranes.length) { listEl.innerHTML = `<div class="crane-error">${t.craneNone || 'لا يوجد كرين'}</div>`; return; }
 
-        // 3) حساب المسافة وترتيب من الأقرب
         const withDist = cranes.map(cr => {
           const dist = haversine(userLat, userLng, cr.lat, cr.lng);
           return { ...cr, dist };
         }).sort((a, b) => a.dist - b.dist);
 
-        // 4) عرض الكرينات
         listEl.innerHTML = withDist.map(cr => {
           const distTxt = cr.dist < 1 ? Math.round(cr.dist * 1000) + ' m' : Math.round(cr.dist) + ' km';
           const waNum = cr.phone.replace(/\D/g, '');
@@ -3449,14 +3206,11 @@ function deleteCar() {
     }
 
     function craneContact(name, phone) {
-      // تسجيل في Sheets
       sendSheet({ sheet: 'cranedata', timestamp: new Date().toISOString(), craneName: name, userPhone: user?.phone || '' });
-      // فتح واتساب
       const craneMsg = lang === 'en' ? 'Hello, I need crane service' : lang === 'ku' ? 'سڵاو، پێویستم بە خزمەتی کرێن' : 'مرحباً، أحتاج إلى خدمة كرين';
      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(craneMsg)}`, '_blank');
      }
 
-    /** حساب المسافة بالكيلومترات (Haversine) */
     function haversine(lat1, lng1, lat2, lng2) {
       const R = 6371;
       const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -3522,7 +3276,6 @@ function deleteCar() {
 let toastT;
 function toast(msg, type = '') {
   const el = document.getElementById('toast');
-  // حماية إضافية: إذا لم يجد العنصر، يتوقف دون إظهار خطأ أحمر في الكونسول
   if (!el) {
       console.warn("Toast element not found! Message was:", msg);
       return; 
@@ -3535,7 +3288,7 @@ function toast(msg, type = '') {
 
     /* ─── SERVICE WORKER ─── */
     if ('serviceWorker' in navigator) {
-      const swCode = `self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>clients.claim());self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.open('rc-v2').then(async cache=>{try{const res=await fetch(e.request);cache.put(e.request,res.clone());return res;}catch{return cache.match(e.request);}}));});`;
+      const swCode = `self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>clients.claim());self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.open('rc-v3').then(async cache=>{try{const res=await fetch(e.request);cache.put(e.request,res.clone());return res;}catch{return cache.match(e.request);}}));});`;
       const swBlob = new Blob([swCode], { type: 'application/javascript' });
       navigator.serviceWorker.register(URL.createObjectURL(swBlob), { scope: './' }).catch(() => { });
     }
