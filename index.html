@@ -2332,7 +2332,7 @@
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycbz3Dx93ML2qLerJW2B7OA9LGa8xrytmrIjBN5_gOOAGT8Iwgkd4fxSdgo1vc9evb9U/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycbz8f1APngZxZa5V8SZRsCl0033RzRTCzA5L_Ldc2j2C9o8TgkCfljjSyfq-yR-2FTrh/exec',
       COMPANY: { 
   whatsapp: '9647505009006',   // ← أربيل (يبقى للمرجع)
   whatsappBaghdad: '9647759911001',   // ← ضع رقم بغداد الحقيقي
@@ -2840,71 +2840,89 @@
     function saveCars() { localStorage.setItem('rc_cars', JSON.stringify(cars)); }
 
     async function fetchUserDataFromSheets() {
-      if (!user || !user.phone) return;
-      try {
-        const res = await fetch(CONFIG.SHEET_URL + '?action=get_user_cars&phone=' + user.phone);
-        const data = await res.json();
-        if (data && data.cars) {
-          cars = [];
-          oilData = {};
-          maintData = {};
-          data.cars.forEach(c => {
-            const carData = {
-              id: parseInt(c.car_id) || Date.now(),
-              name: c.carName, type: c.carType || '1',
-              plateNumber: c.plateNumber || '',
-              is4x4: String(c.is4x4) === 'yes',
-            };
-            cars.push(carData);
-            if (c.oilKm || c.oilDate) {
-              oilData[carData.id] = [{
-                km: String(c.oilKm), date: String(c.oilDate), filter: String(c.oilFilter) === 'نعم',
-                notes: String(c.oilNotes || ''), nextKm: String(c.oilNextKm || ''), remind: 0, ts: Date.now()
-              }];
-            }
-            // بنود الصيانة الآن تصل كأعمدة منفصلة لكل بند (key_value / key_meta)
-            const carMaint = {};
-            MAINT_ITEMS.forEach(item => {
-              const val = c['maint_' + item.key + '_value'];
-              const meta = c['maint_' + item.key + '_meta'];
-              if (val || meta) {
-                let parsedMeta = {};
-                if (meta) { try { parsedMeta = JSON.parse(meta); } catch (e) { parsedMeta = {}; } }
-                if (item.type === 'km') {
-                  carMaint[item.key] = {
-                    km: String(val || ''),
-                    date: parsedMeta.date || '',
-                    interval: parsedMeta.interval || item.defaultInterval,
-                    notes: parsedMeta.notes || '',
-                    ts: parsedMeta.ts || Date.now(),
-                  };
-                } else {
-                  carMaint[item.key] = {
-                    km: '',
-                    date: String(val || ''),
-                    interval: parsedMeta.interval || item.defaultInterval,
-                    notes: parsedMeta.notes || '',
-                    ts: parsedMeta.ts || Date.now(),
-                  };
-                }
-              }
-            });
-            // توافق رجعي: إن وجد عمود JSON القديم وما عندنا أعمدة جديدة بعد، نقرأه
-            if (Object.keys(carMaint).length === 0 && c.maint) {
-              try { Object.assign(carMaint, JSON.parse(c.maint)); } catch (e) { /* ignore */ }
-            }
-            maintData[carData.id] = carMaint;
-          });
-          saveCars();
-          localStorage.setItem('rc_oil', JSON.stringify(oilData));
-          localStorage.setItem('rc_maint', JSON.stringify(maintData));
-          renderMain();
-          checkAlerts();
+  if (!user || !user.phone) return;
+  try {
+    const res = await fetch(CONFIG.SHEET_URL + '?action=get_user_cars&phone=' + user.phone);
+    const data = await res.json();
+    if (data && data.cars) {
+      cars = [];
+      oilData = {};
+      maintData = {};
+      
+      data.cars.forEach(c => {
+        const carData = {
+          id: parseInt(c.car_id) || Date.now(),
+          name: c.carName,
+          type: c.carType || '1',
+          plateNumber: c.plateNumber || '',
+          is4x4: String(c.is4x4) === 'yes',
+        };
+        cars.push(carData);
+        
+        // استخراج بيانات الزيت
+        if (c.oilKm || c.oilDate) {
+          oilData[carData.id] = [{
+            km: String(c.oilKm),
+            date: String(c.oilDate),
+            filter: String(c.oilFilter) === 'نعم',
+            notes: String(c.oilNotes || ''),
+            nextKm: String(c.oilNextKm || ''),
+            remind: 0,
+            ts: Date.now()
+          }];
         }
-      } catch (err) {
-        console.error("Error load from Sheets:", err);
-      }
+        
+        // ✅ استخراج بيانات الصيانة من c.maint (البنية الموحدة)
+        const carMaint = {};
+        if (c.maint && typeof c.maint === 'object') {
+          MAINT_ITEMS.forEach(item => {
+            const m = c.maint[item.key];
+            if (m && (m.km || m.date)) {
+              carMaint[item.key] = {
+                km: String(m.km || ''),
+                date: String(m.date || ''),
+                interval: parseInt(m.interval) || item.defaultInterval,
+                notes: String(m.notes || ''),
+                ts: m.ts || Date.now()
+              };
+            }
+          });
+        }
+        
+        // توافق رجعي: إذا لم يكن c.maint موجوداً، حاول الأعمدة المسطحة
+        if (Object.keys(carMaint).length === 0) {
+          MAINT_ITEMS.forEach(item => {
+            const val = c['maint_' + item.key + '_value'];
+            const meta = c['maint_' + item.key + '_meta'];
+            if (val || meta) {
+              let metaObj = {};
+              if (meta) {
+                try { metaObj = JSON.parse(meta); } catch(e) { metaObj = {}; }
+              }
+              carMaint[item.key] = {
+                km: item.type === 'km' ? String(val || '') : '',
+                date: item.type === 'time' ? String(val || '') : (metaObj.date || ''),
+                interval: metaObj.interval || item.defaultInterval,
+                notes: metaObj.notes || '',
+                ts: metaObj.ts || Date.now()
+              };
+            }
+          });
+        }
+        
+        maintData[carData.id] = carMaint;
+      });
+      
+      saveCars();
+      localStorage.setItem('rc_oil', JSON.stringify(oilData));
+      localStorage.setItem('rc_maint', JSON.stringify(maintData));
+      renderMain();
+      checkAlerts();
     }
+  } catch (err) {
+    console.error("Error load from Sheets:", err);
+  }
+}
     function saveMaintData() { localStorage.setItem('rc_maint', JSON.stringify(maintData)); }
     function renderMain() { renderCars(); }
 
@@ -3153,47 +3171,57 @@
     }
 
     function saveMaintItem() {
-      const t = T[lang];
-      if (!curCar || !curMaintKey) return;
-      const item = getMaintItem(curMaintKey); if (!item) return;
-      const isKm = item.type === 'km';
-      const km = isKm ? get('md-km').trim() : '';
-      const date = get('md-date');
-      const interval = parseInt(get('md-interval')) || item.defaultInterval;
-      const notes = get('md-notes').trim();
+  const t = T[lang];
+  if (!curCar || !curMaintKey) return;
+  const item = getMaintItem(curMaintKey);
+  if (!item) return;
+  
+  const isKm = item.type === 'km';
+  const km = isKm ? get('md-km').trim() : '';
+  const date = get('md-date');
+  const interval = parseInt(get('md-interval')) || item.defaultInterval;
+  const notes = get('md-notes').trim();
 
-      if (isKm && !km) { toast(t.fillAll, 'error'); return; }
-      if (!date) { toast(t.fillAll, 'error'); return; }
+  if (isKm && !km) { toast(t.fillAll, 'error'); return; }
+  if (!date) { toast(t.fillAll, 'error'); return; }
 
-      if (!maintData[curCar]) maintData[curCar] = {};
-      maintData[curCar][curMaintKey] = { km, date, interval, notes, ts: Date.now() };
-      saveMaintData();
+  // حفظ محلياً
+  if (!maintData[curCar]) maintData[curCar] = {};
+  maintData[curCar][curMaintKey] = { 
+    km: isKm ? km : '', 
+    date: date, 
+    interval, 
+    notes, 
+    ts: Date.now() 
+  };
+  saveMaintData();
 
-      // كل بند يُحفظ بعمودين منفصلين في الشيت: maint_<key>_value (الكيلومتر أو التاريخ حسب النوع)
-      // و maint_<key>_meta (JSON يحوي باقي التفاصيل: التاريخ/الفترة/الملاحظات)
-      const valueForSheet = isKm ? km : date;
-      const metaForSheet = JSON.stringify({
-        date: isKm ? date : undefined,
-        interval,
-        notes,
-        ts: Date.now(),
-      });
+  // إرسال إلى الشيت
+  const valueForSheet = isKm ? km : date;
+  const metaForSheet = JSON.stringify({
+    date: isKm ? date : undefined,
+    interval: interval,
+    notes: notes,
+    ts: Date.now(),
+  });
 
-      sendSheet({
-        sheet: 'cars', action: 'update_maint_item',
-        car_id: String(curCar), user_phone: user?.phone || '',
-        car_name: cars.find(c => c.id === curCar)?.name || '',
-        maint_key: curMaintKey,
-        maint_type: item.type,
-        maint_value: valueForSheet,
-        maint_meta: metaForSheet,
-      });
+  sendSheet({
+    sheet: 'cars', 
+    action: 'update_maint_item',
+    car_id: String(curCar), 
+    user_phone: user?.phone || '',
+    car_name: cars.find(c => c.id === curCar)?.name || '',
+    maint_key: curMaintKey,
+    maint_type: item.type,
+    maint_value: valueForSheet,
+    maint_meta: metaForSheet,
+  });
 
-      closeModal('modal-maint-detail');
-      renderMaintList(curCar);
-      renderMain();
-      toast(t.saved, 'success');
-    }
+  closeModal('modal-maint-detail');
+  renderMaintList(curCar);
+  renderMain();
+  toast(t.saved, 'success');
+}
 
     function deleteCar() {
       if (!confirm(T[lang].delConfirm)) return;
