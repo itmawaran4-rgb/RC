@@ -1908,6 +1908,12 @@
 </head>
 
 <body>
+  <div id="screen-loading" class="screen">
+    <div style="margin:auto; text-align:center; padding-top:40vh;">
+      <div style="font-size:40px; margin-bottom:15px; animation: pulseBorder 1.5s infinite;">⏳</div>
+      <div id="loading-text" style="color:var(--muted); font-size:15px; font-weight:700;">جارِ التحقق من البيانات...</div>
+    </div>
+  </div>
 
   <!-- ══ LANG SCREEN ══ -->
   <div id="screen-lang" class="screen">
@@ -2326,7 +2332,7 @@
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycbyJGNcOOI9gTVZXjzXxkvWa43g25EIMePf6EJkniA9brsSlCAJcEtufE8Y8-xrSv-Sw/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycbz3Dx93ML2qLerJW2B7OA9LGa8xrytmrIjBN5_gOOAGT8Iwgkd4fxSdgo1vc9evb9U/exec',
       COMPANY: { 
   whatsapp: '9647505009006',   // ← أربيل (يبقى للمرجع)
   whatsappBaghdad: '9647759911001',   // ← ضع رقم بغداد الحقيقي
@@ -2551,17 +2557,65 @@
     let curMaintKey = null;
     let theme = localStorage.getItem('rc_theme') || 'dark';
 
-    /* ═══════════════════════════════════════
+
+/* ═══════════════════════════════════════
        INIT
     ═══════════════════════════════════════ */
     document.addEventListener('DOMContentLoaded', () => {
       initTheme(); initPWA();
       if (!lang) { show('screen-lang'); return; }
       applyLang(lang);
+      
+      // إذا لم يكن هناك مستخدم مسجل محلياً، اعرض شاشة التسجيل
       if (!user) { show('screen-register'); return; }
-      show('screen-main'); renderMain(); applyCompany(); initADV();
-      fetchUserDataFromSheets();
+      
+      // إذا كان هناك مستخدم، تحقق منه في جوجل شيت أولاً
+      validateUserInSheet();
     });
+
+    // دالة للتحقق من وجود المستخدم في السيرفر
+    async function validateUserInSheet() {
+      show('screen-loading'); // عرض شاشة التحميل
+      
+      // ترجمة نص التحميل حسب اللغة
+      const loadingText = document.getElementById('loading-text');
+      if (loadingText) {
+        loadingText.textContent = (lang === 'en') ? 'Verifying account...' : (lang === 'ku') ? 'دڵنیابوونەوەی هەژمار...' : 'جارِ التحقق من الحساب...';
+      }
+
+      try {
+        const res = await fetch(CONFIG.SHEET_URL + '?action=check_user&phone=' + user.phone);
+        const data = await res.json();
+
+        if (data.exists) {
+          // المستخدم موجود -> اعرض الشاشة الرئيسية وجيب بياناته
+          show('screen-main');
+          renderMain();
+          applyCompany();
+          initADV();
+          fetchUserDataFromSheets();
+        } else {
+          // المستخدم غير موجود (تم حذفه من الشيت) -> امسح التخزين المحلي واعرض شاشة التسجيل
+          localStorage.removeItem('rc_user');
+          localStorage.removeItem('rc_cars');
+          localStorage.removeItem('rc_oil');
+          localStorage.removeItem('rc_maint');
+          user = null;
+          cars = [];
+          oilData = {};
+          maintData = {};
+          show('screen-register');
+        }
+      } catch (err) {
+        // في حالة انقطاع الإنترنت أو وجود خطأ، نعرض الشاشة الرئيسية من البيانات المحلية كي لا يتوقف التطبيق
+        console.error("Error verifying user:", err);
+        show('screen-main');
+        renderMain();
+        applyCompany();
+        initADV();
+        fetchUserDataFromSheets();
+      }
+    }
 
     /* ─── THEME ─── */
     function initTheme() { applyTheme(theme); }
