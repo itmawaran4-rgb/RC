@@ -2332,7 +2332,7 @@
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycbz8f1APngZxZa5V8SZRsCl0033RzRTCzA5L_Ldc2j2C9o8TgkCfljjSyfq-yR-2FTrh/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycbzUdMkwyUqdFI1zgQ__yyFr0xarXTdOGC7vnU5dopoUtYaXIv3JoHNSUYo4mhKKf0fP/exec',
       COMPANY: { 
   whatsapp: '9647505009006',   // ← أربيل (يبقى للمرجع)
   whatsappBaghdad: '9647759911001',   // ← ضع رقم بغداد الحقيقي
@@ -2550,7 +2550,7 @@
     ═══════════════════════════════════════ */
     let lang = localStorage.getItem('rc_lang') || null;
     let user = JSON.parse(localStorage.getItem('rc_user') || 'null');
-    let cars = JSON.parse(localStorage.getItem('rc_cars') || '[]');
+    let cars = [];
     let oilData = JSON.parse(localStorage.getItem('rc_oil') || '{}');
     let maintData = JSON.parse(localStorage.getItem('rc_maint') || '{}'); // { carId: { itemKey: {km, date, interval, notes, ts} } }
     let curCar = null;
