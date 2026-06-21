@@ -2590,6 +2590,7 @@
         if (data.exists) {
           // المستخدم موجود -> اعرض الشاشة الرئيسية وجيب بياناته
           show('screen-main');
+          await fetchUserDataFromSheets();
           renderMain();
           applyCompany();
           initADV();
