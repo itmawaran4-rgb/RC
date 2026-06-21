@@ -2326,7 +2326,7 @@
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycbyohxOkV9rHEb0LdIcL_NHaO-cDlFQuNF_lyoqeZbtZrS2ESF6qzVt4NDAdVrbLxpdZ/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycbwcdi4v24GyFf14_Zzw9VJHG2IwwM5TduUJeO5j1bOOlwiE-OgS1KnpPzx6kjshvrNy/exec',
       COMPANY: { 
   whatsapp: '9647505009006',   // ← أربيل (يبقى للمرجع)
   whatsappBaghdad: '9647759911001',   // ← ضع رقم بغداد الحقيقي
@@ -2439,6 +2439,7 @@
         maintNoDataYet: 'لم تُسجَّل بيانات بعد — اضغط لإضافة',
         maintDays: 'يوم', maintKmUnit: 'كم',
         maintNeedCurrentKm: 'يرجى إدخال الكيلومتر الحالي للسيارة أولاً عبر تسجيل تغيير زيت',
+        maintNextAtKm: k => `التغيير القادم عند ${k.toLocaleString('ar-IQ')} كم`,
       },
       ku: {
         regTitle: 'زانیاریەکانی شوفێر', regSub: 'تەنها جارێک پاشەکەوت دەکرێت',
@@ -2486,6 +2487,7 @@
         maintNoDataYet: 'هیچ زانیاری تۆمار نەکراوە — دابگرە بۆ زیادکردن',
         maintDays: 'ڕۆژ', maintKmUnit: 'کم',
         maintNeedCurrentKm: 'تکایە سەرەتا کیلۆمەتری ئێستای ئەوتۆمبێل بنووسە لە ڕێگەی تۆمارکردنی گۆڕینی ڕۆن',
+        maintNextAtKm: k => `گۆڕینی داهاتوو لە ${k.toLocaleString()} کم`,
       },
       en: {
         regTitle: 'Driver Information', regSub: 'Saved once, never asked again',
@@ -2533,6 +2535,7 @@
         maintNoDataYet: 'No data recorded yet — tap to add',
         maintDays: 'days', maintKmUnit: 'km',
         maintNeedCurrentKm: "Please enter the vehicle's current km first by logging an oil change",
+        maintNextAtKm: k => `Next change at ${k.toLocaleString()} km`,
       },
     };
 
@@ -2805,9 +2808,38 @@
                 notes: String(c.oilNotes || ''), nextKm: String(c.oilNextKm || ''), remind: 0, ts: Date.now()
               }];
             }
-            if (c.maint) {
-              try { maintData[carData.id] = JSON.parse(c.maint); } catch (e) { maintData[carData.id] = {}; }
+            // بنود الصيانة الآن تصل كأعمدة منفصلة لكل بند (key_value / key_meta)
+            const carMaint = {};
+            MAINT_ITEMS.forEach(item => {
+              const val = c['maint_' + item.key + '_value'];
+              const meta = c['maint_' + item.key + '_meta'];
+              if (val || meta) {
+                let parsedMeta = {};
+                if (meta) { try { parsedMeta = JSON.parse(meta); } catch (e) { parsedMeta = {}; } }
+                if (item.type === 'km') {
+                  carMaint[item.key] = {
+                    km: String(val || ''),
+                    date: parsedMeta.date || '',
+                    interval: parsedMeta.interval || item.defaultInterval,
+                    notes: parsedMeta.notes || '',
+                    ts: parsedMeta.ts || Date.now(),
+                  };
+                } else {
+                  carMaint[item.key] = {
+                    km: '',
+                    date: String(val || ''),
+                    interval: parsedMeta.interval || item.defaultInterval,
+                    notes: parsedMeta.notes || '',
+                    ts: parsedMeta.ts || Date.now(),
+                  };
+                }
+              }
+            });
+            // توافق رجعي: إن وجد عمود JSON القديم وما عندنا أعمدة جديدة بعد، نقرأه
+            if (Object.keys(carMaint).length === 0 && c.maint) {
+              try { Object.assign(carMaint, JSON.parse(c.maint)); } catch (e) { /* ignore */ }
             }
+            maintData[carData.id] = carMaint;
           });
           saveCars();
           localStorage.setItem('rc_oil', JSON.stringify(oilData));
@@ -2824,13 +2856,16 @@
 
     /* ─── حساب حالة بند صيانة واحد ─── */
     function computeMaintStatus(item, entry, currentKm) {
-      // يرجع { state: 'unset'|'ok'|'soon'|'due', remaining, percent }
+      // يرجع { state: 'unset'|'ok'|'soon'|'due', remaining, percent, nextDue, noCurrentKm }
       if (!entry || (!entry.km && !entry.date)) return { state: 'unset' };
       const interval = entry.interval || item.defaultInterval;
       if (item.type === 'km') {
-        if (currentKm === null || currentKm === undefined || isNaN(currentKm)) return { state: 'unset', noCurrentKm: true };
         const lastKm = parseInt(entry.km) || 0;
         const nextDue = lastKm + interval;
+        // لا نعرف الكيلومتر الحالي للسيارة بعد: نعرض كيلومتر التغيير القادم بدل "غير محدد"
+        if (currentKm === null || currentKm === undefined || isNaN(currentKm)) {
+          return { state: 'unset', noCurrentKm: true, nextDue, lastKm, interval };
+        }
         const remaining = nextDue - currentKm;
         const percent = Math.max(0, Math.min(100, ((currentKm - lastKm) / interval) * 100));
         let state = 'ok';
@@ -2970,10 +3005,16 @@
         const status = computeMaintStatus(item, entry, currentKm);
         let statusCls = 'unset', statusTxt = t.maintNotSet;
 
-        if (status.state === 'unset') {
+        if (status.state === 'unset' && !status.nextDue) {
+          // لا يوجد تسجيل لهذا البند إطلاقاً بعد
           statusCls = 'unset'; statusTxt = t.maintNotSet;
         } else if (item.type === 'km') {
-          if (status.noCurrentKm) { statusCls = 'unset'; statusTxt = t.maintNotSet; }
+          if (status.noCurrentKm) {
+            // عندنا تسجيل سابق لكن ما نعرف الكيلومتر الحالي للسيارة:
+            // اعرض الكيلومتر الواجب التغيير عنده بدل "غير محدد"
+            statusCls = 'soon';
+            statusTxt = t.maintNextAtKm(status.nextDue);
+          }
           else if (status.state === 'due') { statusCls = 'due'; statusTxt = t.maintOverdueKm(Math.abs(status.remaining)); }
           else if (status.state === 'soon') { statusCls = 'soon'; statusTxt = t.maintRemainingKm(status.remaining); }
           else { statusCls = 'ok'; statusTxt = t.maintRemainingKm(status.remaining); }
@@ -3013,8 +3054,15 @@
       // صندوق الحالة
       const statusBox = document.getElementById('md-status-box');
       let statusHTML = '';
-      if (status.state === 'unset') {
-        statusHTML = `<div style="text-align:center;color:var(--muted);font-size:13px;padding:6px 0">${item.type === 'km' && status.noCurrentKm ? t.maintNeedCurrentKm : t.maintNoDataYet}</div>`;
+      if (status.state === 'unset' && !status.nextDue) {
+        statusHTML = `<div style="text-align:center;color:var(--muted);font-size:13px;padding:6px 0">${t.maintNoDataYet}</div>`;
+      } else if (item.type === 'km' && status.noCurrentKm) {
+        // عندنا تسجيل بس ما نعرف الكيلومتر الحالي — اعرض كيلومتر التغيير القادم
+        statusHTML = `
+        <div class="maint-detail-row"><span>${t.maintLastChange}</span><span>${entry.date ? formatNiceDate(entry.date) : '—'}${entry.km ? ' · ' + entry.km + ' ' + t.km : ''}</span></div>
+        <div class="maint-detail-row"><span>${t.maintInterval}</span><span>${(entry.interval || item.defaultInterval).toLocaleString()} ${t.maintKmUnit}</span></div>
+        <div style="text-align:center;font-size:15px;font-weight:800;margin-top:8px;color:var(--gold)">${t.maintNextAtKm(status.nextDue)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center">${t.maintNeedCurrentKm}</div>`;
       } else {
         const isKm = item.type === 'km';
         const barCls = status.state === 'due' ? 'danger' : status.state === 'soon' ? 'warn' : '';
@@ -3067,11 +3115,24 @@
       maintData[curCar][curMaintKey] = { km, date, interval, notes, ts: Date.now() };
       saveMaintData();
 
+      // كل بند يُحفظ بعمودين منفصلين في الشيت: maint_<key>_value (الكيلومتر أو التاريخ حسب النوع)
+      // و maint_<key>_meta (JSON يحوي باقي التفاصيل: التاريخ/الفترة/الملاحظات)
+      const valueForSheet = isKm ? km : date;
+      const metaForSheet = JSON.stringify({
+        date: isKm ? date : undefined,
+        interval,
+        notes,
+        ts: Date.now(),
+      });
+
       sendSheet({
-        sheet: 'cars', action: 'update_maint',
+        sheet: 'cars', action: 'update_maint_item',
         car_id: String(curCar), user_phone: user?.phone || '',
         car_name: cars.find(c => c.id === curCar)?.name || '',
-        maint: JSON.stringify(maintData[curCar]),
+        maint_key: curMaintKey,
+        maint_type: item.type,
+        maint_value: valueForSheet,
+        maint_meta: metaForSheet,
       });
 
       closeModal('modal-maint-detail');
@@ -3292,6 +3353,7 @@ function toast(msg, type = '') {
       const swBlob = new Blob([swCode], { type: 'application/javascript' });
       navigator.serviceWorker.register(URL.createObjectURL(swBlob), { scope: './' }).catch(() => { });
     }
+
   </script>
 </body>
 
