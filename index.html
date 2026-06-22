@@ -2892,14 +2892,28 @@
     }
 
     /* ─── حساب الكيلومتر الحالي المعروف للسيارة (من آخر تسجيل زيت) ─── */
-    function getKnownCurrentKm(carId) {
-      const e = oilData[carId] || [];
-      if (!e.length) return null;
-      const last = e[e.length - 1];
-      const km = parseInt(last.km);
-      return isNaN(km) ? null : km;
-    }
+      function getKnownCurrentKm(carId) {
+  // أولاً: ابحث في بيانات الصيانة عن أعلى كيلومتر مسجل
+  const carMaint = maintData[carId] || {};
+  let maxKm = null;
+  
+  MAINT_ITEMS.forEach(item => {
+    if (item.type !== 'km') return;
+    const entry = carMaint[item.key];
+    if (!entry || !entry.km) return;
+    const km = parseInt(entry.km);
+    if (!isNaN(km) && (maxKm === null || km > maxKm)) maxKm = km;
+  });
 
+  // ثانياً: قارن مع كيلومتر الزيت
+  const oilEntries = oilData[carId] || [];
+  if (oilEntries.length) {
+    const lastOilKm = parseInt(oilEntries[oilEntries.length - 1].km);
+    if (!isNaN(lastOilKm) && (maxKm === null || lastOilKm > maxKm)) maxKm = lastOilKm;
+  }
+
+  return maxKm;
+}
     /* ─── أسوأ حالة صيانة لعرضها كـ badge على بطاقة السيارة ─── */
     function getWorstMaintState(car) {
       const currentKm = getKnownCurrentKm(car.id);
@@ -3013,13 +3027,11 @@
           // لا يوجد تسجيل لهذا البند إطلاقاً بعد
           statusCls = 'unset'; statusTxt = t.maintNotSet;
         } else if (item.type === 'km') {
-          if (status.noCurrentKm) {
-            // عندنا تسجيل سابق لكن ما نعرف الكيلومتر الحالي للسيارة:
-            // اعرض الكيلومتر الواجب التغيير عنده بدل "غير محدد"
-            statusCls = 'soon';
-            statusTxt = t.maintNextAtKm(status.nextDue);
-          }
-          else if (status.state === 'due') { statusCls = 'due'; statusTxt = t.maintOverdueKm(Math.abs(status.remaining)); }
+  if (status.noCurrentKm) {
+    // نعرض كيلومتر التغيير القادم فقط — لا نعرف المتبقي
+    statusCls = 'unset';
+    statusTxt = t.maintNextAtKm(status.nextDue);
+  } if (status.state === 'due') { statusCls = 'due'; statusTxt = t.maintOverdueKm(Math.abs(status.remaining)); }
           else if (status.state === 'soon') { statusCls = 'soon'; statusTxt = t.maintRemainingKm(status.remaining); }
           else { statusCls = 'ok'; statusTxt = t.maintRemainingKm(status.remaining); }
         } else {
