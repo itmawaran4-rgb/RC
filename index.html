@@ -555,13 +555,23 @@
     }
 
     .sb-branch-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-    }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
 
+    background: linear-gradient(135deg, #f7941d, #e67e00);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.sb-branch-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(247, 148, 29, 0.4);
+}
     .sb-branch-img {
       width: 100%;
       aspect-ratio: 1/1;
