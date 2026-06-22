@@ -506,6 +506,88 @@
       color: var(--gold);
     }
 
+    /* ─── SIDEBAR: ABOUT / CONTACT BUTTONS ─── */
+    .sb-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: var(--tr);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      margin-bottom: 8px;
+      text-decoration: none;
+    }
+
+    .sb-action-btn:hover {
+      border-color: var(--gold);
+      background: rgba(245, 166, 35, .06);
+    }
+
+    .sb-action-btn.whatsapp-btn {
+      border-color: rgba(37, 211, 102, .4);
+    }
+
+    .sb-action-btn.whatsapp-btn:hover {
+      background: rgba(37, 211, 102, .08);
+      border-color: #25d366;
+    }
+
+    .sb-action-icon {
+      font-size: 17px;
+      width: 22px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* ─── SIDEBAR: BRANCHES AT BOTTOM ─── */
+    .sb-branches-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .sb-branch-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .sb-branch-img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 10px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+    }
+
+    .sb-branch-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .sb-branch-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: center;
+    }
+
     /* ─── ALERTS ─── */
     #oil-alert {
       display: none;
@@ -1088,6 +1170,105 @@
       box-shadow: none !important;
     }
 
+    /* ─── STAR RATING ─── */
+    .star-rating-wrap {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      animation: fadeIn .25s ease;
+    }
+
+    .star-rating-wrap.show {
+      display: block;
+    }
+
+    .star-rating-label {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .star-rating-stars {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .star-btn {
+      font-size: 28px;
+      cursor: pointer;
+      color: var(--border);
+      transition: transform .15s ease, color .15s ease;
+      background: none;
+      border: none;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .star-btn:hover {
+      transform: scale(1.15);
+    }
+
+    .star-btn.filled {
+      color: var(--gold);
+    }
+
+    /* ─── RECENT FEEDBACK LIST ─── */
+    .recent-feedback-wrap {
+      margin-top: 6px;
+    }
+
+    .recent-feedback-title {
+      font-size: 12.5px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .recent-feedback-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 7px;
+    }
+
+    .recent-feedback-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .recent-feedback-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .recent-feedback-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .recent-feedback-stars {
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    .recent-feedback-text {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
     /* ─── COMPANY ─── */
     .company-info {
       background: var(--card);
@@ -1183,6 +1364,62 @@
       flex-direction: column;
       gap: 0;
       margin-bottom: 8px;
+    }
+
+    /* ─── WA BRANCH BUTTONS WITH IMAGE BELOW ─── */
+    .wa-branches-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .wa-branch-col {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .wa-branch-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: #fff;
+      border-radius: 10px;
+      padding: 9px 4px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: var(--tr);
+    }
+
+    .wa-branch-link:hover {
+      transform: translateY(-1px);
+    }
+
+    .wa-branch-img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      transition: var(--tr);
+    }
+
+    .wa-branch-img:hover {
+      border-color: var(--gold);
+    }
+
+    .wa-branch-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     /* ─── MODAL ─── */
@@ -1293,6 +1530,66 @@
       font-size: 15px;
       font-weight: 700;
       font-family: var(--font-en);
+    }
+
+    /* ─── ANNUAL EXPIRY BAR ─── */
+    .annual-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      cursor: pointer;
+      transition: var(--tr);
+    }
+
+    .annual-bar:hover {
+      border-color: var(--gold);
+    }
+
+    .annual-bar.due {
+      border-color: rgba(255, 77, 109, .4);
+      background: linear-gradient(135deg, rgba(255, 77, 109, .1), rgba(255, 77, 109, .03));
+    }
+
+    .annual-bar.soon {
+      border-color: rgba(245, 166, 35, .45);
+      background: linear-gradient(135deg, rgba(245, 166, 35, .1), rgba(245, 166, 35, .03));
+    }
+
+    .annual-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .annual-bar-icon {
+      font-size: 20px;
+    }
+
+    .annual-bar-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .annual-bar-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .annual-bar-value {
+      font-size: 14px;
+      font-weight: 800;
+      font-family: var(--font-en);
+    }
+
+    .annual-bar-edit {
+      font-size: 12px;
+      color: var(--muted);
     }
 
     .btn-check {
@@ -1779,6 +2076,140 @@
       background: var(--red);
     }
 
+    /* ─── COST SUMMARY (yearly costs) ─── */
+    .cost-summary-box {
+      background: linear-gradient(135deg, rgba(245, 166, 35, .12), rgba(245, 166, 35, .03));
+      border: 1.5px solid rgba(245, 166, 35, .35);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      cursor: pointer;
+      transition: var(--tr);
+    }
+
+    .cost-summary-box:hover {
+      border-color: var(--gold);
+    }
+
+    .cost-summary-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cost-summary-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .cost-summary-year {
+      font-size: 11px;
+      color: var(--gold);
+      font-weight: 700;
+      font-family: var(--font-en);
+    }
+
+    .cost-summary-total {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--gold);
+      font-family: var(--font-en);
+      margin-top: 4px;
+    }
+
+    .cost-year-selector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .cost-year-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: var(--tr);
+      color: var(--text);
+    }
+
+    .cost-year-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .cost-year-display {
+      font-size: 20px;
+      font-weight: 800;
+      font-family: var(--font-en);
+      min-width: 70px;
+      text-align: center;
+    }
+
+    .cost-breakdown-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .cost-breakdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 13px;
+    }
+
+    .cost-breakdown-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    .cost-breakdown-value {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--gold);
+      font-family: var(--font-en);
+    }
+
+    .cost-breakdown-empty {
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .cost-grand-total {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(245, 166, 35, .15), rgba(245, 166, 35, .04));
+      border: 1.5px solid rgba(245, 166, 35, .4);
+      border-radius: 10px;
+      padding: 13px;
+      margin-top: 12px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .cost-grand-total span:last-child {
+      color: var(--gold);
+      font-family: var(--font-en);
+    }
+
     /* ─── PWA ─── */
     #pwa-banner {
       display: none;
@@ -2037,34 +2468,34 @@
         </div>
 <div class="company-item" style="flex-direction:column;align-items:flex-start;gap:8px;">
   <span style="font-size:12px;color:var(--muted);font-weight:600;">💬 <span id="lbl-cwa">واتساب</span></span>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;width:100%;">
-    <a href="https://wa.me/9647505009006" target="_blank" style="
-      display:flex;align-items:center;justify-content:center;gap:4px;
-      background:linear-gradient(135deg,#25d366,#128c7e);
-      color:#fff;border-radius:10px;padding:9px 4px;
-      font-size:12px;font-weight:700;text-decoration:none;
-      white-space:nowrap;transition:all .25s ease;">
-      <span style="font-size:14px;">💬</span>
-      <span id="lbl_wa_erbil">أربيل</span>
-    </a>
-    <a href="https://wa.me/9647759911001" target="_blank" style="
-      display:flex;align-items:center;justify-content:center;gap:4px;
-      background:linear-gradient(135deg,#25d366,#128c7e);
-      color:#fff;border-radius:10px;padding:9px 4px;
-      font-size:12px;font-weight:700;text-decoration:none;
-      white-space:nowrap;transition:all .25s ease;">
-      <span style="font-size:14px;">💬</span>
-      <span id="lbl_wa_baghdad">بغداد</span>
-    </a>
-    <a href="https://wa.me/9647710773600" target="_blank" style="
-      display:flex;align-items:center;justify-content:center;gap:4px;
-      background:linear-gradient(135deg,#25d366,#128c7e);
-      color:#fff;border-radius:10px;padding:9px 4px;
-      font-size:12px;font-weight:700;text-decoration:none;
-      white-space:nowrap;transition:all .25s ease;">
-      <span style="font-size:14px;">💬</span>
-      <span id="lbl_wa_diyala">ديالى</span>
-    </a>
+  <div class="wa-branches-grid">
+    <div class="wa-branch-col">
+      <a href="https://wa.me/9647505009006" target="_blank" class="wa-branch-link">
+        <span style="font-size:14px;">💬</span>
+        <span id="lbl_wa_erbil">أربيل</span>
+      </a>
+      <div class="wa-branch-img" onclick="window.open('https://wa.me/9647505009006','_blank')">
+        <img src="erbil.png" alt="Erbil" loading="lazy" onerror="this.parentElement.innerHTML='💬'">
+      </div>
+    </div>
+    <div class="wa-branch-col">
+      <a href="https://wa.me/9647759911001" target="_blank" class="wa-branch-link">
+        <span style="font-size:14px;">💬</span>
+        <span id="lbl_wa_baghdad">بغداد</span>
+      </a>
+      <div class="wa-branch-img" onclick="window.open('https://wa.me/9647759911001','_blank')">
+        <img src="baghdad.png" alt="Baghdad" loading="lazy" onerror="this.parentElement.innerHTML='💬'">
+      </div>
+    </div>
+    <div class="wa-branch-col">
+      <a href="https://wa.me/9647710773600" target="_blank" class="wa-branch-link">
+        <span style="font-size:14px;">💬</span>
+        <span id="lbl_wa_diyala">ديالى</span>
+      </a>
+      <div class="wa-branch-img" onclick="window.open('https://wa.me/9647710773600','_blank')">
+        <img src="diyala.png" alt="Diyala" loading="lazy" onerror="this.parentElement.innerHTML='💬'">
+      </div>
+    </div>
   </div>
 </div>
         <div class="company-item"><span class="ci-icon">🏢</span><span id="lbl-caddr">العنوان:</span>&nbsp;<span
@@ -2077,6 +2508,22 @@
         <div style="display:flex; gap:8px; align-items:stretch;">
           <textarea class="feedback-textarea" id="feedback-text" placeholder="..." style="height:42px; padding:10px; font-size:13px; flex:1; resize:none;"></textarea>
           <button class="btn-primary" id="feedback-btn" onclick="submitFeedback()" style="width:auto; padding:0 16px; margin:0; font-size:13px; border-radius:10px;">إرسال</button>
+        </div>
+        <!-- نجوم التقييم تظهر بعد الإرسال -->
+        <div class="star-rating-wrap" id="star-rating-wrap">
+          <div class="star-rating-label" id="star-rating-label">قيّم تجربتك معنا</div>
+          <div class="star-rating-stars" id="star-rating-stars">
+            <button class="star-btn" data-val="1" onclick="setStarRating(1)">★</button>
+            <button class="star-btn" data-val="2" onclick="setStarRating(2)">★</button>
+            <button class="star-btn" data-val="3" onclick="setStarRating(3)">★</button>
+            <button class="star-btn" data-val="4" onclick="setStarRating(4)">★</button>
+            <button class="star-btn" data-val="5" onclick="setStarRating(5)">★</button>
+          </div>
+        </div>
+        <!-- آخر 3 ملاحظات -->
+        <div class="recent-feedback-wrap" id="recent-feedback-wrap" style="display:none;">
+          <div class="recent-feedback-title" id="recent-feedback-title">💬 آخر الملاحظات</div>
+          <div id="recent-feedback-list"></div>
         </div>
       </div>
 
@@ -2120,7 +2567,7 @@
             class="sb-lang-check">✓</span></button>
       </div>
     </div>
-    <div class="sb-section" style="padding-bottom:30px;">
+    <div class="sb-section">
       <div class="sb-section-hdr" id="sb-theme-hdr">🎨 المظهر</div>
       <div class="sb-theme-grid">
         <button class="sb-theme-btn active" id="btn-theme-dark" onclick="setTheme('dark')"><span
@@ -2128,6 +2575,45 @@
         <button class="sb-theme-btn" id="btn-theme-light" onclick="setTheme('light')"><span
             class="th-icon">☀️</span><span id="lbl-theme-light">عادي</span></button>
       </div>
+    </div>
+    <!-- About Us / Contact Us -->
+    <div class="sb-section">
+      <div class="sb-section-hdr" id="sb-more-hdr">ℹ️ معلومات</div>
+      <button class="sb-action-btn" onclick="openAboutModal()">
+        <span class="sb-action-icon">ℹ️</span><span id="sb-about-us">من نحن</span>
+      </button>
+      <a class="sb-action-btn whatsapp-btn" href="https://wa.me/9647511222060" target="_blank">
+        <span class="sb-action-icon">💬</span><span id="sb-contact-us">الاتصال بنا</span>
+      </a>
+    </div>
+    <!-- Branches at bottom of sidebar -->
+    <div class="sb-section" style="padding-bottom:30px;">
+      <div class="sb-section-hdr" id="sb-branches-hdr">📍 فروعنا</div>
+      <div class="sb-branches-grid">
+        <a class="sb-branch-item" href="https://wa.me/9647505009006" target="_blank">
+          <div class="sb-branch-img"><img src="erbil.png" alt="Erbil" loading="lazy" onerror="this.parentElement.innerHTML='💬'"></div>
+          <div class="sb-branch-label" id="sb-branch-erbil">أربيل</div>
+        </a>
+        <a class="sb-branch-item" href="https://wa.me/9647759911001" target="_blank">
+          <div class="sb-branch-img"><img src="baghdad.png" alt="Baghdad" loading="lazy" onerror="this.parentElement.innerHTML='💬'"></div>
+          <div class="sb-branch-label" id="sb-branch-baghdad">بغداد</div>
+        </a>
+        <a class="sb-branch-item" href="https://wa.me/9647710773600" target="_blank">
+          <div class="sb-branch-img"><img src="diyala.png" alt="Diyala" loading="lazy" onerror="this.parentElement.innerHTML='💬'"></div>
+          <div class="sb-branch-label" id="sb-branch-diyala">ديالى</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL: ABOUT US ══ -->
+  <div class="modal-overlay" id="modal-about">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <button class="modal-close" onclick="closeModal('modal-about')">✕</button>
+      <div class="modal-title" id="about-title">ℹ️ من نحن</div>
+      <div class="modal-sub" id="about-sub">RC Service</div>
+      <div style="font-size:14px;line-height:1.8;color:var(--text)" id="about-body"></div>
     </div>
   </div>
 
@@ -2162,6 +2648,11 @@
       </div>
 
       <div class="form-group">
+        <label class="form-label" id="lbl-annual-expiry">تاريخ نفاذ السنوية</label>
+        <input class="form-control" id="add-car-annual" type="date">
+      </div>
+
+      <div class="form-group">
         <div class="checkbox-wrap">
           <input type="checkbox" id="add-car-4x4" onchange="toggleTransferCaseField()">
           <label for="add-car-4x4" id="lbl-4x4">دفع رباعي (4x4)</label>
@@ -2172,6 +2663,21 @@
     </div>
   </div>
 
+  <!-- ══ MODAL: EDIT ANNUAL EXPIRY ══ -->
+  <div class="modal-overlay" id="modal-annual-edit">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <button class="modal-close" onclick="closeModal('modal-annual-edit')">✕</button>
+      <div class="modal-title" id="annual-edit-title">📅 تاريخ نفاذ السنوية</div>
+      <div class="modal-sub" id="annual-edit-sub"></div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-annual-edit-date">تاريخ النفاذ</label>
+        <input class="form-control" id="annual-edit-date" type="date">
+      </div>
+      <button class="btn-primary" onclick="saveAnnualExpiry()" id="annual-edit-save">حفظ</button>
+    </div>
+  </div>
+
   <!-- ══ MODAL: CAR DETAIL ══ -->
   <div class="modal-overlay" id="modal-car-detail">
     <div class="modal-sheet">
@@ -2179,7 +2685,29 @@
       <button class="modal-close" onclick="closeModal('modal-car-detail')">✕</button>
       <div class="modal-title" id="d-car-name"></div>
       <div class="modal-sub" id="d-car-plate"></div>
+
+      <!-- شريط نفاذ السنوية -->
+      <div class="annual-bar" id="annual-bar" onclick="openAnnualEdit()" style="display:none;">
+        <div class="annual-bar-left">
+          <span class="annual-bar-icon">📅</span>
+          <div class="annual-bar-text">
+            <span class="annual-bar-label" id="annual-bar-label">نفاذ السنوية</span>
+            <span class="annual-bar-value" id="annual-bar-value">—</span>
+          </div>
+        </div>
+        <span class="annual-bar-edit">✏️</span>
+      </div>
+
       <div class="car-detail-grid" id="d-grid"></div>
+
+      <!-- ملخص التكاليف السنوية -->
+      <div class="cost-summary-box" id="cost-summary-box" onclick="openCostModal()">
+        <div class="cost-summary-top">
+          <span class="cost-summary-label" id="cost-summary-label">💰 إجمالي تكاليف السنة الحالية</span>
+          <span class="cost-summary-year" id="cost-summary-year"></span>
+        </div>
+        <div class="cost-summary-total" id="cost-summary-total">0</div>
+      </div>
 
       <!-- قسم الزيت (قابل للطي) -->
       <div class="expand-section" id="oil-expand-section">
@@ -2231,6 +2759,10 @@
               <textarea class="form-control" id="oil-notes" rows="2" placeholder="..."></textarea>
             </div>
             <div class="form-group">
+              <label class="form-label" id="lbl-oil-cost">تكلفة الخدمة (اختياري)</label>
+              <input class="form-control" id="oil-cost" type="number" placeholder="0" min="0">
+            </div>
+            <div class="form-group">
               <div class="reminder-label-txt" id="lbl-reminder">تذكير بتغيير الزيت بعد</div>
               <div class="reminder-row">
                 <input type="number" class="reminder-num" id="oil-reminder" min="0" max="999" placeholder="0" value="0">
@@ -2254,6 +2786,29 @@
       </div>
 
       <button class="btn-del" onclick="deleteCar()">🗑 <span id="del-btn-txt">حذف السيارة</span></button>
+    </div>
+  </div>
+
+  <!-- ══ MODAL: COST BREAKDOWN ══ -->
+  <div class="modal-overlay" id="modal-cost">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <button class="modal-close" onclick="closeModal('modal-cost')">✕</button>
+      <div class="modal-title" id="cost-modal-title">💰 تكاليف السيارة</div>
+      <div class="modal-sub" id="cost-modal-sub"></div>
+
+      <div class="cost-year-selector">
+        <button class="cost-year-btn" onclick="changeCostYear(-1)">◀</button>
+        <div class="cost-year-display" id="cost-year-display">2026</div>
+        <button class="cost-year-btn" onclick="changeCostYear(1)">▶</button>
+      </div>
+
+      <div class="cost-breakdown-list" id="cost-breakdown-list"></div>
+
+      <div class="cost-grand-total">
+        <span id="cost-grand-total-label">الإجمالي</span>
+        <span id="cost-grand-total-value">0</span>
+      </div>
     </div>
   </div>
 
@@ -2287,6 +2842,10 @@
         <div class="form-group">
           <label class="form-label" id="md-lbl-notes">ملاحظات</label>
           <textarea class="form-control" id="md-notes" rows="2" placeholder="..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="md-lbl-cost">تكلفة الخدمة (اختياري)</label>
+          <input class="form-control" id="md-cost" type="number" placeholder="0" min="0">
         </div>
         <button class="btn-primary" id="md-save-btn" onclick="saveMaintItem()">حفظ</button>
       </div>
@@ -2331,6 +2890,7 @@
   whatsapp: '9647505009006',   // ← أربيل (يبقى للمرجع)
   whatsappBaghdad: '9647759911001',   // ← ضع رقم بغداد الحقيقي
   whatsappDiyala:  '9647710773600 ',   // ← ضع رقم ديالى الحقيقي
+  contactUs: '9647511222060', // ← رقم الاتصال بنا في القائمة الجانبية
   address: 'Erbil, 60st | Baghdad, aldora | Diyala, baquba' 
 },
       ADV_FILES: ['ADV/ad3.mp4'],
@@ -2401,6 +2961,7 @@
         oilTitle: 'زيت المحرك والفلتر',
         addCarTitle: 'إضافة سيارة', addCarSub: 'أدخل بيانات السيارة',
         carName: 'اسم السيارة', carType: 'نوع السيارة', plateOpt: 'رقم اللوحة (اختياري)', is4x4: 'دفع رباعي (4x4)',
+        annualExpiry: 'تاريخ نفاذ السنوية',
         feedbackTitle: '💬 أرسل ملاحظاتك', feedbackBtn: 'إرسال', feedbackSending: 'جاري الإرسال...',
         companyTitle: '📍 RC Service', cWa: 'واتساب', cAddr: 'العنوان',
         contactUs: 'تواصل معنا', nearestAgent: 'أقرب وكيل معتمد',
@@ -2421,6 +2982,8 @@
         sbMenu: 'القائمة', sbProfile: 'معلوماتي', sbQrLabel: '📱 باركود رقم الهاتف',
         sbLang: 'تغيير اللغة', sbTheme: 'المظهر', darkMode: 'ليلي', lightMode: 'عادي',
         sbName: 'الاسم', sbPhone: 'الهاتف', sbCity: 'المدينة', sbDob: 'تاريخ الميلاد', sbGender: 'الجنس',
+        sbMore: 'ℹ️ معلومات', sbAboutUs: 'من نحن', sbContactUs: 'الاتصال بنا', sbBranches: '📍 فروعنا',
+        aboutTitle: 'ℹ️ من نحن', aboutBody: 'RC Service هي خدمة متابعة وصيانة المركبات، تساعدك على تتبع تغييرات الزيت وبنود الصيانة الدورية والسنوية لسيارتك بسهولة، مع تنبيهات ذكية وخدمة طلب الكرين عند الحاجة. نحن في خدمتك دائماً عبر فروعنا في أربيل وبغداد وديالى.',
         craneBtn: 'طلب كرين', craneTitle: '🚛 طلب كرين', craneSub: 'أقرب كرين لموقعك الحالي',
         craneLoading: '📡 جارٍ تحديد موقعك...', craneFetching: 'جارٍ البحث عن الكرينات...',
         craneNone: 'لا يوجد كرين متاح حالياً', craneError: 'تعذّر الحصول على الموقع',
@@ -2431,6 +2994,7 @@
         maintNotSet: 'غير محدد', maintOk: 'سليم', maintSoon: 'قريباً', maintDue: 'مستحق الآن',
         maintLastChange: 'آخر تغيير', maintInterval: 'الفترة بين التغييرات', maintKmAtChange: 'الكيلومتر عند آخر تغيير',
         maintDateAtChange: 'تاريخ آخر تغيير', maintNotes: 'ملاحظات', maintSave: 'حفظ',
+        maintCost: 'تكلفة الخدمة (اختياري)',
         maintRecommended: r => `الموصى به: ${r}`,
         maintCurrentKm: 'الكيلومتر الحالي للسيارة', maintRemainingKm: r => `متبقي ${r.toLocaleString('ar-IQ')} كم`,
         maintOverdueKm: r => `تجاوز بـ ${r.toLocaleString('ar-IQ')} كم`,
@@ -2440,6 +3004,14 @@
         maintDays: 'يوم', maintKmUnit: 'كم',
         maintNeedCurrentKm: 'يرجى إدخال الكيلومتر الحالي للسيارة أولاً عبر تسجيل تغيير زيت',
         maintNextAtKm: k => `التغيير القادم عند ${k.toLocaleString('ar-IQ')} كم`,
+        annualBarLabel: 'نفاذ السنوية', annualDueNow: 'منتهية!', annualDaysLeft: d => `${d.toLocaleString('ar-IQ')} يوم متبقي`,
+        annualOverdue: d => `متأخرة ${d.toLocaleString('ar-IQ')} يوم`, annualNotSet: 'غير محدد — اضغط للتعديل',
+        annualEditTitle: '📅 تاريخ نفاذ السنوية', annualEditDate: 'تاريخ النفاذ', annualEditSave: 'حفظ',
+        costSummaryLabel: '💰 إجمالي تكاليف السنة الحالية', costModalTitle: '💰 تكاليف السيارة',
+        costGrandTotal: 'الإجمالي', costEmpty: 'لا توجد تكاليف مسجلة لهذه السنة',
+        costOilLabel: '🛢️ تغيير الزيت', currency: 'د.ع',
+        rateLabel: 'قيّم تجربتك معنا', recentFeedbackTitle: '💬 آخر الملاحظات',
+        sbAnonymous: 'مستخدم',
       },
       ku: {
         regTitle: 'زانیاریەکانی شوفێر', regSub: 'تەنها جارێک پاشەکەوت دەکرێت',
@@ -2449,6 +3021,7 @@
         oilTitle: 'ڕۆنی مۆتۆر و فلتەر',
         addCarTitle: 'زیادکردنی ئەوتۆمبێل', addCarSub: 'زانیاریەکانی ئەوتۆمبێل بنووسە',
         carName: 'ناوی ئەوتۆمبێل', carType: 'جۆری ئەوتۆمبێل', plateOpt: 'ژمارەی لۆحە (ئارەزوومەندانە)', is4x4: 'هاندانی چوار لاتەر (4x4)',
+        annualExpiry: 'بەرواری بەسەرچوونی ساڵانە',
         feedbackTitle: '💬 تێبینی خۆت بنێرە', feedbackBtn: 'ناردن', feedbackSending: 'دەنێردرێت...',
         companyTitle: '📍 RC Service', cWa: 'واتساب', cAddr: 'ناونیشان',
         contactUs: 'پەیوەندیمان پێوەبکە', nearestAgent: 'نزیکترین بریکارى فەرمی',
@@ -2469,6 +3042,8 @@
         sbMenu: 'مینیو', sbProfile: 'زانیاریەکانم', sbQrLabel: '📱 باركۆدی مۆبایل',
         sbLang: 'گۆڕینی زمان', sbTheme: 'ڕووکار', darkMode: 'شەوانە', lightMode: 'ڕۆژانە',
         sbName: 'ناو', sbPhone: 'مۆبایل', sbCity: 'شار', sbDob: 'بەروار', sbGender: 'رەگەز',
+        sbMore: 'ℹ️ زانیاری', sbAboutUs: 'دەربارەمان', sbContactUs: 'پەیوەندیمان پێوەبکە', sbBranches: '📍 لقەکانمان',
+        aboutTitle: 'ℹ️ دەربارەمان', aboutBody: 'RC Service خزمەتگوزاریەکی چاودێری و چاککردنی ئۆتۆمبێلە، یارمەتیت دەدەت بۆ بەدواداچوونی گۆڕینی ڕۆن و بەشەکانی چاککردنی خولانەیی و ساڵانەی ئۆتۆمبێلەکەت بە ئاسانی، لەگەڵ ئاگادارکردنەوەی زیرەک و خزمەتی داواکاری کرێن کاتێک پێویستە. ئێمە هەمیشە لە خزمەتتداین لە ڕێگەی لقەکانمان لە هەولێر، بەغداد و دیالە.',
         craneBtn: 'داواکاری کرێن', craneTitle: '🚛 داواکاری کرێن', craneSub: 'نزیکترین کرێن بۆ شوێنەکەت',
         craneLoading: '📡 شوێنەکەت دیاریدەکرێت...', craneFetching: 'گەڕان بۆ کرێنەکان...',
         craneNone: 'هیچ کرێنێک بەردەست نییە', craneError: 'شوێن نەدۆزرایەوە',
@@ -2479,6 +3054,7 @@
         maintNotSet: 'دیاری نەکراوە', maintOk: 'باشە', maintSoon: 'بەزووی', maintDue: 'ئێستا پێویستە',
         maintLastChange: 'دوایین گۆڕین', maintInterval: 'ماوەی نێوان هەر گۆڕینێک', maintKmAtChange: 'کیلۆمەتر لەکاتی دوایین گۆڕین',
         maintDateAtChange: 'بەرواری دوایین گۆڕین', maintNotes: 'تێبینی', maintSave: 'پاشەکەوتکردن',
+        maintCost: 'تێچووی خزمەتگوزاری (ئارەزوومەندانە)',
         maintRecommended: r => `پێشنیارکراو: ${r}`,
         maintCurrentKm: 'کیلۆمەتری ئێستای ئەوتۆمبێل', maintRemainingKm: r => `${r.toLocaleString()} کم ماوە`,
         maintOverdueKm: r => `${r.toLocaleString()} کم تێپەڕیوە`,
@@ -2488,6 +3064,14 @@
         maintDays: 'ڕۆژ', maintKmUnit: 'کم',
         maintNeedCurrentKm: 'تکایە سەرەتا کیلۆمەتری ئێستای ئەوتۆمبێل بنووسە لە ڕێگەی تۆمارکردنی گۆڕینی ڕۆن',
         maintNextAtKm: k => `گۆڕینی داهاتوو لە ${k.toLocaleString()} کم`,
+        annualBarLabel: 'بەسەرچوونی ساڵانە', annualDueNow: 'بەسەرچووە!', annualDaysLeft: d => `${d.toLocaleString()} ڕۆژ ماوە`,
+        annualOverdue: d => `${d.toLocaleString()} ڕۆژ دواکەوتووە`, annualNotSet: 'دیاری نەکراوە — دابگرە بۆ گۆڕین',
+        annualEditTitle: '📅 بەرواری بەسەرچوونی ساڵانە', annualEditDate: 'بەرواری بەسەرچوون', annualEditSave: 'پاشەکەوتکردن',
+        costSummaryLabel: '💰 کۆی گشتی تێچووی ئەم ساڵە', costModalTitle: '💰 تێچووەکانی ئەوتۆمبێل',
+        costGrandTotal: 'کۆی گشتی', costEmpty: 'هیچ تێچوویەک تۆمار نەکراوە بۆ ئەم ساڵە',
+        costOilLabel: '🛢️ گۆڕینی ڕۆن', currency: 'د.ع',
+        rateLabel: 'هەڵسەنگاندنی ئەزموونەکەت لەگەڵمان', recentFeedbackTitle: '💬 دوایین تێبینیەکان',
+        sbAnonymous: 'بەکارهێنەر',
       },
       en: {
         regTitle: 'Driver Information', regSub: 'Saved once, never asked again',
@@ -2497,6 +3081,7 @@
         oilTitle: 'Engine Oil & Filter',
         addCarTitle: 'Add Vehicle', addCarSub: 'Enter vehicle details',
         carName: 'Vehicle Name', carType: 'Vehicle Type', plateOpt: 'Plate Number (optional)', is4x4: 'Four-Wheel Drive (4x4)',
+        annualExpiry: 'Annual Inspection Expiry',
         feedbackTitle: '💬 Send Feedback', feedbackBtn: 'Send', feedbackSending: 'Sending...',
         companyTitle: '📍 RC Service', cWa: 'WhatsApp', cAddr: 'Address',
         contactUs: 'Contact Us', nearestAgent: 'Nearest Authorized Agent',
@@ -2517,6 +3102,8 @@
         sbMenu: 'Menu', sbProfile: 'My Profile', sbQrLabel: '📱 Phone QR Code',
         sbLang: 'Change Language', sbTheme: 'Appearance', darkMode: 'Dark', lightMode: 'Light',
         sbName: 'Name', sbPhone: 'Phone', sbCity: 'City', sbDob: 'Birthday', sbGender: 'Gender',
+        sbMore: 'ℹ️ Info', sbAboutUs: 'About Us', sbContactUs: 'Contact Us', sbBranches: '📍 Our Branches',
+        aboutTitle: 'ℹ️ About Us', aboutBody: 'RC Service is a vehicle maintenance tracking service that helps you keep track of oil changes and periodic/annual maintenance items for your vehicle with ease, along with smart reminders and an on-demand crane request service. We are always at your service through our branches in Erbil, Baghdad and Diyala.',
         craneBtn: 'Request Crane', craneTitle: '🚛 Request Crane', craneSub: 'Nearest crane to your location',
         craneLoading: '📡 Locating you...', craneFetching: 'Searching for cranes...',
         craneNone: 'No crane available currently', craneError: 'Could not get location',
@@ -2527,6 +3114,7 @@
         maintNotSet: 'Not set', maintOk: 'OK', maintSoon: 'Due soon', maintDue: 'Due now',
         maintLastChange: 'Last change', maintInterval: 'Interval between changes', maintKmAtChange: 'Kilometer at last change',
         maintDateAtChange: 'Date of last change', maintNotes: 'Notes', maintSave: 'Save',
+        maintCost: 'Service cost (optional)',
         maintRecommended: r => `Recommended: ${r}`,
         maintCurrentKm: "Vehicle's current kilometer", maintRemainingKm: r => `${r.toLocaleString()} km remaining`,
         maintOverdueKm: r => `${r.toLocaleString()} km overdue`,
@@ -2536,6 +3124,14 @@
         maintDays: 'days', maintKmUnit: 'km',
         maintNeedCurrentKm: "Please enter the vehicle's current km first by logging an oil change",
         maintNextAtKm: k => `Next change at ${k.toLocaleString()} km`,
+        annualBarLabel: 'Annual Inspection Expiry', annualDueNow: 'Expired!', annualDaysLeft: d => `${d.toLocaleString()} days left`,
+        annualOverdue: d => `${d.toLocaleString()} days overdue`, annualNotSet: 'Not set — tap to set',
+        annualEditTitle: '📅 Annual Inspection Expiry', annualEditDate: 'Expiry Date', annualEditSave: 'Save',
+        costSummaryLabel: '💰 Total cost this year', costModalTitle: '💰 Vehicle Costs',
+        costGrandTotal: 'Total', costEmpty: 'No costs recorded for this year',
+        costOilLabel: '🛢️ Oil Change', currency: 'IQD',
+        rateLabel: 'Rate your experience with us', recentFeedbackTitle: '💬 Recent Feedback',
+        sbAnonymous: 'User',
       },
     };
 
@@ -2547,9 +3143,16 @@
     let cars = JSON.parse(localStorage.getItem('rc_cars') || '[]');
     let oilData = JSON.parse(localStorage.getItem('rc_oil') || '{}');
     let maintData = JSON.parse(localStorage.getItem('rc_maint') || '{}'); // { carId: { itemKey: {km, date, interval, notes, ts} } }
+    // تكاليف الخدمات — محفوظة محلياً فقط في الهاتف، لا تُرسل لقاعدة البيانات
+    // البنية: { carId: [ {key:'oil'|maintKey, cost, date, ts} , ... ] }
+    let costData = JSON.parse(localStorage.getItem('rc_costs') || '{}');
+    // تواريخ نفاذ السنوية — محلية + تُرسل للشيت
+    let annualData = JSON.parse(localStorage.getItem('rc_annual') || '{}'); // { carId: 'YYYY-MM-DD' }
     let curCar = null;
     let curMaintKey = null;
     let theme = localStorage.getItem('rc_theme') || 'dark';
+    let curStarRating = 0;
+    let costModalYear = new Date().getFullYear();
 
     /* ═══════════════════════════════════════
        INIT
@@ -2561,6 +3164,7 @@
       if (!user) { show('screen-register'); return; }
       show('screen-main'); renderMain(); applyCompany(); initADV();
       fetchUserDataFromSheets();
+      loadRecentFeedback();
     });
 
     /* ─── THEME ─── */
@@ -2611,6 +3215,9 @@
       set('sb-menu-label', t.sbMenu); set('sb-profile-hdr-txt', t.sbProfile);
       set('sb-qr-label', t.sbQrLabel); set('sb-lang-hdr', '🌐 ' + t.sbLang);
       set('sb-theme-hdr', '🎨 ' + t.sbTheme); set('lbl-theme-dark', t.darkMode); set('lbl-theme-light', t.lightMode);
+      set('sb-more-hdr', t.sbMore); set('sb-about-us', t.sbAboutUs); set('sb-contact-us', t.sbContactUs);
+      set('sb-branches-hdr', t.sbBranches);
+      set('sb-branch-erbil', t.lbl_wa_erbil); set('sb-branch-baghdad', t.lbl_wa_baghdad); set('sb-branch-diyala', t.lbl_wa_diyala);
       ['ar', 'ku', 'en'].forEach(l => document.getElementById('sb-lang-' + l).classList.toggle('active', l === lang));
       updateThemeButtons();
       const body = document.getElementById('sb-profile-body');
@@ -2639,7 +3246,17 @@
         setTimeout(() => { const el = container.querySelector('img') || container.querySelector('canvas'); if (el) { el.style.borderRadius = '10px'; el.style.display = 'block'; } }, 80);
       } catch (e) { container.innerHTML = `<div style="font-size:12px;color:var(--muted)">${phone}</div>`; }
     }
-    function switchLang(l) { lang = l; localStorage.setItem('rc_lang', l); applyLang(l); if (user) { renderMain(); checkAlerts(); } renderSidebar(); toast(T[l].saved, 'success'); }
+    function switchLang(l) { lang = l; localStorage.setItem('rc_lang', l); applyLang(l); if (user) { renderMain(); checkAlerts(); loadRecentFeedback(); } renderSidebar(); toast(T[l].saved, 'success'); }
+
+    /* ─── ABOUT MODAL ─── */
+    function openAboutModal() {
+      const t = T[lang];
+      set('about-title', t.aboutTitle);
+      set('about-sub', 'RC Service');
+      const body = document.getElementById('about-body');
+      if (body) body.textContent = t.aboutBody;
+      openModal('modal-about');
+    }
 
     /* ─── ADV ─── */
     let advIndex = 0, advTimer = null;
@@ -2715,12 +3332,14 @@
       set('lbl-oil-section-title', t.oilTitle);
       set('add-car-title', t.addCarTitle); set('add-car-sub', t.addCarSub);
       set('lbl-car-name', t.carName); set('lbl-car-type', t.carType); set('lbl-plate', t.plateOpt); set('lbl-4x4', t.is4x4);
+      set('lbl-annual-expiry', t.annualExpiry);
       set('del-btn-txt', t.delBtn);
       set('new-oil-txt', t.newOilBtn); set('lbl-oil-km', t.oilKm); set('lbl-oil-date', t.oilDate);
       set('lbl-filter', t.filterLbl); set('lbl-oil-notes', t.oilNotes);
       set('lbl-oil-interval', t.oilInterval); set('opt-interval-none', t.oilIntervalNone);
       set('next-oil-box-label', t.nextOilLabel); set('lbl-reminder', t.remLbl); set('reminder-unit', t.remUnit);
       set('save-oil-btn', t.saveOil); set('new-oil-title', t.newOilTitle);
+      set('lbl-oil-cost', t.maintCost);
       set('feedback-title', t.feedbackTitle); set('feedback-btn', t.feedbackBtn);
       set('company-title', t.companyTitle); set('lbl-cwa', t.cWa + ':'); set('lbl-caddr', t.cAddr + ':');
       set('oil-alert-title', t.oilAlertTitle);
@@ -2730,9 +3349,21 @@
       set('lbl_wa_erbil', t.lbl_wa_erbil);
       set('lbl_wa_baghdad', t.lbl_wa_baghdad);
       set('lbl_wa_diyala', t.lbl_wa_diyala);
+      set('md-lbl-cost', t.maintCost);
+      set('star-rating-label', t.rateLabel);
+      set('recent-feedback-title', t.recentFeedbackTitle);
+      set('cost-summary-label', t.costSummaryLabel);
+      set('cost-modal-title', t.costModalTitle);
+      set('cost-grand-total-label', t.costGrandTotal);
+      set('annual-bar-label', t.annualBarLabel);
+      set('annual-edit-title', t.annualEditTitle);
+      set('lbl-annual-edit-date', t.annualEditDate);
+      set('annual-edit-save', t.annualEditSave);
       updatePWAText();
       if (document.getElementById('modal-car-detail').classList.contains('open') && curCar) {
         renderMaintList(curCar);
+        renderAnnualBar(curCar);
+        renderCostSummary(curCar);
       }
     }
     function set(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
@@ -2749,6 +3380,7 @@
       localStorage.setItem('rc_user', JSON.stringify(user));
       sendSheet({ sheet: 'users', name, phone, city, dob, gender, timestamp: new Date().toISOString() });
       show('screen-main'); renderMain(); checkAlerts(); applyCompany(); initADV(); toast(t.saved, 'success');
+      loadRecentFeedback();
     }
 
     /* ═══════════════════════════════════════
@@ -2760,6 +3392,7 @@
       document.getElementById('add-car-name').value = '';
       document.getElementById('add-car-type').value = '1';
       document.getElementById('add-car-plate').value = '';
+      document.getElementById('add-car-annual').value = '';
       document.getElementById('add-car-4x4').checked = false;
       openModal('modal-add-car');
     }
@@ -2769,6 +3402,7 @@
       const carName = get('add-car-name').trim();
       const carType = get('add-car-type');
       const plate = get('add-car-plate').trim();
+      const annualExpiry = get('add-car-annual');
       const is4x4 = document.getElementById('add-car-4x4').checked;
       if (!carName) { toast(t.fillAll, 'error'); return; }
 
@@ -2776,6 +3410,12 @@
 
       cars.push(carData);
       saveCars();
+
+      if (annualExpiry) {
+        annualData[carData.id] = annualExpiry;
+        localStorage.setItem('rc_annual', JSON.stringify(annualData));
+      }
+
       closeModal('modal-add-car');
       renderMain();
       toast(t.saved, 'success');
@@ -2788,6 +3428,7 @@
         carType: carData.type || '',
         plateNumber: carData.plateNumber || '',
         is4x4: is4x4 ? 'yes' : 'no',
+        annualExpiry: annualExpiry || '',
         timestamp: new Date().toISOString(),
       });
     }
@@ -2816,6 +3457,12 @@
             is4x4:       String(c.is4x4) === 'yes',
           };
           cars.push(carData);
+
+          // ─── تاريخ نفاذ السنوية (من الشيت إذا متوفر ولم يُعدَّل محلياً بقيمة أحدث) ───
+          const annualRaw = c.annualExpiry ? String(c.annualExpiry).split('T')[0] : '';
+          if (annualRaw && !annualData[carData.id]) {
+            annualData[carData.id] = annualRaw;
+          }
 
           // ─── بيانات الزيت ───
           // oilDate قد يصل كـ ISO string من Sheets — نأخذ الجزء قبل T فقط
@@ -2857,6 +3504,7 @@
         saveCars();
         localStorage.setItem('rc_oil',   JSON.stringify(oilData));
         localStorage.setItem('rc_maint', JSON.stringify(maintData));
+        localStorage.setItem('rc_annual', JSON.stringify(annualData));
         renderMain();
         checkAlerts();
 
@@ -2865,6 +3513,8 @@
       }
     }
     function saveMaintData() { localStorage.setItem('rc_maint', JSON.stringify(maintData)); }
+    function saveCostData() { localStorage.setItem('rc_costs', JSON.stringify(costData)); }
+    function saveAnnualData() { localStorage.setItem('rc_annual', JSON.stringify(annualData)); }
     function renderMain() { renderCars(); }
 
     /* ─── حساب حالة بند صيانة واحد ─── */
@@ -2983,6 +3633,9 @@
   <div class="car-detail-item"><div class="car-detail-label">${t.typeLabel}</div><div class="car-detail-value">${typeName}</div></div>
   ${c.is4x4 ? `<div class="car-detail-item"><div class="car-detail-label">4x4</div><div class="car-detail-value">✓</div></div>` : ''}`;
 
+      renderAnnualBar(carId);
+      renderCostSummary(carId);
+
       // منطق الزيت
       document.getElementById('new-oil-form').style.display = 'none';
       const entries = oilData[carId] || [];
@@ -3008,6 +3661,7 @@
       document.getElementById('oil-km').value = '';
       document.getElementById('oil-notes').value = '';
       document.getElementById('oil-filter').checked = false;
+      document.getElementById('oil-cost').value = '';
       document.getElementById('oil-reminder').value = '0';
       document.getElementById('oil-interval').value = '0';
       document.getElementById('next-oil-box').style.display = 'none';
@@ -3015,6 +3669,143 @@
       renderMaintList(carId);
 
       openModal('modal-car-detail');
+    }
+
+    /* ─── شريط نفاذ السنوية ─── */
+    function renderAnnualBar(carId) {
+      const t = T[lang];
+      const bar = document.getElementById('annual-bar');
+      const expiry = annualData[carId];
+      bar.style.display = 'flex';
+      bar.classList.remove('due', 'soon');
+      if (!expiry) {
+        set('annual-bar-value', t.annualNotSet);
+        return;
+      }
+      const todayMs = new Date().setHours(0, 0, 0, 0);
+      const expDate = new Date(expiry); expDate.setHours(0, 0, 0, 0);
+      const diffDays = Math.round((expDate.getTime() - todayMs) / 86400000);
+      if (diffDays < 0) {
+        bar.classList.add('due');
+        set('annual-bar-value', t.annualOverdue(Math.abs(diffDays)));
+      } else if (diffDays === 0) {
+        bar.classList.add('due');
+        set('annual-bar-value', t.annualDueNow);
+      } else if (diffDays <= 30) {
+        bar.classList.add('soon');
+        set('annual-bar-value', t.annualDaysLeft(diffDays));
+      } else {
+        set('annual-bar-value', t.annualDaysLeft(diffDays));
+      }
+    }
+
+    function openAnnualEdit() {
+      if (!curCar) return;
+      const t = T[lang];
+      const c = cars.find(x => x.id === curCar);
+      set('annual-edit-sub', c ? c.name : '');
+      document.getElementById('annual-edit-date').value = annualData[curCar] || '';
+      openModal('modal-annual-edit');
+    }
+
+    function saveAnnualExpiry() {
+      const t = T[lang];
+      const date = get('annual-edit-date');
+      if (!curCar) return;
+      if (date) {
+        annualData[curCar] = date;
+      } else {
+        delete annualData[curCar];
+      }
+      saveAnnualData();
+      sendSheet({
+        sheet: 'cars', action: 'update_annual_expiry',
+        car_id: String(curCar), user_phone: user?.phone || '',
+        annualExpiry: date || '',
+      });
+      renderAnnualBar(curCar);
+      closeModal('modal-annual-edit');
+      toast(t.saved, 'success');
+    }
+
+    /* ─── ملخص التكاليف السنوية (محلي بالكامل) ─── */
+    function getYearCosts(carId, year) {
+      const entries = costData[carId] || [];
+      return entries.filter(e => {
+        if (!e.date) return false;
+        return new Date(e.date).getFullYear() === year;
+      });
+    }
+
+    function renderCostSummary(carId) {
+      const t = T[lang];
+      const year = new Date().getFullYear();
+      const entries = getYearCosts(carId, year);
+      const total = entries.reduce((sum, e) => sum + (parseFloat(e.cost) || 0), 0);
+      set('cost-summary-year', String(year));
+      set('cost-summary-total', total.toLocaleString() + ' ' + t.currency);
+    }
+
+    function openCostModal() {
+      if (!curCar) return;
+      costModalYear = new Date().getFullYear();
+      const c = cars.find(x => x.id === curCar);
+      set('cost-modal-sub', c ? c.name : '');
+      renderCostBreakdown();
+      openModal('modal-cost');
+    }
+
+    function changeCostYear(delta) {
+      costModalYear += delta;
+      renderCostBreakdown();
+    }
+
+    function renderCostBreakdown() {
+      const t = T[lang];
+      set('cost-year-display', String(costModalYear));
+      const entries = getYearCosts(curCar, costModalYear);
+      const listEl = document.getElementById('cost-breakdown-list');
+
+      if (!entries.length) {
+        listEl.innerHTML = `<div class="cost-breakdown-empty">${t.costEmpty}</div>`;
+        set('cost-grand-total-value', '0 ' + t.currency);
+        return;
+      }
+
+      // تجميع حسب نوع الخدمة
+      const grouped = {};
+      entries.forEach(e => {
+        const key = e.key || 'other';
+        if (!grouped[key]) grouped[key] = 0;
+        grouped[key] += parseFloat(e.cost) || 0;
+      });
+
+      const nameKey = lang === 'ku' ? 'nameKu' : lang === 'en' ? 'nameEn' : 'nameAr';
+      let grandTotal = 0;
+      listEl.innerHTML = Object.keys(grouped).map(key => {
+        grandTotal += grouped[key];
+        let label, icon;
+        if (key === 'oil') { icon = '🛢️'; label = t.costOilLabel.replace('🛢️ ', ''); }
+        else {
+          const item = getMaintItem(key);
+          if (item) { icon = item.icon; label = item[nameKey]; }
+          else { icon = '🔧'; label = key; }
+        }
+        return `<div class="cost-breakdown-item">
+      <span class="cost-breakdown-name">${icon} ${label}</span>
+      <span class="cost-breakdown-value">${grouped[key].toLocaleString()} ${t.currency}</span>
+    </div>`;
+      }).join('');
+
+      set('cost-grand-total-value', grandTotal.toLocaleString() + ' ' + t.currency);
+    }
+
+    function addCostEntry(carId, key, cost, date) {
+      const c = parseFloat(cost);
+      if (!c || c <= 0) return; // لا تكلفة مدخلة — تجاهل
+      if (!costData[carId]) costData[carId] = [];
+      costData[carId].push({ key, cost: c, date: date || today(), ts: Date.now() });
+      saveCostData();
     }
 
     /* ─── عرض قائمة بنود الصيانة الأخرى ─── */
@@ -3111,6 +3902,7 @@
       set('md-lbl-date', t.maintDateAtChange);
       set('md-lbl-interval', t.maintInterval);
       set('md-lbl-notes', t.maintNotes);
+      set('md-lbl-cost', t.maintCost);
       set('md-save-btn', t.maintSave);
       document.getElementById('md-interval-unit').textContent = isKm ? t.maintKmUnit : t.maintDays;
       set('md-default-hint', t.maintRecommended(item[rangeKey]));
@@ -3119,6 +3911,7 @@
       document.getElementById('md-date').value = entry && entry.date ? entry.date : today();
       document.getElementById('md-interval').value = entry && entry.interval ? entry.interval : item.defaultInterval;
       document.getElementById('md-notes').value = entry && entry.notes ? entry.notes : '';
+      document.getElementById('md-cost').value = '';
 
       openModal('modal-maint-detail');
     }
@@ -3132,6 +3925,7 @@
       const date     = get('md-date');
       const interval = parseInt(get('md-interval')) || item.defaultInterval;
       const notes    = get('md-notes').trim();
+      const cost     = get('md-cost').trim();
 
       if (isKm && !km) { toast(t.fillAll, 'error'); return; }
       if (!date) { toast(t.fillAll, 'error'); return; }
@@ -3140,6 +3934,9 @@
       if (!maintData[curCar]) maintData[curCar] = {};
       maintData[curCar][curMaintKey] = { km: isKm ? km : '', date, interval, notes, ts: Date.now() };
       saveMaintData();
+
+      // ─── حفظ التكلفة محلياً فقط (لا تُرسل لقاعدة البيانات) ───
+      addCostEntry(curCar, curMaintKey, cost, date);
 
       // ─── إرسال إلى الشيت — كل حقل في مفتاح منفصل ───
       // GAS يكتب كل مفتاح في عمود مستقل: m_<key>_km / m_<key>_date / m_<key>_interval / m_<key>_notes
@@ -3157,6 +3954,7 @@
 
       closeModal('modal-maint-detail');
       renderMaintList(curCar);
+      renderCostSummary(curCar);
       renderMain();
       toast(t.saved, 'success');
     }
@@ -3165,10 +3963,10 @@
       if (!confirm(T[lang].delConfirm)) return;
       sendSheet({ sheet: 'cars', action: 'unlink_car', car_id: String(curCar), user_phone: user?.phone || '' });
       cars = cars.filter(c => c.id !== curCar);
-      delete oilData[curCar]; delete maintData[curCar];
+      delete oilData[curCar]; delete maintData[curCar]; delete costData[curCar]; delete annualData[curCar];
       saveCars();
       localStorage.setItem('rc_oil', JSON.stringify(oilData));
-      saveMaintData();
+      saveMaintData(); saveCostData(); saveAnnualData();
       closeModal('modal-car-detail');
       renderMain();
       toast(T[lang].saved, 'success');
@@ -3208,6 +4006,7 @@
       const date = document.getElementById('oil-date').value;
       const filter = document.getElementById('oil-filter').checked;
       const notes = document.getElementById('oil-notes').value.trim();
+      const cost = document.getElementById('oil-cost').value.trim();
       const remind = parseInt(document.getElementById('oil-reminder').value) || 0;
       const interval = parseInt(document.getElementById('oil-interval').value) || 0;
       const nextKm = (km && interval > 0) ? String(parseInt(km) + interval) : '';
@@ -3215,6 +4014,9 @@
 
       oilData[curCar] = [{ km, date, filter, notes, remind, nextKm, ts: Date.now() }];
       localStorage.setItem('rc_oil', JSON.stringify(oilData));
+
+      // التكلفة تُحفظ محلياً فقط
+      addCostEntry(curCar, 'oil', cost, date);
 
       sendSheet({ sheet: 'cars', action: 'update_oil', car_id: String(curCar), user_phone: user?.phone || '', car_name: cars.find(c => c.id === curCar)?.name || '', oilKm: km, oilDate: date, oilFilter: filter, oilNotes: notes, oilNextKm: nextKm });
 
@@ -3301,8 +4103,9 @@
     }
 
     /* ═══════════════════════════════════════
-       FEEDBACK
+       FEEDBACK + STAR RATING
     ═══════════════════════════════════════ */
+    let lastFeedbackText = '';
     async function submitFeedback() {
       const t = T[lang];
       const text = document.getElementById('feedback-text').value.trim();
@@ -3310,10 +4113,79 @@
       const btn = document.getElementById('feedback-btn');
       btn.textContent = t.feedbackSending; btn.disabled = true; btn.classList.add('btn-sending');
       try {
-        await sendSheet({ sheet: 'feedback', name: user?.name || '', phone: user?.phone || '', feedback: text, timestamp: new Date().toISOString() });
+        lastFeedbackText = text;
+        await sendSheet({ sheet: 'feedback', name: user?.name || '', phone: user?.phone || '', feedback: text, rating: '', timestamp: new Date().toISOString() });
         document.getElementById('feedback-text').value = ''; toast(t.sent, 'success');
+        // إظهار تقييم النجوم بعد الإرسال
+        curStarRating = 0;
+        resetStars();
+        document.getElementById('star-rating-wrap').classList.add('show');
+        // أضف الملاحظة محلياً لقائمة "آخر الملاحظات" فوراً (ستُحدَّث لاحقاً بالتقييم)
+        prependLocalFeedback(text, 0);
       } catch (e) { toast(t.error, 'error'); }
       finally { btn.textContent = t.feedbackBtn; btn.disabled = false; btn.classList.remove('btn-sending'); }
+    }
+
+    function resetStars() {
+      document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('filled'));
+    }
+
+    function setStarRating(val) {
+      curStarRating = val;
+      document.querySelectorAll('.star-btn').forEach(b => {
+        b.classList.toggle('filled', parseInt(b.dataset.val) <= val);
+      });
+      // أرسل التقييم إلى الشيت مع الملاحظة
+      sendSheet({
+        sheet: 'feedback', action: 'update_rating',
+        name: user?.name || '', phone: user?.phone || '',
+        feedback: lastFeedbackText, rating: String(val),
+        timestamp: new Date().toISOString(),
+      });
+      setTimeout(() => {
+        document.getElementById('star-rating-wrap').classList.remove('show');
+      }, 600);
+      toast(T[lang].saved, 'success');
+    }
+
+    function prependLocalFeedback(text, rating) {
+      const wrap = document.getElementById('recent-feedback-wrap');
+      const listEl = document.getElementById('recent-feedback-list');
+      wrap.style.display = 'block';
+      const item = document.createElement('div');
+      item.className = 'recent-feedback-item';
+      const name = (user && user.name) ? user.name : (T[lang] || T.ar).sbAnonymous;
+      item.innerHTML = `
+    <div class="recent-feedback-top">
+      <span class="recent-feedback-name">${name}</span>
+      <span class="recent-feedback-stars">${rating ? '★'.repeat(rating) + '☆'.repeat(5 - rating) : ''}</span>
+    </div>
+    <div class="recent-feedback-text">${text}</div>`;
+      listEl.insertBefore(item, listEl.firstChild);
+      while (listEl.children.length > 3) listEl.removeChild(listEl.lastChild);
+    }
+
+    async function loadRecentFeedback() {
+      try {
+        const res = await fetch(CONFIG.SHEET_URL + '?action=recent_feedback');
+        const data = await res.json();
+        if (!Array.isArray(data) || !data.length) return;
+        const wrap = document.getElementById('recent-feedback-wrap');
+        const listEl = document.getElementById('recent-feedback-list');
+        const t = T[lang] || T.ar;
+        wrap.style.display = 'block';
+        listEl.innerHTML = data.slice(0, 3).map(f => {
+          const rating = parseInt(f.rating) || 0;
+          const name = f.name || t.sbAnonymous;
+          return `<div class="recent-feedback-item">
+        <div class="recent-feedback-top">
+          <span class="recent-feedback-name">${name}</span>
+          <span class="recent-feedback-stars">${rating ? '★'.repeat(rating) + '☆'.repeat(5 - rating) : ''}</span>
+        </div>
+        <div class="recent-feedback-text">${f.feedback || ''}</div>
+      </div>`;
+        }).join('');
+      } catch (e) { console.error('loadRecentFeedback error:', e); }
     }
 
     /* ─── COMPANY ─── */
