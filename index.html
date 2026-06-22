@@ -2682,7 +2682,16 @@
       window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; });
       showPWABanner();
     }
-    function showPWABanner() { if (IS_STANDALONE) return; document.getElementById('pwa-banner').classList.add('show'); updatePWAText(); }
+    function showPWABanner() {
+  if (IS_STANDALONE) return;
+  // إخفاء البانر على الحاسوب
+  const isMobile = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent) || 
+                   ('ontouchstart' in window) || 
+                   (window.innerWidth <= 768);
+  if (!isMobile) return;
+  document.getElementById('pwa-banner').classList.add('show');
+  updatePWAText();
+}
     function updatePWAText() { const t = T[lang || 'ar']; if (!t) return; set('pwa-title', t.pwaTitle); set('pwa-sub', t.pwaSub); const btn = document.getElementById('pwa-install-btn'); if (btn) btn.textContent = '📲 ' + t.pwaInstall; }
     async function installPWA() {
       if (deferredPrompt) { deferredPrompt.prompt(); const c = await deferredPrompt.userChoice; deferredPrompt = null; if (c.outcome === 'accepted') document.getElementById('pwa-banner').classList.remove('show'); }
