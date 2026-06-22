@@ -1908,12 +1908,6 @@
 </head>
 
 <body>
-  <div id="screen-loading" class="screen">
-    <div style="margin:auto; text-align:center; padding-top:40vh;">
-      <div style="font-size:40px; margin-bottom:15px; animation: pulseBorder 1.5s infinite;">⏳</div>
-      <div id="loading-text" style="color:var(--muted); font-size:15px; font-weight:700;">جارِ التحقق من البيانات...</div>
-    </div>
-  </div>
 
   <!-- ══ LANG SCREEN ══ -->
   <div id="screen-lang" class="screen">
@@ -2332,7 +2326,7 @@
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycbwdfw7wZWON2mMllQH81hHgzDElBvin0_06Y-Lw1unzytTK6VShbdKQ-Pz6QabACIwM/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycby500ePxr_AU8UgZ75VUooUllcTjW_YmJIR332Ih4MYHrUvi7ZFVb3x-ZLSSFKYrrdI/exec',
       COMPANY: { 
   whatsapp: '9647505009006',   // ← أربيل (يبقى للمرجع)
   whatsappBaghdad: '9647759911001',   // ← ضع رقم بغداد الحقيقي
@@ -2550,13 +2544,12 @@
     ═══════════════════════════════════════ */
     let lang = localStorage.getItem('rc_lang') || null;
     let user = JSON.parse(localStorage.getItem('rc_user') || 'null');
-    let cars = [];
+    let cars = JSON.parse(localStorage.getItem('rc_cars') || '[]');
     let oilData = JSON.parse(localStorage.getItem('rc_oil') || '{}');
     let maintData = JSON.parse(localStorage.getItem('rc_maint') || '{}'); // { carId: { itemKey: {km, date, interval, notes, ts} } }
     let curCar = null;
     let curMaintKey = null;
     let theme = localStorage.getItem('rc_theme') || 'dark';
-
 
     /* ═══════════════════════════════════════
        INIT
@@ -2565,54 +2558,10 @@
       initTheme(); initPWA();
       if (!lang) { show('screen-lang'); return; }
       applyLang(lang);
-
-      // إذا لم يكن هناك مستخدم مسجل محلياً، اعرض شاشة التسجيل
       if (!user) { show('screen-register'); return; }
-
-      // إذا كان هناك مستخدم، تحقق منه في جوجل شيت أولاً
-      validateUserInSheet();
+      show('screen-main'); renderMain(); applyCompany(); initADV();
+      fetchUserDataFromSheets();
     });
-
-    // دالة للتحقق من وجود المستخدم في السيرفر
-    async function validateUserInSheet() {
-      show('screen-loading'); // عرض شاشة التحميل
-
-      const loadingText = document.getElementById('loading-text');
-      if (loadingText) {
-        loadingText.textContent = (lang === 'en') ? 'Verifying account...' : (lang === 'ku') ? 'دڵنیابوونەوەی هەژمار...' : 'جارِ التحقق من الحساب...';
-      }
-
-      try {
-        const res = await fetch(CONFIG.SHEET_URL + '?action=check_user&phone=' + user.phone);
-        const data = await res.json();
-
-        if (data.exists) {
-          show('screen-main');
-          await fetchUserDataFromSheets();
-          renderMain();
-          applyCompany();
-          initADV();
-          checkAlerts();
-        } else {
-          localStorage.removeItem('rc_user');
-          localStorage.removeItem('rc_cars');
-          localStorage.removeItem('rc_oil');
-          localStorage.removeItem('rc_maint');
-          user = null;
-          cars = [];
-          oilData = {};
-          maintData = {};
-          show('screen-register');
-        }
-      } catch (err) {
-        console.error("Error verifying user:", err);
-        show('screen-main');
-        renderMain();
-        applyCompany();
-        initADV();
-        fetchUserDataFromSheets();
-      }
-    }
 
     /* ─── THEME ─── */
     function initTheme() { applyTheme(theme); }
@@ -2836,73 +2785,74 @@
 
     function saveCars() { localStorage.setItem('rc_cars', JSON.stringify(cars)); }
 
-    /* ─── جلب بيانات السيارات من Google Sheets ───
-     *  كل بند صيانة يرجع من GAS بصيغة: maint_<key>_km, maint_<key>_date, maint_<key>_interval, maint_<key>_notes
-     *  (أعمدة منفصلة وصريحة، تماماً كما نظام الزيت — بدون أي JSON مشفّر)
-     */
     async function fetchUserDataFromSheets() {
       if (!user || !user.phone) return;
       try {
-        const res = await fetch(CONFIG.SHEET_URL + '?action=get_user_cars&phone=' + user.phone);
+        const res  = await fetch(CONFIG.SHEET_URL + '?action=get_user_cars&phone=' + user.phone);
         const data = await res.json();
-        if (data && data.cars) {
-          cars = [];
-          oilData = {};
-          maintData = {};
+        if (!data || !data.cars) return;
 
-          data.cars.forEach(c => {
-            const carData = {
-              id: parseInt(c.car_id) || Date.now(),
-              name: c.carName,
-              type: c.carType || '1',
-              plateNumber: c.plateNumber || '',
-              is4x4: String(c.is4x4) === 'yes',
-            };
-            cars.push(carData);
+        cars      = [];
+        oilData   = {};
+        maintData = {};
 
-            // بيانات الزيت
-            if (c.oilKm || c.oilDate) {
-              oilData[carData.id] = [{
-                km: String(c.oilKm),
-                date: String(c.oilDate),
-                filter: String(c.oilFilter) === 'نعم',
-                notes: String(c.oilNotes || ''),
-                nextKm: String(c.oilNextKm || ''),
-                remind: 0,
-                ts: Date.now()
-              }];
-            }
+        data.cars.forEach(c => {
+          // ─── بناء كائن السيارة ───
+          const parsedId = parseInt(String(c.car_id || '').trim(), 10);
+          const carData  = {
+            id:          !isNaN(parsedId) ? parsedId : Date.now(),
+            name:        c.carName        || '',
+            type:        c.carType        || '1',
+            plateNumber: c.plateNumber    || '',
+            is4x4:       String(c.is4x4) === 'yes',
+          };
+          cars.push(carData);
 
-            // بيانات بنود الصيانة — كل بند من أعمدة منفصلة وصريحة
-            const carMaint = {};
+          // ─── بيانات الزيت ───
+          // oilDate قد يصل كـ ISO string من Sheets — نأخذ الجزء قبل T فقط
+          const oilDateRaw = c.oilDate ? String(c.oilDate).split('T')[0] : '';
+          if (c.oilKm || oilDateRaw) {
+            oilData[carData.id] = [{
+              km:     String(c.oilKm    || ''),
+              date:   oilDateRaw,
+              filter: String(c.oilFilter || '') === 'نعم',
+              notes:  String(c.oilNotes  || ''),
+              nextKm: String(c.oilNextKm || ''),
+              remind: 0,
+              ts:     Date.now(),
+            }];
+          }
+
+          // ─── بيانات الصيانة ───
+          // GAS يرجع c.maint كـ object جاهز: { airFilter: {km,date,interval,notes}, ... }
+          // كل حقل جاء من عمود منفصل بالشيت (m_<key>_km / m_<key>_date / ...)
+          const carMaint = {};
+          if (c.maint && typeof c.maint === 'object') {
             MAINT_ITEMS.forEach(item => {
-              const kmVal    = c['maint_' + item.key + '_km'];
-              const dateVal  = c['maint_' + item.key + '_date'];
-              const intVal   = c['maint_' + item.key + '_interval'];
-              const noteVal  = c['maint_' + item.key + '_notes'];
-
-              const hasData = (item.type === 'km' && kmVal) || (item.type === 'time' && dateVal);
-              if (hasData) {
-                carMaint[item.key] = {
-                  km: item.type === 'km' ? String(kmVal || '') : '',
-                  date: item.type === 'time' ? String(dateVal || '') : '',
-                  interval: parseInt(intVal) || item.defaultInterval,
-                  notes: String(noteVal || ''),
-                  ts: Date.now(),
-                };
-              }
+              const m = c.maint[item.key];
+              if (!m) return;
+              const cleanDate = m.date ? String(m.date).split('T')[0] : '';
+              if (!m.km && !cleanDate) return; // بند فاضي — تجاهل
+              carMaint[item.key] = {
+                km:       String(m.km    || ''),
+                date:     cleanDate,
+                interval: parseInt(m.interval) || item.defaultInterval,
+                notes:    String(m.notes || ''),
+                ts:       Date.now(),
+              };
             });
-            maintData[carData.id] = carMaint;
-          });
+          }
+          maintData[carData.id] = carMaint;
+        });
 
-          saveCars();
-          localStorage.setItem('rc_oil', JSON.stringify(oilData));
-          localStorage.setItem('rc_maint', JSON.stringify(maintData));
-          renderMain();
-          checkAlerts();
-        }
+        saveCars();
+        localStorage.setItem('rc_oil',   JSON.stringify(oilData));
+        localStorage.setItem('rc_maint', JSON.stringify(maintData));
+        renderMain();
+        checkAlerts();
+
       } catch (err) {
-        console.error("Error load from Sheets:", err);
+        console.error('fetchUserDataFromSheets error:', err);
       }
     }
     function saveMaintData() { localStorage.setItem('rc_maint', JSON.stringify(maintData)); }
@@ -2955,6 +2905,7 @@
       const currentKm = getKnownCurrentKm(car.id);
       const items = getApplicableMaintItems(car);
       const carMaint = maintData[car.id] || {};
+      let worst = null; // null = لا بيانات بعد
       let dueCount = 0, soonCount = 0;
       items.forEach(item => {
         const entry = carMaint[item.key];
@@ -3151,48 +3102,36 @@
       openModal('modal-maint-detail');
     }
 
-    /* ─── حفظ بند صيانة واحد — يرسل كل قيمة في حقل منفصل وصريح إلى GAS ───
-     *  بدل JSON مشفّر، كل معلومة (كم/تاريخ/فترة/ملاحظات) تذهب كحقل مستقل،
-     *  وGAS يكتبها في عمود منفصل وواضح بقوقل شيت — تماماً كنظام الزيت.
-     */
     function saveMaintItem() {
       const t = T[lang];
       if (!curCar || !curMaintKey) return;
-      const item = getMaintItem(curMaintKey);
-      if (!item) return;
-
-      const isKm = item.type === 'km';
-      const km = isKm ? get('md-km').trim() : '';
-      const date = get('md-date');
+      const item = getMaintItem(curMaintKey); if (!item) return;
+      const isKm   = item.type === 'km';
+      const km       = isKm ? get('md-km').trim() : '';
+      const date     = get('md-date');
       const interval = parseInt(get('md-interval')) || item.defaultInterval;
-      const notes = get('md-notes').trim();
+      const notes    = get('md-notes').trim();
 
       if (isKm && !km) { toast(t.fillAll, 'error'); return; }
       if (!date) { toast(t.fillAll, 'error'); return; }
 
-      // حفظ محلياً
+      // ─── حفظ محلي ───
       if (!maintData[curCar]) maintData[curCar] = {};
-      maintData[curCar][curMaintKey] = {
-        km: isKm ? km : '',
-        date: date,
-        interval,
-        notes,
-        ts: Date.now()
-      };
+      maintData[curCar][curMaintKey] = { km: isKm ? km : '', date, interval, notes, ts: Date.now() };
       saveMaintData();
 
-      // إرسال إلى الشيت — حقول منفصلة وصريحة (لا JSON إطلاقاً)
+      // ─── إرسال إلى الشيت — كل حقل في مفتاح منفصل ───
+      // GAS يكتب كل مفتاح في عمود مستقل: m_<key>_km / m_<key>_date / m_<key>_interval / m_<key>_notes
       sendSheet({
-        sheet: 'cars',
-        action: 'update_maint_item',
-        car_id: String(curCar),
-        user_phone: user?.phone || '',
-        car_name: cars.find(c => c.id === curCar)?.name || '',
-        maint_key: curMaintKey,
-        maint_km: isKm ? km : '',
-        maint_date: date,
-        maint_interval: String(interval),
-        maint_notes: notes,
+        sheet:          'cars',
+        action:         'update_maint_item',
+        car_id:         String(curCar),
+        user_phone:     user?.phone || '',
+        maint_key:      curMaintKey,
+        maint_km:       isKm ? km : '',      // عمود m_<key>_km
+        maint_date:     date,                 // عمود m_<key>_date
+        maint_interval: String(interval),     // عمود m_<key>_interval
+        maint_notes:    notes,                // عمود m_<key>_notes
       });
 
       closeModal('modal-maint-detail');
@@ -3409,10 +3348,11 @@ function toast(msg, type = '') {
 
     /* ─── SERVICE WORKER ─── */
     if ('serviceWorker' in navigator) {
-      const swCode = `self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>clients.claim());self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.open('rc-v4').then(async cache=>{try{const res=await fetch(e.request);cache.put(e.request,res.clone());return res;}catch{return cache.match(e.request);}}));});`;
+      const swCode = `self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>clients.claim());self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.open('rc-v3').then(async cache=>{try{const res=await fetch(e.request);cache.put(e.request,res.clone());return res;}catch{return cache.match(e.request);}}));});`;
       const swBlob = new Blob([swCode], { type: 'application/javascript' });
       navigator.serviceWorker.register(URL.createObjectURL(swBlob), { scope: './' }).catch(() => { });
     }
+
   </script>
 </body>
 
