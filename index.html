@@ -584,7 +584,7 @@
     .sb-branch-label {
       font-size: 11px;
       font-weight: 700;
-      color: #000;
+      color: var(--muted);
       text-align: center;
     }
 
@@ -1381,15 +1381,20 @@
     }
 
     .wa-branch-link {
-    background: linear-gradient(135deg, #f7941d, #e67e00) !important;
-    color: #000000 !important;
-    padding: 8px 12px;
-    border-radius: 10px;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: #fff;
+      border-radius: 10px;
+      padding: 9px 4px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: var(--tr);
+    }
 
     .wa-branch-link:hover {
       transform: translateY(-1px);
@@ -2662,7 +2667,7 @@
   <div class="modal-overlay" id="modal-annual-edit">
     <div class="modal-sheet">
       <div class="modal-handle"></div>
-      <button class="modal-close" onclick="closeModal('modal-annual-edit')">✕</button>
+      <button class="modal-close" onclick="closeAnnualEditAndReturn()">✕</button>
       <div class="modal-title" id="annual-edit-title">📅 تاريخ نفاذ السنوية</div>
       <div class="modal-sub" id="annual-edit-sub"></div>
       <div class="form-group">
@@ -3246,6 +3251,7 @@
     /* ─── ABOUT MODAL ─── */
     function openAboutModal() {
       const t = T[lang];
+      closeSidebar();
       set('about-title', t.aboutTitle);
       set('about-sub', 'RC Service');
       const body = document.getElementById('about-body');
@@ -3700,7 +3706,13 @@
       const c = cars.find(x => x.id === curCar);
       set('annual-edit-sub', c ? c.name : '');
       document.getElementById('annual-edit-date').value = annualData[curCar] || '';
+      closeModal('modal-car-detail');
       openModal('modal-annual-edit');
+    }
+
+    function closeAnnualEditAndReturn() {
+      closeModal('modal-annual-edit');
+      if (curCar) openModal('modal-car-detail');
     }
 
     function saveAnnualExpiry() {
@@ -3719,7 +3731,7 @@
         annualExpiry: date || '',
       });
       renderAnnualBar(curCar);
-      closeModal('modal-annual-edit');
+      closeAnnualEditAndReturn();
       toast(t.saved, 'success');
     }
 
@@ -4100,47 +4112,44 @@
     /* ═══════════════════════════════════════
        FEEDBACK + STAR RATING
     ═══════════════════════════════════════ */
-    let lastFeedbackText = '';
-    async function submitFeedback() {
+    let pendingFeedbackText = '';
+    function submitFeedback() {
       const t = T[lang];
       const text = document.getElementById('feedback-text').value.trim();
       if (!text) { toast(t.noFeedback, 'error'); return; }
-      const btn = document.getElementById('feedback-btn');
-      btn.textContent = t.feedbackSending; btn.disabled = true; btn.classList.add('btn-sending');
-      try {
-        lastFeedbackText = text;
-        await sendSheet({ sheet: 'feedback', name: user?.name || '', phone: user?.phone || '', feedback: text, rating: '', timestamp: new Date().toISOString() });
-        document.getElementById('feedback-text').value = ''; toast(t.sent, 'success');
-        // إظهار تقييم النجوم بعد الإرسال
-        curStarRating = 0;
-        resetStars();
-        document.getElementById('star-rating-wrap').classList.add('show');
-        // أضف الملاحظة محلياً لقائمة "آخر الملاحظات" فوراً (ستُحدَّث لاحقاً بالتقييم)
-        prependLocalFeedback(text, 0);
-      } catch (e) { toast(t.error, 'error'); }
-      finally { btn.textContent = t.feedbackBtn; btn.disabled = false; btn.classList.remove('btn-sending'); }
+      // لا يتم إرسال أي بيانات للسيرفر الآن — فقط نخزّن النص محلياً وننتظر اختيار التقييم
+      pendingFeedbackText = text;
+      document.getElementById('feedback-text').value = '';
+      curStarRating = 0;
+      resetStars();
+      document.getElementById('star-rating-wrap').classList.add('show');
     }
 
     function resetStars() {
       document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('filled'));
     }
 
-    function setStarRating(val) {
+    async function setStarRating(val) {
+      const t = T[lang];
       curStarRating = val;
       document.querySelectorAll('.star-btn').forEach(b => {
         b.classList.toggle('filled', parseInt(b.dataset.val) <= val);
       });
-      // أرسل التقييم إلى الشيت مع الملاحظة
-      sendSheet({
-        sheet: 'feedback', action: 'update_rating',
+      if (!pendingFeedbackText) return;
+      const btn = document.getElementById('feedback-btn');
+      // إرسال الملاحظة والتقييم معاً في طلب واحد فقط الآن
+      await sendSheet({
+        sheet: 'feedback',
         name: user?.name || '', phone: user?.phone || '',
-        feedback: lastFeedbackText, rating: String(val),
+        feedback: pendingFeedbackText, rating: String(val),
         timestamp: new Date().toISOString(),
       });
+      prependLocalFeedback(pendingFeedbackText, val);
+      toast(t.sent, 'success');
+      pendingFeedbackText = '';
       setTimeout(() => {
         document.getElementById('star-rating-wrap').classList.remove('show');
       }, 600);
-      toast(T[lang].saved, 'success');
     }
 
     function prependLocalFeedback(text, rating) {
@@ -4218,7 +4227,7 @@
     function get(id) { const e = document.getElementById(id); return e ? e.value : ''; }
     function today() { return new Date().toISOString().split('T')[0]; }
 
-    document.querySelectorAll('.modal-overlay').forEach(o => { o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); }); });
+    document.querySelectorAll('.modal-overlay').forEach(o => { o.addEventListener('click', e => { if (e.target === o) { if (o.id === 'modal-annual-edit') closeAnnualEditAndReturn(); else closeModal(o.id); } }); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
 
 let toastT;
