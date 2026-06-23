@@ -4,6 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <!-- ═══════ FIREBASE SDKs (compat build — متوافق مع كود v8 المستخدم أعلاه) ═══════ -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <title>RC Service</title>
 
   <script>
@@ -3172,6 +3175,8 @@
     /* ═══════════════════════════════════════
        STATE
     ═══════════════════════════════════════ */
+    let advIndex = 0;
+    let advTimer = null;
     let lang = localStorage.getItem('rc_lang') || null;
     let user = JSON.parse(localStorage.getItem('rc_user') || 'null');
     let cars = JSON.parse(localStorage.getItem('rc_cars') || '[]');
