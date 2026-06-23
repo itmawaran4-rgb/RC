@@ -10,7 +10,7 @@
     (function () {
       const manifest = {
         name: "RC Service", short_name: "RC Service", start_url: "./", display: "standalone",
-        background_color: "#0b0f1a", theme_color: "#f5a623",
+        background_color: "#f2f2f0", theme_color: "#f5a623",
         icons: [{ src: "logo.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
         { src: "logo.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }]
       };
@@ -32,18 +32,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0b0f1a;
-      --surface: #131829;
-      --card: #1a2035;
-      --border: #252d44;
+      --bg: #f2f2f0;
+      --surface: #ffffff;
+      --card: #fafaf9;
+      --border: #e2e0dc;
       --gold: #f5a623;
-      --gold-dim: #c07b10;
-      --teal: #0fd4b0;
-      --red: #ff4d6d;
-      --text: #e8eaf0;
-      --muted: #6b7694;
+      --gold-dim: #d98f12;
+      --black: #161412;
+      --black-soft: #2b2724;
+      --teal: #0fb894;
+      --red: #e5384f;
+      --text: #1a1814;
+      --muted: #8a8478;
       --radius: 14px;
-      --shadow: 0 8px 32px rgba(0, 0, 0, .45);
+      --shadow: 0 8px 28px rgba(22, 20, 18, .10);
       --font-ar: 'Noto Kufi Arabic', sans-serif;
       --font-en: 'Barlow Condensed', sans-serif;
       --tr: all .28s cubic-bezier(.4, 0, .2, 1);
@@ -75,7 +77,7 @@
       content: '';
       position: fixed;
       inset: 0;
-      background: radial-gradient(ellipse 70% 50% at 20% 0%, rgba(245, 166, 35, .07) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 80% 100%, rgba(15, 212, 176, .05) 0%, transparent 60%);
+      background: radial-gradient(ellipse 70% 50% at 20% 0%, rgba(245, 166, 35, .08) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 80% 100%, rgba(22, 20, 18, .04) 0%, transparent 60%);
       pointer-events: none;
       z-index: 0;
     }
@@ -89,37 +91,44 @@
       letter-spacing: .02em;
     }
 
-    body.light-mode {
-      --bg: #f0f3fa;
-      --surface: #ffffff;
-      --card: #e8ecf5;
-      --border: #c8cedf;
-      --text: #1a2035;
-      --muted: #7b84a0;
-      --shadow: 0 8px 32px rgba(0, 0, 0, .12);
+    /* ─── وضع الليل: نسخة أغمق من نفس البرتقالي + الأسود ─── */
+    body.dark-mode {
+      --bg: #15130f;
+      --surface: #1d1a16;
+      --card: #242019;
+      --border: #36312a;
+      --gold: #f5a623;
+      --gold-dim: #f3b54a;
+      --black: #0c0b09;
+      --black-soft: #1d1a16;
+      --teal: #16d6ae;
+      --red: #ff5870;
+      --text: #f3efe9;
+      --muted: #8d8576;
+      --shadow: 0 8px 32px rgba(0, 0, 0, .5);
     }
 
-    body.light-mode::before {
-      background: radial-gradient(ellipse 70% 50% at 20% 0%, rgba(245, 166, 35, .06) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 60% at 80% 100%, rgba(15, 212, 176, .04) 0%, transparent 60%);
+    body.dark-mode::before {
+      background: radial-gradient(ellipse 70% 50% at 20% 0%, rgba(245, 166, 35, .09) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 60% at 80% 100%, rgba(22, 20, 18, .35) 0%, transparent 60%);
     }
 
-    body.light-mode .form-control {
-      background: #ffffff;
+    body.dark-mode .form-control {
+      background: var(--surface);
       color: var(--text);
     }
 
-    body.light-mode .car-card:hover,
-    body.light-mode .oil-header:hover {
-      background: #d8dff0;
+    body.dark-mode .car-card:hover,
+    body.dark-mode .oil-header:hover {
+      background: #2c2620;
     }
 
-    body.light-mode .modal-sheet {
-      background: #f0f3fa;
+    body.dark-mode .modal-sheet {
+      background: var(--card);
     }
 
-    body.light-mode .feedback-textarea {
-      background: #ffffff;
+    body.dark-mode .feedback-textarea {
+      background: var(--surface);
     }
 
     .screen {
@@ -254,7 +263,7 @@
       justify-content: space-between;
       padding: 20px 18px 16px;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(135deg, rgba(245, 166, 35, .08), rgba(15, 212, 176, .04));
+      background: linear-gradient(135deg, rgba(245, 166, 35, .08), rgba(15, 184, 148, .04));
       flex-shrink: 0;
     }
 
@@ -686,7 +695,7 @@
 
     .lang-btn:hover {
       border-color: var(--gold);
-      background: #1f2840;
+      background: var(--card);
       transform: translateY(-2px);
     }
 
@@ -789,12 +798,12 @@
     }
 
     .btn-teal {
-      background: linear-gradient(135deg, var(--teal), #0aaa8e);
+      background: linear-gradient(135deg, var(--teal), #0c9678);
       color: #000;
     }
 
     .btn-teal:hover {
-      box-shadow: 0 8px 28px rgba(15, 212, 176, .4);
+      box-shadow: 0 8px 28px rgba(15, 184, 148, .4);
     }
 
     /* ─── MAIN ─── */
@@ -950,7 +959,7 @@
 
     .car-card:hover {
       border-color: var(--gold);
-      background: #1f2840;
+      background: var(--card);
     }
 
     .car-icon {
@@ -993,8 +1002,8 @@
     }
 
     .car-maint-badge.ok {
-      background: rgba(15, 212, 176, .1);
-      border-color: rgba(15, 212, 176, .3);
+      background: rgba(15, 184, 148, .1);
+      border-color: rgba(15, 184, 148, .3);
       color: var(--teal);
     }
 
@@ -1044,7 +1053,7 @@
     }
 
     .oil-header:hover {
-      background: #1f2840;
+      background: var(--card);
     }
 
     .oil-header-left {
@@ -1115,8 +1124,8 @@
     }
 
     .oil-km-badge {
-      background: rgba(15, 212, 176, .12);
-      border: 1px solid rgba(15, 212, 176, .3);
+      background: rgba(15, 184, 148, .12);
+      border: 1px solid rgba(15, 184, 148, .3);
       color: var(--teal);
       border-radius: 20px;
       padding: 2px 10px;
@@ -1165,7 +1174,7 @@
     }
 
     .btn-sending {
-      background: linear-gradient(135deg, #3a4a6b, #2a3558) !important;
+      background: var(--border) !important;
       color: var(--muted) !important;
       box-shadow: none !important;
     }
@@ -1355,7 +1364,7 @@
     }
 
     .contact-btn.outline-btn:hover {
-      background: rgba(15, 212, 176, .08);
+      background: rgba(15, 184, 148, .08);
       transform: translateY(-2px);
     }
 
@@ -1636,7 +1645,7 @@
       padding: 11px;
       border-radius: var(--radius);
       background: transparent;
-      border: 1.5px solid rgba(15, 212, 176, .35);
+      border: 1.5px solid rgba(15, 184, 148, .35);
       color: var(--teal);
       font-family: inherit;
       font-size: 14px;
@@ -1651,7 +1660,7 @@
     }
 
     .btn-service:hover {
-      background: rgba(15, 212, 176, .1);
+      background: rgba(15, 184, 148, .1);
     }
 
     /* ─── OIL MODAL ─── */
@@ -1694,8 +1703,8 @@
     }
 
     .oil-tag {
-      background: rgba(15, 212, 176, .1);
-      border: 1px solid rgba(15, 212, 176, .3);
+      background: rgba(15, 184, 148, .1);
+      border: 1px solid rgba(15, 184, 148, .3);
       color: var(--teal);
       border-radius: 20px;
       padding: 2px 9px;
@@ -1773,8 +1782,8 @@
     }
 
     .next-oil-box {
-      background: linear-gradient(135deg, rgba(15, 212, 176, .12), rgba(15, 212, 176, .04));
-      border: 1.5px solid rgba(15, 212, 176, .35);
+      background: linear-gradient(135deg, rgba(15, 184, 148, .12), rgba(15, 184, 148, .04));
+      border: 1.5px solid rgba(15, 184, 148, .35);
       border-radius: var(--radius);
       padding: 14px 16px;
       margin-top: 10px;
@@ -1952,7 +1961,7 @@
 
     .maint-item:hover {
       border-color: var(--gold);
-      background: #1f2840;
+      background: var(--card);
     }
 
     .maint-item-icon {
@@ -1996,8 +2005,8 @@
     }
 
     .maint-item-status.ok {
-      background: rgba(15, 212, 176, .1);
-      border: 1px solid rgba(15, 212, 176, .3);
+      background: rgba(15, 184, 148, .1);
+      border: 1px solid rgba(15, 184, 148, .3);
       color: var(--teal);
     }
 
@@ -2218,10 +2227,10 @@
       left: 0;
       right: 0;
       z-index: 200;
-      background: linear-gradient(135deg, #1c2340, #111627);
+      background: linear-gradient(135deg, var(--black-soft), var(--black));
       border-top: 2px solid var(--gold);
       padding: 18px 20px 22px;
-      box-shadow: 0 -12px 40px rgba(0, 0, 0, .65);
+      box-shadow: 0 -12px 40px rgba(0, 0, 0, .45);
     }
 
     #pwa-banner.show {
@@ -2263,12 +2272,12 @@
       font-size: 17px;
       font-weight: 900;
       margin-bottom: 4px;
-      color: var(--text);
+      color: #f3efe9;
     }
 
     .pwa-sub {
       font-size: 13px;
-      color: var(--muted);
+      color: #b8b2a6;
       line-height: 1.5;
     }
 
@@ -2570,9 +2579,9 @@
     <div class="sb-section">
       <div class="sb-section-hdr" id="sb-theme-hdr">🎨 المظهر</div>
       <div class="sb-theme-grid">
-        <button class="sb-theme-btn active" id="btn-theme-dark" onclick="setTheme('dark')"><span
+        <button class="sb-theme-btn" id="btn-theme-dark" onclick="setTheme('dark')"><span
             class="th-icon">🌙</span><span id="lbl-theme-dark">ليلي</span></button>
-        <button class="sb-theme-btn" id="btn-theme-light" onclick="setTheme('light')"><span
+        <button class="sb-theme-btn active" id="btn-theme-light" onclick="setTheme('light')"><span
             class="th-icon">☀️</span><span id="lbl-theme-light">عادي</span></button>
       </div>
     </div>
@@ -2885,7 +2894,7 @@
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycbw258ULnReLoq5QDNnGrOC3BmwpWfDR9xIWHhMo_edvqZeN91gi_Lq6EU5eZ_mMj8Bx/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycby500ePxr_AU8UgZ75VUooUllcTjW_YmJIR332Ih4MYHrUvi7ZFVb3x-ZLSSFKYrrdI/exec',
       COMPANY: { 
   whatsapp: '9647505009006',   // ← أربيل (يبقى للمرجع)
   whatsappBaghdad: '9647759911001',   // ← ضع رقم بغداد الحقيقي
@@ -3150,7 +3159,7 @@
     let annualData = JSON.parse(localStorage.getItem('rc_annual') || '{}'); // { carId: 'YYYY-MM-DD' }
     let curCar = null;
     let curMaintKey = null;
-    let theme = localStorage.getItem('rc_theme') || 'dark';
+    let theme = localStorage.getItem('rc_theme') || 'light';
     let curStarRating = 0;
     let costModalYear = new Date().getFullYear();
 
@@ -3170,7 +3179,7 @@
     /* ─── THEME ─── */
     function initTheme() { applyTheme(theme); }
     function setTheme(t) { theme = t; localStorage.setItem('rc_theme', t); applyTheme(t); updateThemeButtons(); qrRendered = false; lastQrPhone = ''; }
-    function applyTheme(t) { document.body.classList.toggle('light-mode', t === 'light'); }
+    function applyTheme(t) { document.body.classList.toggle('dark-mode', t === 'dark'); }
     function updateThemeButtons() {
       document.getElementById('btn-theme-dark').classList.toggle('active', theme === 'dark');
       document.getElementById('btn-theme-light').classList.toggle('active', theme === 'light');
@@ -3241,7 +3250,7 @@
       document.getElementById('sb-qr-phone').textContent = phone;
       const isDark = theme === 'dark';
       try {
-        new QRCode(container, { text: 'tel:+' + phone.replace(/\D/g, ''), width: 160, height: 160, colorDark: '#f5a623', colorLight: isDark ? '#1a2035' : '#f0f3fa', correctLevel: QRCode.CorrectLevel.M });
+        new QRCode(container, { text: 'tel:+' + phone.replace(/\D/g, ''), width: 160, height: 160, colorDark: '#f5a623', colorLight: isDark ? '#242019' : '#fafaf9', correctLevel: QRCode.CorrectLevel.M });
         qrRendered = true; lastQrPhone = phone;
         setTimeout(() => { const el = container.querySelector('img') || container.querySelector('canvas'); if (el) { el.style.borderRadius = '10px'; el.style.display = 'block'; } }, 80);
       } catch (e) { container.innerHTML = `<div style="font-size:12px;color:var(--muted)">${phone}</div>`; }
