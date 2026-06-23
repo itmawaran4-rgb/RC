@@ -555,23 +555,13 @@
     }
 
     .sb-branch-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
 
-    background: linear-gradient(135deg, #f7941d, #e67e00);
-    color: white;
-    padding: 12px;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.sb-branch-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(247, 148, 29, 0.4);
-}
     .sb-branch-img {
       width: 100%;
       aspect-ratio: 1/1;
@@ -1390,31 +1380,25 @@
       gap: 6px;
     }
 
-    /* تخصيص أزرار الواتساب باللون البرتقالي المتدرج والنص الأسود */
-/* تخصيص أزرار الواتساب باللون البرتقالي المتدرج والنص الأسود العريض */
-.wa-branch-link {
-  background: linear-gradient(135deg, #ffb300, #ff6d00) !important;
-  color: #000000 !important;
-  font-weight: bold; /* جعل النص عريضاً */
-  padding: 8px 16px;
-  border-radius: 8px;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
+    .wa-branch-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: #fff;
+      border-radius: 10px;
+      padding: 9px 4px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: var(--tr);
+    }
 
-/* لضمان تطبيق الخط العريض واللون الأسود على أسماء المدن داخل الرابط */
-.wa-branch-link span {
-  color: #000000 !important;
-  font-weight: bold; /* جعل النص داخل الـ span عريضاً أيضاً */
-}
-
-.wa-branch-link:hover {
-  transform: translateY(-2px);
-  opacity: 0.9;
-}
+    .wa-branch-link:hover {
+      transform: translateY(-1px);
+    }
 
     .wa-branch-img {
       width: 100%;
@@ -2901,7 +2885,7 @@
        CONFIG
     ═══════════════════════════════════════ */
     const CONFIG = {
-      SHEET_URL: 'https://script.google.com/macros/s/AKfycby500ePxr_AU8UgZ75VUooUllcTjW_YmJIR332Ih4MYHrUvi7ZFVb3x-ZLSSFKYrrdI/exec',
+      SHEET_URL: 'https://script.google.com/macros/s/AKfycbw258ULnReLoq5QDNnGrOC3BmwpWfDR9xIWHhMo_edvqZeN91gi_Lq6EU5eZ_mMj8Bx/exec',
       COMPANY: { 
   whatsapp: '9647505009006',   // ← أربيل (يبقى للمرجع)
   whatsappBaghdad: '9647759911001',   // ← ضع رقم بغداد الحقيقي
