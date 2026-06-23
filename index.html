@@ -1409,6 +1409,13 @@
       transition: var(--tr);
     }
 
+    .ad-slide video::-webkit-media-controls {
+  display: none !important;
+}
+.ad-slide video::-webkit-media-controls-enclosure {
+  display: none !important;
+}
+
     .wa-branch-link:hover {
       transform: translateY(-1px);
     }
@@ -2025,6 +2032,13 @@
       border: 1px solid rgba(255, 77, 109, .35);
       color: var(--red);
     }
+
+    .ad-slide video::-webkit-media-controls,
+.ad-slide video::-webkit-media-controls-enclosure,
+.ad-slide video::-webkit-media-controls-panel {
+  display: none !important;
+  opacity: 0 !important;
+}
 
     .maint-detail-box {
       background: var(--surface);
@@ -3307,19 +3321,23 @@
   container.innerHTML = '';
   dotsEl.innerHTML    = '';
 
-  // جلب روابط الفيديو من Firestore
   let videos = [];
   if (firebaseReady) {
     try {
       const doc = await db.collection('settings').doc('ads').get();
-      if (doc.exists && Array.isArray(doc.data().videos)) {
-        videos = doc.data().videos.filter(v => v && v.trim());
+      if (doc.exists) {
+        let raw = doc.data().videos;
+        if (Array.isArray(raw)) {
+          videos = raw.map(v => String(v).replace(/[\[\]"']/g, '').trim()).filter(v => v);
+        } else if (typeof raw === 'string') {
+          videos = raw.replace(/[\[\]"']/g, '').split(',').map(v => v.trim()).filter(v => v);
+        }
       }
-    } catch (e) { console.error('initADV fetch error:', e); }
+    } catch (e) { console.error('initADV error:', e); }
   }
 
   if (!videos.length) {
-    banner.innerHTML = '<span class="ad-label">AD</span><div style="display:flex;align-items:center;justify-content:center;padding:30px;color:var(--muted)">📢</div>';
+    banner.innerHTML = '<span class="ad-label">AD</span><div style="padding:30px;text-align:center;color:var(--muted)">📢</div>';
     return;
   }
 
@@ -3328,12 +3346,28 @@
     slide.className = 'ad-slide' + (i === 0 ? ' active' : '');
     slide.id = 'adv-slide-' + i;
 
-    const iframe = document.createElement('iframe');
-    iframe.src = src;
-    iframe.style.cssText = 'width:100%;height:200px;border:none;display:block;';
-    iframe.allow = 'autoplay; encrypted-media';
-    iframe.allowFullscreen = false;
-    slide.appendChild(iframe);
+    const video = document.createElement('video');
+    video.setAttribute('src', src);
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('loop', '');
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.controls = false;
+    video.disablePictureInPicture = true;
+    video.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
+    video.style.cssText = 'width:100%;height:200px;object-fit:cover;display:block;pointer-events:none;background:#000;';
+
+    video.addEventListener('canplay', () => {
+      if (i === 0) video.play().catch(() => {});
+    });
+
+    video.addEventListener('error', () => {
+      slide.innerHTML = '<div style="height:200px;display:flex;align-items:center;justify-content:center;color:var(--muted)">📢</div>';
+    });
+
+    slide.appendChild(video);
     container.appendChild(slide);
 
     if (videos.length > 1) {
@@ -3350,15 +3384,23 @@
     advTimer = setInterval(() => {
       advIndex = (advIndex + 1) % videos.length;
       goToSlide(advIndex);
-    }, 15000); // 15 ثانية بين الإعلانات
+    }, 15000);
   }
 }
     function goToSlide(idx) {
+  document.querySelectorAll('.ad-slide video').forEach(v => {
+    v.pause();
+    v.currentTime = 0;
+  });
   document.querySelectorAll('.ad-slide').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.ad-dot').forEach(d => d.classList.remove('active'));
   advIndex = idx;
   const slide = document.getElementById('adv-slide-' + idx);
-  if (slide) slide.classList.add('active');
+  if (slide) {
+    slide.classList.add('active');
+    const vid = slide.querySelector('video');
+    if (vid) setTimeout(() => vid.play().catch(() => {}), 100);
+  }
   const dot = document.getElementById('adv-dot-' + idx);
   if (dot) dot.classList.add('active');
 }
@@ -4285,6 +4327,7 @@
       listEl.insertBefore(item, listEl.firstChild);
       while (listEl.children.length > 3) listEl.removeChild(listEl.lastChild);
     }
+    
 
     async function loadRecentFeedback() {
       if (!firebaseReady) return;
