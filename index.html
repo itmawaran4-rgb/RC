@@ -3146,6 +3146,32 @@
     };
 
     /* ═══════════════════════════════════════
+       FIREBASE INIT
+    ═══════════════════════════════════════ */
+    // ⚠️ ضع إعدادات مشروعك من Firebase Console → Project Settings → Your apps
+    const firebaseConfig = {
+      apiKey: "AIzaSyB4I14C54OitK1BKsOCTz56KIEsrLyCFLc",
+      authDomain: "rc-service-9e618.firebaseapp.com",
+      projectId: "rc-service-9e618",
+      storageBucket: "rc-service-9e618.firebasestorage.app",
+      messagingSenderId: "328862985066",
+      appId: "1:328862985066:web:70242d9bc5ace5a75c5313"
+    };
+
+    let db = null;
+    let firebaseReady = false;
+    function initFirebase() {
+      try {
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        firebaseReady = true;
+      } catch (e) {
+        console.error('Firebase init error:', e);
+        firebaseReady = false;
+      }
+    }
+
+    /* ═══════════════════════════════════════
        STATE
     ═══════════════════════════════════════ */
     let lang = localStorage.getItem('rc_lang') || null;
@@ -3156,7 +3182,7 @@
     // تكاليف الخدمات — محفوظة محلياً فقط في الهاتف، لا تُرسل لقاعدة البيانات
     // البنية: { carId: [ {key:'oil'|maintKey, cost, date, ts} , ... ] }
     let costData = JSON.parse(localStorage.getItem('rc_costs') || '{}');
-    // تواريخ نفاذ السنوية — محلية + تُرسل للشيت
+    // تواريخ نفاذ السنوية — محلية + تُرسل لـ Firestore
     let annualData = JSON.parse(localStorage.getItem('rc_annual') || '{}'); // { carId: 'YYYY-MM-DD' }
     let curCar = null;
     let curMaintKey = null;
@@ -3168,12 +3194,13 @@
        INIT
     ═══════════════════════════════════════ */
     document.addEventListener('DOMContentLoaded', () => {
+      initFirebase();
       initTheme(); initPWA();
       if (!lang) { show('screen-lang'); return; }
       applyLang(lang);
       if (!user) { show('screen-register'); return; }
       show('screen-main'); renderMain(); applyCompany(); initADV();
-      fetchUserDataFromSheets();
+      fetchUserDataFromFirestore();
       loadRecentFeedback();
     });
 
@@ -3389,9 +3416,23 @@
       if (!name || !phone || !city || !dob) { toast(t.fillAll, 'error'); return; }
       user = { name, phone, city, dob, gender };
       localStorage.setItem('rc_user', JSON.stringify(user));
-      sendSheet({ sheet: 'users', name, phone, city, dob, gender, timestamp: new Date().toISOString() });
+      saveUserToFirestore(user);
       show('screen-main'); renderMain(); checkAlerts(); applyCompany(); initADV(); toast(t.saved, 'success');
       loadRecentFeedback();
+    }
+
+    /* ═══════════════════════════════════════
+       FIRESTORE — USERS
+       Collection: users  |  Document ID: phone number
+    ═══════════════════════════════════════ */
+    async function saveUserToFirestore(u) {
+      if (!firebaseReady) { console.warn('Firestore not ready'); return; }
+      try {
+        await db.collection('users').doc(u.phone).set({
+          name: u.name, phone: u.phone, city: u.city, dob: u.dob, gender: u.gender,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+      } catch (e) { console.error('saveUserToFirestore error:', e); }
     }
 
     /* ═══════════════════════════════════════
@@ -3408,7 +3449,7 @@
       openModal('modal-add-car');
     }
 
-    function saveCar() {
+    async function saveCar() {
       const t = T[lang];
       const carName = get('add-car-name').trim();
       const carType = get('add-car-type');
@@ -3417,7 +3458,7 @@
       const is4x4 = document.getElementById('add-car-4x4').checked;
       if (!carName) { toast(t.fillAll, 'error'); return; }
 
-      const carData = { id: Date.now(), name: carName, type: carType, plateNumber: plate, is4x4 };
+      const carData = { id: String(Date.now()), name: carName, type: carType, plateNumber: plate, is4x4 };
 
       cars.push(carData);
       saveCars();
@@ -3431,58 +3472,62 @@
       renderMain();
       toast(t.saved, 'success');
 
-      sendSheet({
-        sheet: 'cars', action: 'add_car',
-        car_id: String(carData.id),
-        user_phone: user?.phone || '',
-        carName: carData.name,
-        carType: carData.type || '',
-        plateNumber: carData.plateNumber || '',
-        is4x4: is4x4 ? 'yes' : 'no',
-        annualExpiry: annualExpiry || '',
-        timestamp: new Date().toISOString(),
-      });
+      // ─── Firestore: collection 'cars', doc id = car_id ───
+      if (firebaseReady) {
+        try {
+          await db.collection('cars').doc(carData.id).set({
+            car_id: carData.id,
+            user_phone: user?.phone || '',
+            carName: carData.name,
+            carType: carData.type || '',
+            plateNumber: carData.plateNumber || '',
+            is4x4: is4x4 ? 'yes' : 'no',
+            annualExpiry: annualExpiry || '',
+            maint: {},
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+        } catch (e) { console.error('saveCar Firestore error:', e); }
+      }
     }
 
     function saveCars() { localStorage.setItem('rc_cars', JSON.stringify(cars)); }
 
-    async function fetchUserDataFromSheets() {
-      if (!user || !user.phone) return;
+    /* ─── جلب بيانات سيارات المستخدم من Firestore ─── */
+    async function fetchUserDataFromFirestore() {
+      if (!user || !user.phone || !firebaseReady) return;
       try {
-        const res  = await fetch(CONFIG.SHEET_URL + '?action=get_user_cars&phone=' + user.phone);
-        const data = await res.json();
-        if (!data || !data.cars) return;
+        const snap = await db.collection('cars').where('user_phone', '==', user.phone).get();
 
         cars      = [];
         oilData   = {};
         maintData = {};
 
-        data.cars.forEach(c => {
-          // ─── بناء كائن السيارة ───
-          const parsedId = parseInt(String(c.car_id || '').trim(), 10);
-          const carData  = {
-            id:          !isNaN(parsedId) ? parsedId : Date.now(),
+        snap.forEach(doc => {
+          const c = doc.data();
+          const carId = String(c.car_id || doc.id);
+
+          const carDataObj = {
+            id:          carId,
             name:        c.carName        || '',
             type:        c.carType        || '1',
             plateNumber: c.plateNumber    || '',
             is4x4:       String(c.is4x4) === 'yes',
           };
-          cars.push(carData);
+          cars.push(carDataObj);
 
-          // ─── تاريخ نفاذ السنوية (من الشيت إذا متوفر ولم يُعدَّل محلياً بقيمة أحدث) ───
+          // ─── تاريخ نفاذ السنوية ───
           const annualRaw = c.annualExpiry ? String(c.annualExpiry).split('T')[0] : '';
-          if (annualRaw && !annualData[carData.id]) {
-            annualData[carData.id] = annualRaw;
+          if (annualRaw && !annualData[carId]) {
+            annualData[carId] = annualRaw;
           }
 
           // ─── بيانات الزيت ───
-          // oilDate قد يصل كـ ISO string من Sheets — نأخذ الجزء قبل T فقط
           const oilDateRaw = c.oilDate ? String(c.oilDate).split('T')[0] : '';
           if (c.oilKm || oilDateRaw) {
-            oilData[carData.id] = [{
+            oilData[carId] = [{
               km:     String(c.oilKm    || ''),
               date:   oilDateRaw,
-              filter: String(c.oilFilter || '') === 'نعم',
+              filter: String(c.oilFilter || '') === 'نعم' || c.oilFilter === true,
               notes:  String(c.oilNotes  || ''),
               nextKm: String(c.oilNextKm || ''),
               remind: 0,
@@ -3490,16 +3535,14 @@
             }];
           }
 
-          // ─── بيانات الصيانة ───
-          // GAS يرجع c.maint كـ object جاهز: { airFilter: {km,date,interval,notes}, ... }
-          // كل حقل جاء من عمود منفصل بالشيت (m_<key>_km / m_<key>_date / ...)
+          // ─── بيانات الصيانة — Firestore يحفظها كـ map متداخل مباشرة ───
           const carMaint = {};
           if (c.maint && typeof c.maint === 'object') {
             MAINT_ITEMS.forEach(item => {
               const m = c.maint[item.key];
               if (!m) return;
               const cleanDate = m.date ? String(m.date).split('T')[0] : '';
-              if (!m.km && !cleanDate) return; // بند فاضي — تجاهل
+              if (!m.km && !cleanDate) return;
               carMaint[item.key] = {
                 km:       String(m.km    || ''),
                 date:     cleanDate,
@@ -3509,7 +3552,7 @@
               };
             });
           }
-          maintData[carData.id] = carMaint;
+          maintData[carId] = carMaint;
         });
 
         saveCars();
@@ -3520,7 +3563,7 @@
         checkAlerts();
 
       } catch (err) {
-        console.error('fetchUserDataFromSheets error:', err);
+        console.error('fetchUserDataFromFirestore error:', err);
       }
     }
     function saveMaintData() { localStorage.setItem('rc_maint', JSON.stringify(maintData)); }
@@ -3619,7 +3662,7 @@
 
         const plate = c.plateNumber || '';
 
-        return `<div class="car-card" onclick="openCarDetail(${c.id})">
+        return `<div class="car-card" onclick="openCarDetail('${c.id}')">
       <span class="car-icon">${icon}</span>
       <div class="car-info">
         <div class="car-name">${c.name}</div>
@@ -3725,7 +3768,7 @@
       if (curCar) openModal('modal-car-detail');
     }
 
-    function saveAnnualExpiry() {
+    async function saveAnnualExpiry() {
       const t = T[lang];
       const date = get('annual-edit-date');
       if (!curCar) return;
@@ -3735,11 +3778,13 @@
         delete annualData[curCar];
       }
       saveAnnualData();
-      sendSheet({
-        sheet: 'cars', action: 'update_annual_expiry',
-        car_id: String(curCar), user_phone: user?.phone || '',
-        annualExpiry: date || '',
-      });
+
+      if (firebaseReady) {
+        try {
+          await db.collection('cars').doc(curCar).set({ annualExpiry: date || '' }, { merge: true });
+        } catch (e) { console.error('saveAnnualExpiry Firestore error:', e); }
+      }
+
       renderAnnualBar(curCar);
       closeAnnualEditAndReturn();
       toast(t.saved, 'success');
@@ -3857,7 +3902,7 @@
           else { statusCls = 'ok'; statusTxt = t.maintRemainingDays(status.remaining); }
         }
 
-        return `<div class="maint-item" onclick="openMaintDetail(${carId},'${item.key}')">
+        return `<div class="maint-item" onclick="openMaintDetail('${carId}','${item.key}')">
       <span class="maint-item-icon">${item.icon}</span>
       <div class="maint-item-info">
         <div class="maint-item-name">${item[nameKey]}</div>
@@ -3933,7 +3978,7 @@
       openModal('modal-maint-detail');
     }
 
-    function saveMaintItem() {
+    async function saveMaintItem() {
       const t = T[lang];
       if (!curCar || !curMaintKey) return;
       const item = getMaintItem(curMaintKey); if (!item) return;
@@ -3955,19 +4000,17 @@
       // ─── حفظ التكلفة محلياً فقط (لا تُرسل لقاعدة البيانات) ───
       addCostEntry(curCar, curMaintKey, cost, date);
 
-      // ─── إرسال إلى الشيت — كل حقل في مفتاح منفصل ───
-      // GAS يكتب كل مفتاح في عمود مستقل: m_<key>_km / m_<key>_date / m_<key>_interval / m_<key>_notes
-      sendSheet({
-        sheet:          'cars',
-        action:         'update_maint_item',
-        car_id:         String(curCar),
-        user_phone:     user?.phone || '',
-        maint_key:      curMaintKey,
-        maint_km:       isKm ? km : '',      // عمود m_<key>_km
-        maint_date:     date,                 // عمود m_<key>_date
-        maint_interval: String(interval),     // عمود m_<key>_interval
-        maint_notes:    notes,                // عمود m_<key>_notes
-      });
+      // ─── Firestore: نحدّث حقل واحد فقط داخل map الـ maint ───
+      if (firebaseReady) {
+        try {
+          const fieldPath = `maint.${curMaintKey}`;
+          await db.collection('cars').doc(curCar).set({
+            maint: {
+              [curMaintKey]: { km: isKm ? km : '', date, interval, notes }
+            }
+          }, { merge: true });
+        } catch (e) { console.error('saveMaintItem Firestore error:', e); }
+      }
 
       closeModal('modal-maint-detail');
       renderMaintList(curCar);
@@ -3976,9 +4019,12 @@
       toast(t.saved, 'success');
     }
 
-    function deleteCar() {
+    async function deleteCar() {
       if (!confirm(T[lang].delConfirm)) return;
-      sendSheet({ sheet: 'cars', action: 'unlink_car', car_id: String(curCar), user_phone: user?.phone || '' });
+      if (firebaseReady) {
+        try { await db.collection('cars').doc(curCar).delete(); }
+        catch (e) { console.error('deleteCar Firestore error:', e); }
+      }
       cars = cars.filter(c => c.id !== curCar);
       delete oilData[curCar]; delete maintData[curCar]; delete costData[curCar]; delete annualData[curCar];
       saveCars();
@@ -4017,7 +4063,7 @@
       } else box.style.display = 'none';
     }
 
-    function saveOil() {
+    async function saveOil() {
       const t = T[lang];
       const km = document.getElementById('oil-km').value.trim();
       const date = document.getElementById('oil-date').value;
@@ -4035,7 +4081,14 @@
       // التكلفة تُحفظ محلياً فقط
       addCostEntry(curCar, 'oil', cost, date);
 
-      sendSheet({ sheet: 'cars', action: 'update_oil', car_id: String(curCar), user_phone: user?.phone || '', car_name: cars.find(c => c.id === curCar)?.name || '', oilKm: km, oilDate: date, oilFilter: filter, oilNotes: notes, oilNextKm: nextKm });
+      if (firebaseReady) {
+        try {
+          await db.collection('cars').doc(curCar).set({
+            oilKm: km, oilDate: date, oilFilter: filter ? 'نعم' : 'لا',
+            oilNotes: notes, oilNextKm: nextKm,
+          }, { merge: true });
+        } catch (e) { console.error('saveOil Firestore error:', e); }
+      }
 
       document.getElementById('new-oil-form').style.display = 'none';
       openCarDetail(curCar); checkAlerts(); toast(t.saved, 'success');
@@ -4058,6 +4111,7 @@
 
     /* ═══════════════════════════════════════
        CRANE — طلب كرين
+       Firestore collection 'crane': { name, phone, lat, lng }
     ═══════════════════════════════════════ */
     function openCraneModal() {
       const t = T[lang];
@@ -4076,9 +4130,16 @@
         const userLat = pos.coords.latitude, userLng = pos.coords.longitude;
         listEl.innerHTML = `<div class="crane-loading">${t.craneFetching || 'جارٍ البحث...'}</div>`;
 
-        const resp = await fetch(CONFIG.SHEET_URL + '?action=cranes');
-        const cranes = await resp.json();
-        if (!Array.isArray(cranes) || !cranes.length) { listEl.innerHTML = `<div class="crane-error">${t.craneNone || 'لا يوجد كرين'}</div>`; return; }
+        if (!firebaseReady) { listEl.innerHTML = `<div class="crane-error">${t.craneError}</div>`; return; }
+        const snap = await db.collection('crane').get();
+        const cranes = [];
+        snap.forEach(doc => {
+          const d = doc.data();
+          if (d.name && d.lat !== undefined && d.lng !== undefined) {
+            cranes.push({ name: d.name, phone: String(d.phone || ''), lat: parseFloat(d.lat), lng: parseFloat(d.lng) });
+          }
+        });
+        if (!cranes.length) { listEl.innerHTML = `<div class="crane-error">${t.craneNone || 'لا يوجد كرين'}</div>`; return; }
 
         const withDist = cranes.map(cr => {
           const dist = haversine(userLat, userLng, cr.lat, cr.lng);
@@ -4105,8 +4166,15 @@
       }
     }
 
-    function craneContact(name, phone) {
-      sendSheet({ sheet: 'cranedata', timestamp: new Date().toISOString(), craneName: name, userPhone: user?.phone || '' });
+    async function craneContact(name, phone) {
+      if (firebaseReady) {
+        try {
+          await db.collection('cranedata').add({
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            craneName: name, userPhone: user?.phone || '',
+          });
+        } catch (e) { console.error('craneContact Firestore error:', e); }
+      }
       const craneMsg = lang === 'en' ? 'Hello, I need crane service' : lang === 'ku' ? 'سڵاو، پێویستم بە خزمەتی کرێن' : 'مرحباً، أحتاج إلى خدمة كرين';
      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(craneMsg)}`, '_blank');
      }
@@ -4121,6 +4189,7 @@
 
     /* ═══════════════════════════════════════
        FEEDBACK + STAR RATING
+       Firestore collection 'feedback': { name, phone, feedback, rating, timestamp }
     ═══════════════════════════════════════ */
     let pendingFeedbackText = '';
     function submitFeedback() {
@@ -4146,14 +4215,18 @@
         b.classList.toggle('filled', parseInt(b.dataset.val) <= val);
       });
       if (!pendingFeedbackText) return;
-      const btn = document.getElementById('feedback-btn');
+
       // إرسال الملاحظة والتقييم معاً في طلب واحد فقط الآن
-      await sendSheet({
-        sheet: 'feedback',
-        name: user?.name || '', phone: user?.phone || '',
-        feedback: pendingFeedbackText, rating: String(val),
-        timestamp: new Date().toISOString(),
-      });
+      if (firebaseReady) {
+        try {
+          await db.collection('feedback').add({
+            name: user?.name || '', phone: user?.phone || '',
+            feedback: pendingFeedbackText, rating: val,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+        } catch (e) { console.error('setStarRating Firestore error:', e); }
+      }
+
       prependLocalFeedback(pendingFeedbackText, val);
       toast(t.sent, 'success');
       pendingFeedbackText = '';
@@ -4180,15 +4253,17 @@
     }
 
     async function loadRecentFeedback() {
+      if (!firebaseReady) return;
       try {
-        const res = await fetch(CONFIG.SHEET_URL + '?action=recent_feedback');
-        const data = await res.json();
-        if (!Array.isArray(data) || !data.length) return;
+        const snap = await db.collection('feedback').orderBy('timestamp', 'desc').limit(3).get();
+        const data = [];
+        snap.forEach(doc => data.push(doc.data()));
+        if (!data.length) return;
         const wrap = document.getElementById('recent-feedback-wrap');
         const listEl = document.getElementById('recent-feedback-list');
         const t = T[lang] || T.ar;
         wrap.style.display = 'block';
-        listEl.innerHTML = data.slice(0, 3).map(f => {
+        listEl.innerHTML = data.map(f => {
           const rating = parseInt(f.rating) || 0;
           const name = f.name || t.sbAnonymous;
           return `<div class="recent-feedback-item">
@@ -4207,12 +4282,6 @@
       const w = document.getElementById('company-wa'), a = document.getElementById('company-addr');
       if (w) { w.textContent = CONFIG.COMPANY.whatsapp ? '+' + CONFIG.COMPANY.whatsapp : ''; w.href = `https://wa.me/${CONFIG.COMPANY.whatsapp}`; }
       if (a) a.textContent = CONFIG.COMPANY.address;
-    }
-
-    /* ─── SHEETS ─── */
-    async function sendSheet(data) {
-      if (!CONFIG.SHEET_URL || CONFIG.SHEET_URL.includes('YOUR_SCRIPT')) { console.warn('Sheet URL not set:', data); return; }
-      try { await fetch(CONFIG.SHEET_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); } catch (e) { console.error(e); }
     }
 
     /* ─── HELPERS ─── */
@@ -4261,6 +4330,9 @@ function toast(msg, type = '') {
     }
 
   </script>
+  <!-- ═══════ FIREBASE SDKs (compat build — متوافق مع كود v8 المستخدم أعلاه) ═══════ -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </body>
 
 </html>
