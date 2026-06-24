@@ -3761,6 +3761,34 @@ async function initBranchImages() {
     console.error('initBranchImages error:', e);
   }
 }
+function getWorstMaintState(car) {
+  const currentKm = getKnownCurrentKm(car.id);
+  const items = getApplicableMaintItems(car);
+  const carMaint = maintData[car.id] || {};
+  let dueCnt = 0, soonCnt = 0;
+
+  items.forEach(item => {
+    const entry = carMaint[item.key];
+    const status = computeMaintStatus(item, entry, currentKm);
+    if (status.state === 'due') dueCnt++;
+    else if (status.state === 'soon') soonCnt++;
+  });
+
+  // أيضاً تحقق من الزيت
+  const oilEntries = oilData[car.id] || [];
+  if (oilEntries.length) {
+    const last = oilEntries[oilEntries.length - 1];
+    if (last.nextKm && currentKm) {
+      const remaining = parseInt(last.nextKm) - currentKm;
+      if (remaining <= 0) dueCnt++;
+      else if (remaining <= 1000) soonCnt++;
+    }
+  }
+
+  if (dueCnt > 0) return { state: 'due', count: dueCnt };
+  if (soonCnt > 0) return { state: 'soon', count: soonCnt };
+  return { state: 'ok', count: 0 };
+}
 
     function renderCars() {
       const t = T[lang];
