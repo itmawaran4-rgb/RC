@@ -2603,7 +2603,23 @@
         <button class="btn-service" style="margin-top:14px;border-color:rgba(245,166,35,.5);color:var(--gold);"
           onclick="openCraneModal()">🚛 <span id="lbl-crane-btn">طلب كرين</span></button>
       </div>
-
+      
+ <!-- WORKSHOP NOTIFICATIONS INBOX -->
+     <div class="notif-inbox-section" id="notif-inbox-section" style="display:none">
+        <div class="notif-inbox-header" onclick="toggleNotifInbox()">
+           <div class="notif-inbox-title">
+            🔔 <span id="notif-inbox-title-txt">إشعارات من المركز</span>
+            <span class="notif-inbox-badge" id="notif-inbox-badge" style="display:none">0</span>
+           </div>
+           <span style="font-size:14px;color:var(--muted);transition:transform .22s ease" id="notif-inbox-chevron">▼</span>
+              </div>
+                 <div class="notif-inbox-body" id="notif-inbox-body">
+               <div id="notif-inbox-list"></div>
+            <button class="notif-mark-read-btn" id="notif-mark-read-btn" onclick="markAllNotifsRead()">
+          ✓ <span id="notif-mark-read-txt">تحديد الكل كمقروء</span>
+        </button>
+      </div>
+   </div>
 
       <!-- COMPANY -->
       <div class="company-info">
@@ -2932,22 +2948,6 @@
           </div>
         </div>
       </div>
-      <!-- WORKSHOP NOTIFICATIONS INBOX -->
-     <div class="notif-inbox-section" id="notif-inbox-section" style="display:none">
-        <div class="notif-inbox-header" onclick="toggleNotifInbox()">
-           <div class="notif-inbox-title">
-            🔔 <span id="notif-inbox-title-txt">إشعارات من المركز</span>
-            <span class="notif-inbox-badge" id="notif-inbox-badge" style="display:none">0</span>
-           </div>
-           <span style="font-size:14px;color:var(--muted);transition:transform .22s ease" id="notif-inbox-chevron">▼</span>
-              </div>
-                 <div class="notif-inbox-body" id="notif-inbox-body">
-               <div id="notif-inbox-list"></div>
-            <button class="notif-mark-read-btn" id="notif-mark-read-btn" onclick="markAllNotifsRead()">
-          ✓ <span id="notif-mark-read-txt">تحديد الكل كمقروء</span>
-        </button>
-      </div>
-   </div>
 
 
       <!-- قسم بنود الصيانة الأخرى -->
@@ -3371,6 +3371,7 @@
       initBranchImages();
       fetchUserDataFromFirestore();
       loadRecentFeedback();
+      loadNotifications();
     });
 
     /* ─── THEME ─── */
@@ -3663,6 +3664,7 @@
       show('screen-main'); renderMain(); checkAlerts(); applyCompany(); initADV(); toast(t.saved, 'success');
       initBranchImages();
       loadRecentFeedback();
+      loadNotifications();
     }
 
     /* ═══════════════════════════════════════
