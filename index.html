@@ -4442,41 +4442,15 @@ function toast(msg, type = '') {
 
     /* ─── SERVICE WORKER ─── */
     if ('serviceWorker' in navigator) {
-    const swCode = `
-const CACHE = 'rc-v4';
-self.addEventListener('install', e => self.skipWaiting());
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
-  );
-  clients.claim();
-});
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-  const url = new URL(e.request.url);
-  // الفيديوهات والصور من Firebase Storage — لا تُكاش أبداً
-  if (url.hostname.includes('firebasestorage') || url.hostname.includes('googleapis')) {
-    e.respondWith(fetch(e.request));
-    return;
-  }
-  // باقي الملفات — network أولاً ثم كاش
-  e.respondWith(
-    caches.open(CACHE).then(async cache => {
-      try {
-        const res = await fetch(e.request);
-        cache.put(e.request, res.clone());
-        return res;
-      } catch {
-        return cache.match(e.request);
-      }
-    })
-  );
-});`;
-      const swBlob = new Blob([swCode], { type: 'application/javascript' });
-      navigator.serviceWorker.register(URL.createObjectURL(swBlob), { scope: './' }).catch(() => { });
-    }
+  // احذف كل Service Workers القديمة
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister());
+  });
+  // احذف كل الكاش
+  caches.keys().then(keys => {
+    keys.forEach(key => caches.delete(key));
+  });
+}
 
   </script>
   <!-- ═══════ FIREBASE SDKs (compat build — متوافق مع كود v8 المستخدم أعلاه) ═══════ -->
