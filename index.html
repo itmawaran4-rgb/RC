@@ -2501,8 +2501,11 @@
         <span style="font-size:14px;">💬</span>
         <span id="lbl_wa_erbil">أربيل</span>
       </a>
-      <div class="wa-branch-img" onclick="window.open('https://wa.me/9647505009006','_blank')">
-        <img src="erbil.png" alt="Erbil" loading="lazy" onerror="this.parentElement.innerHTML='💬'">
+      <div class="wa-branch-img" id="branch-img-erbil" 
+           onclick="window.open('https://wa.me/9647505009006','_blank')">
+        <img id="branch-img-erbil-el" src="" alt="Erbil" 
+             style="width:100%;height:100%;object-fit:cover;display:none;">
+        <span id="branch-img-erbil-fb" style="font-size:24px;">💬</span>
       </div>
     </div>
     <div class="wa-branch-col">
@@ -2510,8 +2513,11 @@
         <span style="font-size:14px;">💬</span>
         <span id="lbl_wa_baghdad">بغداد</span>
       </a>
-      <div class="wa-branch-img" onclick="window.open('https://wa.me/9647759911001','_blank')">
-        <img src="baghdad.png" alt="Baghdad" loading="lazy" onerror="this.parentElement.innerHTML='💬'">
+      <div class="wa-branch-img" id="branch-img-baghdad"
+           onclick="window.open('https://wa.me/9647759911001','_blank')">
+        <img id="branch-img-baghdad-el" src="" alt="Baghdad"
+             style="width:100%;height:100%;object-fit:cover;display:none;">
+        <span id="branch-img-baghdad-fb" style="font-size:24px;">💬</span>
       </div>
     </div>
     <div class="wa-branch-col">
@@ -2519,8 +2525,11 @@
         <span style="font-size:14px;">💬</span>
         <span id="lbl_wa_diyala">ديالى</span>
       </a>
-      <div class="wa-branch-img" onclick="window.open('https://wa.me/9647710773600','_blank')">
-        <img src="diyala.png" alt="Diyala" loading="lazy" onerror="this.parentElement.innerHTML='💬'">
+      <div class="wa-branch-img" id="branch-img-diyala"
+           onclick="window.open('https://wa.me/9647710773600','_blank')">
+        <img id="branch-img-diyala-el" src="" alt="Diyala"
+             style="width:100%;height:100%;object-fit:cover;display:none;">
+        <span id="branch-img-diyala-fb" style="font-size:24px;">💬</span>
       </div>
     </div>
   </div>
@@ -3217,6 +3226,7 @@
       applyLang(lang);
       if (!user) { show('screen-register'); return; }
       show('screen-main'); renderMain(); applyCompany(); initADV();
+      initBranchImages();
       fetchUserDataFromFirestore();
       loadRecentFeedback();
     });
@@ -3494,6 +3504,7 @@
       localStorage.setItem('rc_user', JSON.stringify(user));
       saveUserToFirestore(user);
       show('screen-main'); renderMain(); checkAlerts(); applyCompany(); initADV(); toast(t.saved, 'success');
+      initBranchImages();
       loadRecentFeedback();
     }
 
@@ -3694,6 +3705,41 @@
     if (!isNaN(km) && (maxKm === null || km > maxKm)) maxKm = km;
   });
 
+  async function initBranchImages() {
+  if (!firebaseReady) return;
+  try {
+    const doc = await db.collection('settings').doc('branches').get();
+    if (!doc.exists) return;
+    const data = doc.data();
+
+    const branches = [
+      { key: 'erbil',   imgId: 'branch-img-erbil-el',   fbId: 'branch-img-erbil-fb' },
+      { key: 'baghdad', imgId: 'branch-img-baghdad-el', fbId: 'branch-img-baghdad-fb' },
+      { key: 'diyala',  imgId: 'branch-img-diyala-el',  fbId: 'branch-img-diyala-fb' },
+    ];
+
+    branches.forEach(b => {
+      const url = data[b.key] ? String(data[b.key]).trim() : '';
+      const imgEl = document.getElementById(b.imgId);
+      const fbEl  = document.getElementById(b.fbId);
+      if (!url || !imgEl) return;
+
+      imgEl.onload = () => {
+        imgEl.style.display = 'block';
+        if (fbEl) fbEl.style.display = 'none';
+      };
+      imgEl.onerror = () => {
+        imgEl.style.display = 'none';
+        if (fbEl) fbEl.style.display = 'block';
+      };
+      imgEl.src = url;
+    });
+
+  } catch (e) {
+    console.error('initBranchImages error:', e);
+  }
+}
+
   // ثانياً: قارن مع كيلومتر الزيت
   const oilEntries = oilData[carId] || [];
   if (oilEntries.length) {
@@ -3704,22 +3750,62 @@
   return maxKm;
 }
     /* ─── أسوأ حالة صيانة لعرضها كـ badge على بطاقة السيارة ─── */
-    function getWorstMaintState(car) {
-      const currentKm = getKnownCurrentKm(car.id);
-      const items = getApplicableMaintItems(car);
-      const carMaint = maintData[car.id] || {};
-      let worst = null; // null = لا بيانات بعد
-      let dueCount = 0, soonCount = 0;
-      items.forEach(item => {
-        const entry = carMaint[item.key];
-        const status = computeMaintStatus(item, entry, currentKm);
-        if (status.state === 'due') dueCount++;
-        else if (status.state === 'soon') soonCount++;
-      });
-      if (dueCount > 0) return { state: 'due', count: dueCount };
-      if (soonCount > 0) return { state: 'soon', count: soonCount };
-      return { state: 'ok', count: 0 };
-    }
+    function getKnownCurrentKm(carId) {
+  const carMaint = maintData[carId] || {};
+  let maxKm = null;
+  
+  MAINT_ITEMS.forEach(item => {
+    if (item.type !== 'km') return;
+    const entry = carMaint[item.key];
+    if (!entry || !entry.km) return;
+    const km = parseInt(entry.km);
+    if (!isNaN(km) && (maxKm === null || km > maxKm)) maxKm = km;
+  });
+
+  // ثانياً: قارن مع كيلومتر الزيت
+  const oilEntries = oilData[carId] || [];
+  if (oilEntries.length) {
+    const lastOilKm = parseInt(oilEntries[oilEntries.length - 1].km);
+    if (!isNaN(lastOilKm) && (maxKm === null || lastOilKm > maxKm)) maxKm = lastOilKm;
+  }
+
+  return maxKm;
+}
+
+async function initBranchImages() {
+  if (!firebaseReady) return;
+  try {
+    const doc = await db.collection('settings').doc('branches').get();
+    if (!doc.exists) return;
+    const data = doc.data();
+
+    const branches = [
+      { key: 'erbil',   imgId: 'branch-img-erbil-el',   fbId: 'branch-img-erbil-fb' },
+      { key: 'baghdad', imgId: 'branch-img-baghdad-el', fbId: 'branch-img-baghdad-fb' },
+      { key: 'diyala',  imgId: 'branch-img-diyala-el',  fbId: 'branch-img-diyala-fb' },
+    ];
+
+    branches.forEach(b => {
+      const url = data[b.key] ? String(data[b.key]).trim() : '';
+      const imgEl = document.getElementById(b.imgId);
+      const fbEl  = document.getElementById(b.fbId);
+      if (!url || !imgEl) return;
+
+      imgEl.onload = () => {
+        imgEl.style.display = 'block';
+        if (fbEl) fbEl.style.display = 'none';
+      };
+      imgEl.onerror = () => {
+        imgEl.style.display = 'none';
+        if (fbEl) fbEl.style.display = 'block';
+      };
+      imgEl.src = url;
+    });
+
+  } catch (e) {
+    console.error('initBranchImages error:', e);
+  }
+}
 
     function renderCars() {
       const t = T[lang];
