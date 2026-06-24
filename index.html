@@ -3376,6 +3376,7 @@
     // تشغيل الفيديو الأول فوراً
     if (i === 0) {
       const vid = slide.querySelector('video');
+      vid.muted = true;
       if (vid) {
         vid.muted = true;
         // محاولة تشغيل متعددة للتوافق مع جميع المتصفحات
@@ -3420,7 +3421,7 @@
   if (slide) {
     slide.classList.add('active');
     const vid = slide.querySelector('video');
-    if (vid) setTimeout(() => vid.play().catch(() => {}), 100);
+    if (vid) setTimeout(() => { vid.muted = true; vid.play().catch(() => {}); }, 100);
   }
   const dot = document.getElementById('adv-dot-' + idx);
   if (dot) dot.classList.add('active');
@@ -3702,65 +3703,7 @@
       }
     }
 
-    /* ─── حساب الكيلومتر الحالي المعروف للسيارة (من آخر تسجيل زيت) ─── */
-      function getKnownCurrentKm(carId) {
-  // أولاً: ابحث في بيانات الصيانة عن أعلى كيلومتر مسجل
-  const carMaint = maintData[carId] || {};
-  let maxKm = null;
-  
-  MAINT_ITEMS.forEach(item => {
-    if (item.type !== 'km') return;
-    const entry = carMaint[item.key];
-    if (!entry || !entry.km) return;
-    const km = parseInt(entry.km);
-    if (!isNaN(km) && (maxKm === null || km > maxKm)) maxKm = km;
-  });
-
-
-
-  // ثانياً: قارن مع كيلومتر الزيت
-  const oilEntries = oilData[carId] || [];
-  if (oilEntries.length) {
-    const lastOilKm = parseInt(oilEntries[oilEntries.length - 1].km);
-    if (!isNaN(lastOilKm) && (maxKm === null || lastOilKm > maxKm)) maxKm = lastOilKm;
-  }
-
-  return maxKm;
-}
-async function initBranchImages() {
-  if (!firebaseReady) return;
-  try {
-    const doc = await db.collection('settings').doc('branches').get();
-    if (!doc.exists) return;
-    const data = doc.data();
-
-    const branches = [
-      { key: 'erbil',   imgId: 'branch-img-erbil-el',   fbId: 'branch-img-erbil-fb' },
-      { key: 'baghdad', imgId: 'branch-img-baghdad-el', fbId: 'branch-img-baghdad-fb' },
-      { key: 'diyala',  imgId: 'branch-img-diyala-el',  fbId: 'branch-img-diyala-fb' },
-    ];
-
-    branches.forEach(b => {
-      const url = data[b.key] ? String(data[b.key]).trim() : '';
-      const imgEl = document.getElementById(b.imgId);
-      const fbEl  = document.getElementById(b.fbId);
-      if (!url || !imgEl) return;
-
-      imgEl.onload = () => {
-        imgEl.style.display = 'block';
-        if (fbEl) fbEl.style.display = 'none';
-      };
-      imgEl.onerror = () => {
-        imgEl.style.display = 'none';
-        if (fbEl) fbEl.style.display = 'block';
-      };
-      imgEl.src = url;
-    });
-
-  } catch (e) {
-    console.error('initBranchImages error:', e);
-  }
-}
+    
     /* ─── أسوأ حالة صيانة لعرضها كـ badge على بطاقة السيارة ─── */
     function getKnownCurrentKm(carId) {
   const carMaint = maintData[carId] || {};
