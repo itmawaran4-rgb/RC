@@ -3465,9 +3465,7 @@ body {
        INIT
     ═══════════════════════════════════════ */
     document.addEventListener('DOMContentLoaded', () => {
-  // أول شي — هيّئ Capacitor Plugins
   initCapacitorPlugins();
-  
   initFirebase();
   initTheme();
 
@@ -3483,9 +3481,10 @@ body {
   fetchUserDataFromFirestore();
   loadRecentFeedback();
   startNotifListener();
+
+  // ← أضف هذا
   setTimeout(initPwaBanner, 2500);
 
-  // الإشعارات في النهاية — حتى لو فشلت ما تأثر على الباقي
   setTimeout(() => {
     initPushNotifications();
   }, 2000);
@@ -3809,6 +3808,7 @@ body {
       initBranchImages();
       loadRecentFeedback();
       loadNotifications();
+      setTimeout(initPwaBanner, 2500);
     }
 
     /* ═══════════════════════════════════════
