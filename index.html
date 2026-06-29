@@ -4918,15 +4918,14 @@ function initCapacitorPlugins() {
 }
 
     /* ─── SERVICE WORKER ─── */
-    if ('serviceWorker' in navigator) {
-  // احذف كل Service Workers القديمة
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(reg => reg.unregister());
-  });
-  // احذف كل الكاش
-  caches.keys().then(keys => {
-    keys.forEach(key => caches.delete(key));
-  });
+   if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('./sw.js')
+    .then(reg => {
+      console.log('SW registered ✓', reg.scope);
+      // بعد تسجيل SW — تحقق من البانر مجدداً
+      reg.addEventListener('updatefound', () => {});
+    })
+    .catch(e => console.error('SW error:', e));
 }
 
 /* ═══════════════════════════════
@@ -5141,7 +5140,15 @@ function initPwaBanner() {
   if (window.Capacitor && window.Capacitor.isNativePlatform()) return;
 
   applyPwaBannerLang();
-
+  
+  // ── للتجربة المحلية (file://) ── احذف هذا الـ block عند الرفع للسيرفر
+  if (location.protocol === 'file:') {
+    document.getElementById('pwa-ios-section').style.display = 'block';
+    document.getElementById('pwa-android-section').style.display = 'none';
+    showPwaBanner();
+    return;
+  }
+  // ────────────────────────────────────────────────────────────
   if (isIos() && isSafariBrowser()) {
     // iOS Safari — عرض الخطوات اليدوية
     document.getElementById('pwa-ios-section').style.display     = 'block';
