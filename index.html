@@ -3468,7 +3468,7 @@ body {
   startNotifListener();
 
   // ← أضف هذا
-  setTimeout(initPwaBanner, 2500);
+  setTimeout(initPwaBanner, 1000);
 
   setTimeout(() => {
     initPushNotifications();
@@ -5103,14 +5103,16 @@ async function refreshAllData() {
    PWA INSTALL BANNER
 ═══════════════════════════════════════ */
 let deferredInstallPrompt = null;
-const PWA_DISMISSED_KEY   = 'rc_pwa_dismissed';
-const PWA_INSTALLED_KEY   = 'rc_pwa_installed';
+const PWA_INSTALLED_KEY = 'rc_pwa_installed';
 
-// التقط الحدث قبل أي شيء
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  // لا تعرض الـ banner هنا — انتظر حتى يدخل المستخدم للشاشة الرئيسية
+  console.log('✅ beforeinstallprompt captured');
+  // شغّل البانر فوراً بمجرد توفر الحدث
+  if (document.getElementById('screen-main').classList.contains('active')) {
+    setTimeout(() => showAndroidBanner(), 1500);
+  }
 });
 
 window.addEventListener('appinstalled', () => {
@@ -5118,6 +5120,15 @@ window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
   closePwaBanner();
 });
+
+function showAndroidBanner() {
+  if (isInStandaloneMode()) return;
+  if (localStorage.getItem(PWA_INSTALLED_KEY)) return;
+  document.getElementById('pwa-android-section').style.display = 'block';
+  document.getElementById('pwa-ios-section').style.display = 'none';
+  applyPwaBannerLang();
+  showPwaBanner();
+}
 
 function isIos() {
   return /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -5139,22 +5150,21 @@ function initPwaBanner() {
 
   applyPwaBannerLang();
 
+  // iOS Safari — يدوي دائماً
   if (isIos() && isSafariBrowser()) {
     document.getElementById('pwa-ios-section').style.display = 'block';
     document.getElementById('pwa-android-section').style.display = 'none';
     showPwaBanner();
-  } else if (deferredInstallPrompt) {
+    return;
+  }
+
+  // Android / Desktop — إذا الحدث جاء مسبقاً
+  if (deferredInstallPrompt) {
     document.getElementById('pwa-android-section').style.display = 'block';
     document.getElementById('pwa-ios-section').style.display = 'none';
     showPwaBanner();
-  } else {
-    window.addEventListener('beforeinstallprompt', () => {
-      document.getElementById('pwa-android-section').style.display = 'block';
-      document.getElementById('pwa-ios-section').style.display = 'none';
-      applyPwaBannerLang();
-      showPwaBanner();
-    }, { once: true });
   }
+  // وإلا: المستمع في beforeinstallprompt سيتولى الأمر
 }
 
 function showPwaBanner() {
