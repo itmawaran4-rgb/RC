@@ -5133,29 +5133,24 @@ function isSafariBrowser() {
 }
 
 function initPwaBanner() {
-  // لا تعرض إذا مثبّت أو مرفوض أو داخل native Capacitor
-  if (isInStandaloneMode())                            return;
-  if (localStorage.getItem(PWA_INSTALLED_KEY))         return;
+  if (isInStandaloneMode()) return;
+  if (localStorage.getItem(PWA_INSTALLED_KEY)) return;
   if (window.Capacitor && window.Capacitor.isNativePlatform()) return;
 
   applyPwaBannerLang();
-  
+
   if (isIos() && isSafariBrowser()) {
-    // iOS Safari — عرض الخطوات اليدوية
-    document.getElementById('pwa-ios-section').style.display     = 'block';
+    document.getElementById('pwa-ios-section').style.display = 'block';
     document.getElementById('pwa-android-section').style.display = 'none';
     showPwaBanner();
   } else if (deferredInstallPrompt) {
-    // Android / Chrome — زر تثبيت مباشر
     document.getElementById('pwa-android-section').style.display = 'block';
-    document.getElementById('pwa-ios-section').style.display     = 'none';
+    document.getElementById('pwa-ios-section').style.display = 'none';
     showPwaBanner();
   } else {
-    // انتظر الحدث (قد يصل بعد تحميل الصفحة)
     window.addEventListener('beforeinstallprompt', () => {
-      if (localStorage.getItem(PWA_DISMISSED_KEY) === '1') return;
       document.getElementById('pwa-android-section').style.display = 'block';
-      document.getElementById('pwa-ios-section').style.display     = 'none';
+      document.getElementById('pwa-ios-section').style.display = 'none';
       applyPwaBannerLang();
       showPwaBanner();
     }, { once: true });
@@ -5166,11 +5161,9 @@ function showPwaBanner() {
   document.getElementById('pwa-install-banner').classList.add('show');
 }
 
-function closePwaBanner(permanent) {
+function closePwaBanner() {
   document.getElementById('pwa-install-banner').classList.remove('show');
-  if (permanent !== false) {
-    localStorage.setItem(PWA_DISMISSED_KEY, '1');
-  }
+  // لا تحفظ شيء في localStorage — يظهر في كل زيارة
 }
 
 async function triggerAndroidInstall() {
@@ -5180,7 +5173,7 @@ async function triggerAndroidInstall() {
   deferredInstallPrompt = null;
   if (outcome === 'accepted') {
     localStorage.setItem(PWA_INSTALLED_KEY, '1');
-    closePwaBanner(false);
+    closePwaBanner();
   }
 }
 
