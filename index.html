@@ -5136,19 +5136,10 @@ function initPwaBanner() {
   // لا تعرض إذا مثبّت أو مرفوض أو داخل native Capacitor
   if (isInStandaloneMode())                            return;
   if (localStorage.getItem(PWA_INSTALLED_KEY))         return;
-  if (localStorage.getItem(PWA_DISMISSED_KEY) === '1') return;
   if (window.Capacitor && window.Capacitor.isNativePlatform()) return;
 
   applyPwaBannerLang();
   
-  // ── للتجربة المحلية (file://) ── احذف هذا الـ block عند الرفع للسيرفر
-  if (location.protocol === 'file:') {
-    document.getElementById('pwa-ios-section').style.display = 'block';
-    document.getElementById('pwa-android-section').style.display = 'none';
-    showPwaBanner();
-    return;
-  }
-  // ────────────────────────────────────────────────────────────
   if (isIos() && isSafariBrowser()) {
     // iOS Safari — عرض الخطوات اليدوية
     document.getElementById('pwa-ios-section').style.display     = 'block';
